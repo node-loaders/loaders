@@ -1,4 +1,5 @@
 {
+  "name": "loaders",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -12,6 +13,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.9",
+    "lerna": "^6.1.0",
     "prettier-plugin-packagejson": "^2.3.0",
     "typescript": "^4.9.3",
     "xo": "^0.53.1"

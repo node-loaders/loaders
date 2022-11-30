@@ -1,7 +1,6 @@
 import { isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import StackUtils from 'stack-utils';
-import { cachedRoutes } from '@node-loaders/core';
 import { type LoadContext, type ResolveContext, type ResolvedModule, type NextResolve } from '@node-loaders/core';
 
 const MOCKED_SEARCHPARAM = '@node-loaders/mocked';
@@ -35,6 +34,7 @@ const resolvedWithMocked = (resolved: ResolvedModule): ResolvedModule => {
 
 export function mock(module: string, localMocks, globalMocks) {
   const parentModule = getCaller();
+  /*
   cachedRoutes.foo = {
     matchParent: parentModule,
     matchSpecifier: module,
@@ -52,10 +52,12 @@ const forward = await import('node-loader://file?');
       };
     },
   };
+  */
 }
 
 export function mockImport(module: () => any, mocks: Record<string, any>) {
   const testModule = getCaller();
+  /*
   cachedRoutes['@node-loaders/mock'] = {
     matchSpecifier: /^node-loaders-mock:/,
     async resolve(specifier, context) {
@@ -90,6 +92,7 @@ Object.defineProperties(clone, Object.getOwnPropertyDescriptors(mocked));
       const resolved = await nextResolve!(specifier, context);
       return resolvedWithMocked(resolved);
     },
+
   }
   */
 }

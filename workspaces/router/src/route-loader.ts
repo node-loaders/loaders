@@ -8,8 +8,8 @@ import BaseLoader, {
   type NextResolve,
   type ResolveContext,
   type ResolvedModule,
+  isBuiltIn,
 } from '@node-loaders/core';
-import isBuiltIn from './built-in.js';
 
 let log: Debugger;
 try {

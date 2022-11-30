@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve as pathResolve } from 'node:path';
-import { type NextResolve, type NextLoad } from './index.js';
+import { type NextResolve, type NextLoad } from '@node-loaders/core';
 
 export type LoaderRoute = {
   matchSpecifier?: string | RegExp;
