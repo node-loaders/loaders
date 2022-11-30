@@ -1,7 +1,7 @@
 import { extname } from 'node:path';
 import { readFile } from 'node:fs/promises';
-
 import { fileURLToPath } from 'node:url';
+
 import { transform } from '@esbuild-kit/core-utils';
 import BaseLoader, {
   type LoadContext,
@@ -11,6 +11,7 @@ import BaseLoader, {
   type ResolveContext,
   type ResolvedModule,
 } from '@node-loaders/core';
+import { detectFormatForFilePath } from './utils.js';
 
 class TSLoader extends BaseLoader {
   protected extensionsToFoward: string[] = ['.js', '.cjs', '.mjs'];
@@ -44,7 +45,7 @@ class TSLoader extends BaseLoader {
       const code = await readFile(filePath);
       const transformed = await transform(code.toString(), filePath);
       return {
-        format: extension === '.cts' ? 'commonjs' : 'module',
+        format: await detectFormatForFilePath(filePath),
         source: transformed.code,
         shortCircuit: true,
       };
