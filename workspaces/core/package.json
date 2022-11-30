@@ -1,0 +1,29 @@
+{
+  "name": "@node-loaders/core",
+  "bugs": "https://github.com/node-loaders/loaders/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-loaders/loaders.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "./dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@esbuild-kit/core-utils": "^3.0.0",
+    "@types/debug": "^4.1.7",
+    "debug": "^4.3.4",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "engines": {
+    "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
+  }
+}

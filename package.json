@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "./workspaces/core",
+    "./workspaces/mock",
+    "./workspaces/router",
+    "./workspaces/ts"
+  ],
+  "scripts": {
+    "prettier": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "prettier-plugin-packagejson": "^2.3.0",
+    "typescript": "^4.9.3",
+    "xo": "^0.53.1"
+  },
+  "engines": {
+    "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
+  }
+}
