@@ -3,8 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 import { fileURLToPath } from 'node:url';
 import { transform } from '@esbuild-kit/core-utils';
-import BaseLoader from '@node-loaders/core';
-import {
+import BaseLoader, {
   type LoadContext,
   type LoadedModule,
   type NextResolve,
