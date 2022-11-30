@@ -35,9 +35,12 @@ export default class LoaderBase {
       return false;
     }
 
-    if (!this.matchPackageName && validateNpmPackageName(specifier).validForNewPackages) {
-      this.log(`fowarding package name ${specifier}`);
-      return false;
+    if (!this.matchPackageName) {
+      const packageName = /^((@[^/]+\/)?[^/]+)/.exec(specifier);
+      if (packageName && packageName.length > 0 && validateNpmPackageName(packageName[0]).validForNewPackages) {
+        this.log(`fowarding package name ${specifier}`);
+        return false;
+      }
     }
 
     return this._matchesEspecifier(specifier);
