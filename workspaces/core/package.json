@@ -2,6 +2,7 @@
   "name": "@node-loaders/core",
   "version": "0.0.1-alpha.1",
   "bugs": "https://github.com/node-loaders/loaders/issues",
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git://github.com/node-loaders/loaders.git"
@@ -30,5 +31,6 @@
   },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
-  }
+  },
+  "gitHead": "cd6539f94dc2da57109dbbefb1292dfd703f6cf9"
 }
