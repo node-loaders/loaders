@@ -20,7 +20,7 @@ export const getMockStore = (): Record<string, Record<string, Mock>> => {
   return global[globalCacheProperty].mocked;
 };
 
-export const addCachedMock = async (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): string => {
+export const addCachedMock = async (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): Promise<string> => {
   const uuid = randomUUID();
   const mockStore = getMockStore();
   mockStore[uuid] = {};

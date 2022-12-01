@@ -7,11 +7,12 @@ import BaseLoader, {
   type NextLoad,
 } from '@node-loaders/core';
 import { buildMockedSpecifierUrl, parseProtocol } from './url-protocol.js';
-import { getMock, globalCacheProperty } from './module-cache.js';
+import { getCachedMock, globalCacheProperty } from './module-cache.js';
+import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
 
 export default class MockLoader extends BaseLoader {
   protected override _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
-    return parseProtocol(specifier) !== undefined;
+    return parseProtocol(specifier) !== undefined || (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined);
   }
 
   protected async _resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve | undefined): Promise<ResolvedModule> {
@@ -26,10 +27,16 @@ export default class MockLoader extends BaseLoader {
     if (context.parentURL) {
       const mockedParent = parseProtocol(context.parentURL);
       if (mockedParent) {
-        const parentMockedSpecifiers = getMock(mockedParent.cacheId);
-        if (parentMockedSpecifiers[specifier]) {
+        const cachedMock = getCachedMock(mockedParent.cacheId, specifier);
+        if (cachedMock) {
+          const resolvedSpecifier = (await this.resolveModuleUrl(specifier))!;
           return {
-            url: buildMockedSpecifierUrl({ cacheId: mockedParent.cacheId, specifier }),
+            url: buildMockedSpecifierUrl({
+              specifier,
+              cacheId: mockedParent.cacheId,
+              resolvedSpecifier,
+              parentSpecifier: context.parentURL,
+            }),
             shortCircuit: true,
             format: 'module',
           };
@@ -37,32 +44,28 @@ export default class MockLoader extends BaseLoader {
       }
     }
 
-    return nextResolve?.(specifier, context)!;
+    if (nextResolve) {
+      return nextResolve(specifier, context)!;
+    }
+
+    throw this.createModuleNotFoundError(specifier, context?.parentURL);
   }
 
   protected async _load(url: string, context: LoadContext, nextLoad?: NextLoad | undefined): Promise<LoadedModule> {
     const mockedModule = parseProtocol(url);
     if (mockedModule) {
-      return nextLoad?.(mockedModule.specifier, context)!;
-    }
-
-    const mockedSpecifier = parseProtocol(url);
-    if (mockedSpecifier) {
-      const mockedSpecifierDef = getMock(mockedSpecifier.cacheId)?.[mockedSpecifier.specifier];
+      const { cacheId, specifier } = mockedModule;
+      const mockedSpecifierDef = getCachedMock(cacheId, specifier);
       if (mockedSpecifierDef) {
-        const namedExports = Object.keys(mockedSpecifierDef);
-        const exports = namedExports.join(', ');
+        const namedExports = getNamedExports(mockedSpecifierDef.merged);
         return {
           format: 'module',
           shortCircuit: true,
-          source: `
-  const mockedModule = global['${globalCacheProperty}'].mocked['${mockedSpecifier.cacheId}'];
-  export { ${exports} } from mockedModule;
-  `,
+          source: generateSource(cacheId, specifier, namedExports),
         };
       }
 
-      return nextLoad?.(mockedSpecifier.specifier, context)!;
+      return nextLoad?.(mockedModule.specifier, context)!;
     }
 
     return nextLoad?.(url, context)!;
