@@ -24,6 +24,6 @@ export const isPackageMapping = (specifier: string) => {
   return packageName !== null && packageName.length > 0 && validateNpmPackageName(packageName[0]).validForNewPackages;
 };
 
-export const isFileModule = (specifier: string) => {
+export const isFileSpecifier = (specifier: string) => {
   return specifier.startsWith('.') || specifier.startsWith('#') || isAbsolute(specifier) || isProtocol(specifier, 'file:');
 };
