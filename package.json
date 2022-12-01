@@ -4,17 +4,20 @@
   "type": "module",
   "workspaces": [
     "./workspaces/core",
-    "./workspaces/esbuild",
-    "./workspaces/mock",
-    "./workspaces/router"
+    "./workspaces/esbuild"
   ],
   "scripts": {
+    "build": "npm run build --workspaces",
+    "clean": "npm run clean --workspaces",
+    "clean-all": "npm run clean-all --workspaces && rimraf node_modules",
+    "fix": "npm run fix --workspaces",
     "prettier": "prettier --write ."
   },
   "devDependencies": {
     "@types/node": "^18.11.9",
     "lerna": "^6.1.0",
     "prettier-plugin-packagejson": "^2.3.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.9.3",
     "xo": "^0.53.1"
   },

@@ -21,6 +21,9 @@
   ],
   "scripts": {
     "build": "tsc",
+    "clean": "rimraf dist",
+    "clean-all": "npm run clean && rimraf node_modules",
+    "fix": "xo --fix",
     "prepare": "npm run build"
   },
   "dependencies": {
