@@ -2,9 +2,9 @@ import { isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import StackUtils from 'stack-utils';
 
-export const resolveOriginUrl = (): string => {
+export const resolveCallerUrl = (): string => {
   const stack = new StackUtils();
-  const error = new Error();
+  const error = new Error('Get stack');
   const lines = error.stack?.split('\n');
   if (lines && lines.length > 3) {
     const parsed = stack.parseLine(lines[3]);
