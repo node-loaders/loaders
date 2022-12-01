@@ -4,9 +4,9 @@
   "type": "module",
   "workspaces": [
     "./workspaces/core",
+    "./workspaces/esbuild",
     "./workspaces/mock",
-    "./workspaces/router",
-    "./workspaces/ts"
+    "./workspaces/router"
   ],
   "scripts": {
     "prettier": "prettier --write ."
