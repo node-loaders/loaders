@@ -5,8 +5,6 @@
   "ignores": ["test/fixtures"],
   "printWidth": 120,
   "rules": {
-    "unicorn/prefer-spread": "off",
-    "unicorn/no-object-as-default-parameter": "off"
   },
   "overrides": [
     {

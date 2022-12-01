@@ -92,7 +92,7 @@ export default class LoaderBase {
   }
 
   protected async findFile(filePath: string): Promise<string[]> {
-    const findFileInDir = async (directoryPath, filename) => {
+    const findFileInDir = async (directoryPath: string, filename: string) => {
       const list = await readdir(directoryPath);
       return list
         .filter(file => file.startsWith(`${filename}.`))
@@ -125,7 +125,7 @@ export default class LoaderBase {
   }
 
   protected async resolvePath(url: string, parentUrl?: string) {
-    this.log(`Resolving file ${url} at ${parentUrl}`);
+    this.log(`Resolving file ${url} at ${parentUrl ?? 'unknown'}`);
     if (isAbsolute(url)) {
       return url;
     }

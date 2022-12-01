@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@types/debug": "^4.1.7",
+    "@types/validate-npm-package-name": "^4.0.0",
     "debug": "^4.3.4",
     "validate-npm-package-name": "^5.0.0"
   },
