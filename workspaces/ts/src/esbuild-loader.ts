@@ -1,9 +1,9 @@
-import { extname } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 import { transform } from '@esbuild-kit/core-utils';
 import BaseLoader, {
+  lookForDefaultModule,
   type LoadContext,
   type LoadedModule,
   type NextResolve,
@@ -11,27 +11,28 @@ import BaseLoader, {
   type ResolveContext,
   type ResolvedModule,
 } from '@node-loaders/core';
-import { detectFormatForFilePath } from './utils.js';
+import { detectFormatForEsbuildFileExtension, detectFormatForEsbuildFilePath, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-module.js';
 
-class TypescriptLoader extends BaseLoader {
-  protected extensionsToFoward: string[] = ['.js', '.cjs', '.mjs'];
-  protected typescriptExtensions: string[] = ['.ts', '.cts', '.mts'];
-
+export default class EsbuildLoader extends BaseLoader {
   protected _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return true;
   }
 
+  protected lookForModule(filePath: string): Promise<string | undefined> {
+      return super.lookForModule(filePath) ?? lookForDefaultModule(filePath, '.ts') ?? lookForEsbuildReplacementFile(filePath);
+  }
+
   protected async _resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve | undefined): Promise<ResolvedModule> {
-    const existingFileUrl = await this.resolveExistingFileUrl(specifier, context.parentURL);
+    const existingFileUrl = await this.resolveModuleUrl(specifier, context.parentURL);
     if (existingFileUrl) {
-      if (nextResolve && this.extensionsToFoward.includes(extname(existingFileUrl))) {
+      if (nextResolve && !isEsbuildExtensionSupported(existingFileUrl)) {
         return nextResolve(specifier, context);
       }
 
       return {
         url: existingFileUrl,
         shortCircuit: true,
-        format: 'module',
+        format: detectFormatForEsbuildFileExtension(existingFileUrl),
       };
     }
 
@@ -39,13 +40,12 @@ class TypescriptLoader extends BaseLoader {
   }
 
   protected async _load(url: string, context: LoadContext, nextLoad?: NextLoad | undefined): Promise<LoadedModule> {
-    const extension = extname(url);
-    if (this.typescriptExtensions.includes(extension)) {
+    if (isEsbuildExtensionSupported(url)) {
       const filePath = fileURLToPath(url);
       const code = await readFile(filePath);
       const transformed = await transform(code.toString(), filePath);
       return {
-        format: await detectFormatForFilePath(filePath),
+        format: context.format ?? (await detectFormatForEsbuildFilePath(filePath)),
         source: transformed.code,
         shortCircuit: true,
       };
@@ -54,9 +54,3 @@ class TypescriptLoader extends BaseLoader {
     return nextLoad!(url, context);
   }
 }
-
-const routerLoader = new TypescriptLoader();
-
-export const resolve = routerLoader.exportResolve();
-
-export const load = routerLoader.exportLoad();

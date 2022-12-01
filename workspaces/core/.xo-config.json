@@ -4,8 +4,7 @@
   "prettier": true,
   "ignores": ["test/fixtures"],
   "printWidth": 120,
-  "rules": {
-  },
+  "rules": {},
   "overrides": [
     {
       "files": "src/*",

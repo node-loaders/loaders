@@ -1,11 +1,9 @@
 import { inspect } from 'node:util';
-import { stat as fsStat, readdir } from 'node:fs/promises';
-import { isAbsolute, basename, extname, join, dirname } from 'node:path';
-import { pathToFileURL, fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import createDebug, { type Debugger } from 'debug';
-import validateNpmPackageName from 'validate-npm-package-name';
+import { isBuiltInModule, isPackageMapping } from './detect-module.js';
 
-import isBuiltIn from './built-in.js';
+import { lookForDefaultModule, resolvePath } from './resolve-module.js';
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
 
 export default class LoaderBase {
@@ -30,17 +28,14 @@ export default class LoaderBase {
 
   matchesEspecifier(specifier: string, context?: ResolveContext): boolean {
     this.log(`matchResolve ${specifier} with ${inspect(context)}`);
-    if (!this.matchBuiltIn && isBuiltIn(specifier)) {
+    if (!this.matchBuiltIn && isBuiltInModule(specifier)) {
       this.log(`fowarding builtin ${specifier}`);
       return false;
     }
 
-    if (!this.matchPackageName) {
-      const packageName = /^((@[^/]+\/)?[^/]+)/.exec(specifier);
-      if (packageName && packageName.length > 0 && validateNpmPackageName(packageName[0]).validForNewPackages) {
-        this.log(`fowarding package name ${specifier}`);
-        return false;
-      }
+    if (!this.matchPackageName && isPackageMapping(specifier)) {
+      this.log(`fowarding package name ${specifier}`);
+      return false;
     }
 
     return this._matchesEspecifier(specifier);
@@ -78,69 +73,21 @@ export default class LoaderBase {
     return context;
   }
 
-  protected async resolveExistingFileUrl(url: string, parentUrl?: string): Promise<string | undefined> {
-    const resolvedPath = await this.resolvePath(url, parentUrl);
-    if (resolvedPath) {
-      const foundPath = await this.findFile(resolvedPath);
-      if (foundPath.length > 0) {
-        this.log(`Resolved to ${inspect(foundPath)}`);
-        return pathToFileURL(foundPath[0]).href;
-      }
-    }
-
-    return undefined;
-  }
-
-  protected async findFile(filePath: string): Promise<string[]> {
-    const findFileInDir = async (directoryPath: string, filename: string) => {
-      const list = await readdir(directoryPath);
-      return list
-        .filter(file => file.startsWith(`${filename}.`))
-        .filter(file => filename === basename(file, extname(file)))
-        .map(file => join(directoryPath, file));
-    };
-
-    try {
-      const stat = await fsStat(filePath);
-      if (stat.isFile()) {
-        return [filePath];
-      }
-
-      if (stat.isDirectory()) {
-        const list = await findFileInDir(filePath, 'index');
-        if (list.length > 0) {
-          return list;
-        }
-      }
-
-      return [];
-    } catch {}
-
-    const list = await findFileInDir(dirname(filePath), basename(filePath, extname(filePath)));
-    if (list.length > 0) {
-      return list;
-    }
-
-    return [];
-  }
-
-  protected async resolvePath(url: string, parentUrl?: string) {
+  protected async resolveModuleUrl(url: string, parentUrl?: string): Promise<string | undefined> {
     this.log(`Resolving file ${url} at ${parentUrl ?? 'unknown'}`);
-    if (isAbsolute(url)) {
-      return url;
-    }
-
-    try {
-      return fileURLToPath(url);
-    } catch {}
-
-    if (url.startsWith('.') && parentUrl) {
-      try {
-        const parentPath = isAbsolute(parentUrl) ? parentUrl : fileURLToPath(parentUrl);
-        return join(dirname(parentPath), url);
-      } catch {}
+    const resolvedPath = await resolvePath(url, parentUrl);
+    if (resolvedPath) {
+      const resolvedModule = await this.lookForModule(resolvedPath);
+      if (resolvedModule) {
+        this.log(`Resolved to ${inspect(resolvedModule)}`);
+        return pathToFileURL(resolvedModule).href;
+      }
     }
 
     return undefined;
+  }
+
+  protected async lookForModule(filePath: string): Promise<string | undefined> {
+    return lookForDefaultModule(filePath);
   }
 }

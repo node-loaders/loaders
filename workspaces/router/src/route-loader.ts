@@ -8,7 +8,7 @@ import BaseLoader, {
   type NextResolve,
   type ResolveContext,
   type ResolvedModule,
-  isBuiltIn,
+  isBuiltInModule,
 } from '@node-loaders/core';
 
 let log: Debugger;
@@ -110,7 +110,7 @@ class RouterLoader extends BaseLoader {
 
   protected async _load(url: string, context: LoadContext, nextLoad?: NextLoad | undefined): Promise<LoadedModule> {
     this.log(`Loading ${url} with ${inspect(context)}`);
-    if (isBuiltIn(url) && nextLoad) {
+    if (isBuiltInModule(url) && nextLoad) {
       return nextLoad(url, context);
     }
 

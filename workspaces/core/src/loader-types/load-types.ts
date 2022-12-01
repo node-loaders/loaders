@@ -8,7 +8,7 @@ export type LoadedModule = {
 
 export type LoadContext = {
   conditions: string[];
-  format?: string | undefined;
+  format?: Format | undefined;
   importAssertions: Record<string, unknown>;
 };
 
