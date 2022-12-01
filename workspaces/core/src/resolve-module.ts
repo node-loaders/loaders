@@ -21,13 +21,18 @@ export const resolvePath = async (url: string, parentUrl?: string) => {
   return undefined;
 };
 
+export const isModule = async (filePath: string): Promise<string | undefined> => {
+  try {
+    const stat = await fsStat(filePath);
+    return stat.isFile() ? filePath : undefined;
+  } catch {}
+
+  return undefined;
+};
+
 export const lookForDefaultModule = async (filePath: string, extension = '.js'): Promise<string | undefined> => {
   try {
     const stat = await fsStat(filePath);
-    if (stat.isFile()) {
-      return filePath;
-    }
-
     if (stat.isDirectory()) {
       const statIndex = await fsStat(join(filePath, `${'index'}${extension}`));
       if (statIndex.isFile()) {

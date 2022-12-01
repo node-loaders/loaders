@@ -3,17 +3,26 @@ import { pathToFileURL } from 'node:url';
 import createDebug, { type Debugger } from 'debug';
 import { isBuiltInModule, isPackageMapping } from './detect-module.js';
 
-import { lookForDefaultModule, resolvePath } from './resolve-module.js';
+import { isModule, lookForDefaultModule, resolvePath } from './resolve-module.js';
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
+
+export type LoaderBaseOptions = {
+  matchBuiltIn?: boolean;
+  matchPackageName?: boolean;
+  allowDefaults?: boolean;
+};
 
 export default class LoaderBase {
   protected matchBuiltIn: boolean;
   protected matchPackageName: boolean;
+  protected allowDefaults: boolean;
+
   protected log: Debugger = createDebug('@node-loaders');
 
-  constructor(options?: { matchBuiltIn?: boolean; matchPackageName?: boolean }) {
-    const { matchBuiltIn = false, matchPackageName = false } = options ?? {};
+  constructor(options?: LoaderBaseOptions) {
+    const { matchBuiltIn = false, matchPackageName = false, allowDefaults = false } = options ?? {};
 
+    this.allowDefaults = allowDefaults;
     this.matchBuiltIn = matchBuiltIn;
     this.matchPackageName = matchPackageName;
   }
@@ -74,9 +83,10 @@ export default class LoaderBase {
   }
 
   protected async resolveModuleUrl(url: string, parentUrl?: string): Promise<string | undefined> {
-    this.log(`Resolving file ${url} at ${parentUrl ?? 'unknown'}`);
+    this.log(`Resolving ${url} at ${parentUrl ?? 'unknown'}`);
     const resolvedPath = await resolvePath(url, parentUrl);
     if (resolvedPath) {
+      this.log(`Resolved to ${resolvedPath}`);
       const resolvedModule = await this.lookForModule(resolvedPath);
       if (resolvedModule) {
         this.log(`Resolved to ${inspect(resolvedModule)}`);
@@ -88,6 +98,6 @@ export default class LoaderBase {
   }
 
   protected async lookForModule(filePath: string): Promise<string | undefined> {
-    return lookForDefaultModule(filePath);
+    return (await isModule(filePath)) ?? (this.allowDefaults ? lookForDefaultModule(filePath) : undefined);
   }
 }
