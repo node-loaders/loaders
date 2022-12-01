@@ -66,6 +66,12 @@ export default class LoaderBase {
     return nextLoad!(url, context);
   }
 
+  protected createModuleNotFoundError(path, base = 'unknown', type = 'module') {
+    const error = new Error(`Cannot find ${type} '${path}' imported from ${base}`);
+    (error as any).code = 'ERR_MODULE_NOT_FOUND';
+    return error;
+  }
+
   protected _matchesEspecifier(specifier: string, context?: ResolveContext) {
     return false;
   }
