@@ -25,7 +25,9 @@ export default class EsbuildLoader extends BaseLoader {
 
   protected override async lookForModule(filePath: string): Promise<string | undefined> {
     return (
-      (await super.lookForModule(filePath)) ?? (await lookForDefaultModule(filePath, '.ts')) ?? lookForEsbuildReplacementFile(filePath)
+      (await super.lookForModule(filePath)) ??
+      (this.allowDefaults ? lookForDefaultModule(filePath, '.ts') : undefined) ??
+      lookForEsbuildReplacementFile(filePath)
     );
   }
 

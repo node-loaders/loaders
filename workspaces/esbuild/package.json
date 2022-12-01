@@ -10,7 +10,8 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./compat": "./dist/compat.js"
   },
   "files": [
     "./dist"
