@@ -8,6 +8,11 @@ const formatForExtension: Record<string, Format> = {
   '.cts': 'commonjs',
   '.mts': 'module',
 };
+const replacementsForExtension: Record<string, string[]> = {
+  '.js': ['.ts'],
+  '.cjs': ['.cts'],
+  '.mjs': ['.mts'],
+};
 
 export function detectFormatForEsbuildFileExtension(filePath: string): Format {
   return formatForExtension[extname(filePath)];
@@ -23,7 +28,12 @@ export function isEsbuildExtensionSupported(filePath: string): boolean {
 }
 
 export async function lookForEsbuildReplacementFile(filePath: string): Promise<string | undefined> {
-  const alternativeFiles = await lookForAlternativeFiles(filePath);
-  const compatibleFiles = alternativeFiles.filter(file => esbuildExtensions.has(extname(file)));
-  return compatibleFiles.length > 0 ? compatibleFiles[0] : undefined;
+  const replacementExtensions = replacementsForExtension[extname(filePath)];
+  if (replacementExtensions) {
+    const alternativeFiles = await lookForAlternativeFiles(filePath);
+    const compatibleFiles = alternativeFiles.filter(file => replacementExtensions.includes(extname(file)));
+    return compatibleFiles.length > 0 ? compatibleFiles[0] : undefined;
+  }
+
+  return undefined;
 }
