@@ -10,6 +10,7 @@ import BaseLoader, {
   type NextLoad,
   type ResolveContext,
   type ResolvedModule,
+  isFileSpecifier,
 } from '@node-loaders/core';
 import {
   detectFormatForEsbuildFileExtension,
@@ -20,7 +21,7 @@ import {
 
 export default class EsbuildLoader extends BaseLoader {
   protected _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
-    return true;
+    return isFileSpecifier(specifier);
   }
 
   protected override async lookForModule(filePath: string): Promise<string | undefined> {
