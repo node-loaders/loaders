@@ -1,1 +1,6 @@
-export * from './mock-loader.js';
+import MockLoader from './mock-loader.js';
+
+const routerLoader = new MockLoader();
+
+export const resolve = routerLoader.exportResolve();
+export const load = routerLoader.exportLoad();
