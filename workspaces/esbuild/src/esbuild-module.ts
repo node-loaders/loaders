@@ -3,7 +3,7 @@ import { dirname, extname } from 'node:path';
 import { lookForAlternativeFiles, type Format } from '@node-loaders/core';
 import { readPackageUp } from 'read-pkg-up';
 
-const esbuildExtensions: string[] = ['.ts', '.cts', '.mts', '.tsx'];
+const esbuildExtensions = new Set<string>(['.ts', '.cts', '.mts', '.tsx']);
 const formatForExtension: Record<string, Format> = {
   '.cts': 'commonjs',
   '.mts': 'module',
@@ -19,11 +19,11 @@ export async function detectFormatForEsbuildFilePath(filePath: string): Promise<
 }
 
 export function isEsbuildExtensionSupported(filePath: string): boolean {
-  return esbuildExtensions.includes(extname(filePath));
+  return esbuildExtensions.has(extname(filePath));
 }
 
 export async function lookForEsbuildReplacementFile(filePath: string): Promise<string | undefined> {
   const alternativeFiles = await lookForAlternativeFiles(filePath);
-  const compatibleFiles = alternativeFiles.filter(file => esbuildExtensions.includes(extname(file)));
+  const compatibleFiles = alternativeFiles.filter(file => esbuildExtensions.has(extname(file)));
   return compatibleFiles.length > 0 ? compatibleFiles[0] : undefined;
 }

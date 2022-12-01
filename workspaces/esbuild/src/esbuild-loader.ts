@@ -11,35 +11,46 @@ import BaseLoader, {
   type ResolveContext,
   type ResolvedModule,
 } from '@node-loaders/core';
-import { detectFormatForEsbuildFileExtension, detectFormatForEsbuildFilePath, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-module.js';
+import {
+  detectFormatForEsbuildFileExtension,
+  detectFormatForEsbuildFilePath,
+  isEsbuildExtensionSupported,
+  lookForEsbuildReplacementFile,
+} from './esbuild-module.js';
 
 export default class EsbuildLoader extends BaseLoader {
   protected _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return true;
   }
 
-  protected lookForModule(filePath: string): Promise<string | undefined> {
-      return super.lookForModule(filePath) ?? lookForDefaultModule(filePath, '.ts') ?? lookForEsbuildReplacementFile(filePath);
+  protected override async lookForModule(filePath: string): Promise<string | undefined> {
+    return (
+      (await super.lookForModule(filePath)) ?? (await lookForDefaultModule(filePath, '.ts')) ?? lookForEsbuildReplacementFile(filePath)
+    );
   }
 
-  protected async _resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve | undefined): Promise<ResolvedModule> {
-    const existingFileUrl = await this.resolveModuleUrl(specifier, context.parentURL);
-    if (existingFileUrl) {
-      if (nextResolve && !isEsbuildExtensionSupported(existingFileUrl)) {
+  protected override async _resolve(
+    specifier: string,
+    context: ResolveContext,
+    nextResolve?: NextResolve | undefined,
+  ): Promise<ResolvedModule> {
+    const resolvedModule = await this.resolveModuleUrl(specifier, context.parentURL);
+    if (resolvedModule) {
+      if (nextResolve && !isEsbuildExtensionSupported(resolvedModule)) {
         return nextResolve(specifier, context);
       }
 
       return {
-        url: existingFileUrl,
+        url: resolvedModule,
         shortCircuit: true,
-        format: detectFormatForEsbuildFileExtension(existingFileUrl),
+        format: detectFormatForEsbuildFileExtension(resolvedModule),
       };
     }
 
     throw new Error(`Module not found ${specifier}`);
   }
 
-  protected async _load(url: string, context: LoadContext, nextLoad?: NextLoad | undefined): Promise<LoadedModule> {
+  protected override async _load(url: string, context: LoadContext, nextLoad?: NextLoad | undefined): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
       const filePath = fileURLToPath(url);
       const code = await readFile(filePath);

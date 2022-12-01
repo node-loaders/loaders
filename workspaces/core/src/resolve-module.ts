@@ -55,4 +55,4 @@ export const lookForAlternativeFiles = async (filePath: string): Promise<string[
     .filter(file => file.startsWith(`${filename}.`))
     .filter(file => basename(file, extname(file)) === filename)
     .map(file => join(directoryPath, file));
-}
+};
