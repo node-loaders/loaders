@@ -1,5 +1,5 @@
-import { dirname, join, relative } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import {
