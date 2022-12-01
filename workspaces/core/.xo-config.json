@@ -6,7 +6,7 @@
   "printWidth": 120,
   "rules": {},
   "parserOptions": {
-		"project": "./tsconfig.spec.json"
+    "project": "./tsconfig.spec.json"
   },
   "overrides": [
     {
