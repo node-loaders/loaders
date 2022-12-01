@@ -13,7 +13,7 @@ import BaseLoader, {
 } from '@node-loaders/core';
 import { detectFormatForFilePath } from './utils.js';
 
-class TSLoader extends BaseLoader {
+class TypescriptLoader extends BaseLoader {
   protected extensionsToFoward: string[] = ['.js', '.cjs', '.mjs'];
   protected typescriptExtensions: string[] = ['.ts', '.cts', '.mts'];
 
@@ -55,7 +55,7 @@ class TSLoader extends BaseLoader {
   }
 }
 
-const routerLoader = new TSLoader();
+const routerLoader = new TypescriptLoader();
 
 export const resolve = routerLoader.exportResolve();
 
