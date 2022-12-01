@@ -5,6 +5,9 @@
   "ignores": ["test/fixtures"],
   "printWidth": 120,
   "rules": {},
+  "parserOptions": {
+		"project": "./tsconfig.spec.json"
+  },
   "overrides": [
     {
       "files": "src/*",
@@ -12,7 +15,9 @@
     },
     {
       "files": "test/*",
-      "rules": {}
+      "rules": {
+        "import/no-extraneous-dependencies": "off"
+      }
     }
   ]
 }

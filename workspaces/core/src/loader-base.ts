@@ -1,29 +1,29 @@
 import { inspect } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import createDebug, { type Debugger } from 'debug';
-import { isBuiltInModule, isPackageMapping } from './detect-module.js';
+import { isBuiltinModule, isFileModule, isPackageMapping } from './detect-module.js';
 
 import { isModule, lookForDefaultModule, resolvePath } from './resolve-module.js';
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
 
 export type LoaderBaseOptions = {
-  matchBuiltIn?: boolean;
+  matchBuiltin?: boolean;
   matchPackageName?: boolean;
   allowDefaults?: boolean;
 };
 
 export default class LoaderBase {
-  protected matchBuiltIn: boolean;
+  protected matchBuiltin: boolean;
   protected matchPackageName: boolean;
   protected allowDefaults: boolean;
 
   protected log: Debugger = createDebug('@node-loaders');
 
   constructor(options?: LoaderBaseOptions) {
-    const { matchBuiltIn = false, matchPackageName = false, allowDefaults = false } = options ?? {};
+    const { matchBuiltin = false, matchPackageName = false, allowDefaults = false } = options ?? {};
 
     this.allowDefaults = allowDefaults;
-    this.matchBuiltIn = matchBuiltIn;
+    this.matchBuiltin = matchBuiltin;
     this.matchPackageName = matchPackageName;
   }
 
@@ -37,7 +37,7 @@ export default class LoaderBase {
 
   matchesEspecifier(specifier: string, context?: ResolveContext): boolean {
     this.log(`matchResolve ${specifier} with ${inspect(context)}`);
-    if (!this.matchBuiltIn && isBuiltInModule(specifier)) {
+    if (!this.matchBuiltin && isBuiltinModule(specifier)) {
       this.log(`fowarding builtin ${specifier}`);
       return false;
     }
@@ -84,6 +84,10 @@ export default class LoaderBase {
 
   protected async resolveModuleUrl(url: string, parentUrl?: string): Promise<string | undefined> {
     this.log(`Resolving ${url} at ${parentUrl ?? 'unknown'}`);
+    if (!isFileModule(url)) {
+      return url;
+    }
+
     const resolvedPath = await resolvePath(url, parentUrl);
     if (resolvedPath) {
       this.log(`Resolved to ${resolvedPath}`);
