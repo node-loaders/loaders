@@ -15,7 +15,7 @@ const isProtocol = (maybeUrl: string, protocol: string): boolean => {
 
 export const isBuiltinModule = (module: string): boolean => builtinModules.includes(module) || isProtocol(module, nodeProtocol);
 
-export const isPackageMapping = (specifier: string) => {
+export const isPackageSpecifier = (specifier: string) => {
   if (isBuiltinModule(specifier)) {
     return false;
   }
@@ -24,6 +24,9 @@ export const isPackageMapping = (specifier: string) => {
   return packageName !== null && packageName.length > 0 && validateNpmPackageName(packageName[0]).validForNewPackages;
 };
 
-export const isFileSpecifier = (specifier: string) => {
-  return specifier.startsWith('.') || specifier.startsWith('#') || isAbsolute(specifier) || isProtocol(specifier, 'file:');
-};
+export const isRelativeFileSpecifier = (specifier: string) => specifier.startsWith('.');
+
+export const isFileSpecifier = (specifier: string) =>
+isRelativeFileSpecifier(specifier) || isPackageJsonImportSpecifier(specifier) || isAbsolute(specifier) || isProtocol(specifier, 'file:');
+
+export const isPackageJsonImportSpecifier = (specifier: string) => specifier.startsWith('#');

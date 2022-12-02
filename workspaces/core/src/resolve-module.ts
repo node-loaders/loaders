@@ -1,7 +1,7 @@
 import { readdir, stat as fsStat } from 'node:fs/promises';
 import { basename, dirname, extname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isFileSpecifier } from './detect-module.js';
+import { isFileSpecifier } from './specifier.js';
 
 /**
  * Resolves a file specifier to a path

@@ -1,7 +1,7 @@
 import { inspect } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import createDebug, { type Debugger } from 'debug';
-import { isBuiltinModule, isPackageMapping } from './detect-module.js';
+import { isBuiltinModule, isPackageSpecifier } from './specifier.js';
 
 import { existingFile, lookForDefaultModule, resolvePath } from './resolve-module.js';
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
@@ -20,7 +20,7 @@ export default class LoaderBase {
   protected log: Debugger = createDebug('@node-loaders');
 
   constructor(options?: LoaderBaseOptions) {
-    const { matchBuiltin = false, matchPackageName = false, allowDefaults = false } = options ?? {};
+    const { matchBuiltin = true, matchPackageName = true, allowDefaults = false } = options ?? {};
 
     this.allowDefaults = allowDefaults;
     this.matchBuiltin = matchBuiltin;
@@ -35,6 +35,12 @@ export default class LoaderBase {
     return this.load.bind(this);
   }
 
+  /**
+   * Default filter implementation
+   * @param specifier
+   * @param context
+   * @returns
+   */
   matchesEspecifier(specifier: string, context?: ResolveContext): boolean {
     this.log(`matchResolve ${specifier} with ${inspect(context)}`);
     if (!this.matchBuiltin && isBuiltinModule(specifier)) {
@@ -42,7 +48,7 @@ export default class LoaderBase {
       return false;
     }
 
-    if (!this.matchPackageName && isPackageMapping(specifier)) {
+    if (!this.matchPackageName && isPackageSpecifier(specifier)) {
       this.log(`fowarding package name ${specifier}`);
       return false;
     }
@@ -50,15 +56,35 @@ export default class LoaderBase {
     return this._matchesEspecifier(specifier);
   }
 
+  /**
+   * Filters the call and forwards to _resolve
+   * @param specifier
+   * @param context
+   * @param nextResolve
+   * @returns
+   */
   async resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve): Promise<ResolvedModule> {
+    if (!nextResolve) {
+      throw new Error(`Error resolving ${specifier} at ${context.parentURL ?? 'unknown'}, nextResolve is required for chaining`);
+    }
     if (this.matchesEspecifier(specifier, context)) {
       return this._resolve(specifier, context, nextResolve);
     }
 
-    return nextResolve!(specifier, this.transformResolveContext(context));
+    return nextResolve!(specifier, context);
   }
 
+  /**
+   * Filters the call and forwards to _load
+   * @param url
+   * @param context
+   * @param nextLoad
+   * @returns
+   */
   async load(url: string, context: LoadContext, nextLoad?: NextLoad): Promise<LoadedModule> {
+    if (!nextLoad) {
+      throw new Error(`Error loading ${url}, nextLoad is required for chaining`);
+    }
     if (this.matchesEspecifier(url)) {
       return this._load(url, context, nextLoad);
     }
@@ -66,34 +92,42 @@ export default class LoaderBase {
     return nextLoad!(url, context);
   }
 
-  protected createModuleNotFoundError(path, base = 'unknown', type = 'module') {
-    const error = new Error(`Cannot find ${type} '${path}' imported from ${base}`);
-    (error as any).code = 'ERR_MODULE_NOT_FOUND';
-    return error;
-  }
-
   protected _matchesEspecifier(specifier: string, context?: ResolveContext) {
     return false;
   }
 
-  protected async _resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve): Promise<ResolvedModule> {
+  /**
+   * Unfiltered resolve
+   * @param specifier
+   * @param context
+   * @param nextResolve
+   */
+  protected async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     throw new Error('not implemented');
   }
 
-  protected async _load(url: string, context: LoadContext, nextLoad?: NextLoad): Promise<LoadedModule> {
+  /**
+   * Unfiltered load
+   * @param url
+   * @param context
+   * @param nextLoad
+   */
+  protected async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     throw new Error('not implemented');
   }
 
-  protected transformResolveContext(context: ResolveContext) {
-    return context;
-  }
-
-  protected async resolveModuleUrl(url: string, parentUrl?: string): Promise<string | undefined> {
+  /**
+   * Resolve and lookup for existing module (file)
+   * @param url
+   * @param parentUrl
+   * @returns
+   */
+  protected async resolveFileUrl(url: string, parentUrl?: string): Promise<string | undefined> {
     this.log(`Resolving ${url} at ${parentUrl ?? 'unknown'}`);
     const resolvedPath = await resolvePath(url, parentUrl);
     if (resolvedPath) {
       this.log(`Resolved to ${resolvedPath}`);
-      const resolvedModule = await this.lookForModule(resolvedPath);
+      const resolvedModule = await this.lookForExistingFilePath(resolvedPath);
       if (resolvedModule) {
         this.log(`Resolved to ${inspect(resolvedModule)}`);
         return pathToFileURL(resolvedModule).href;
@@ -103,7 +137,12 @@ export default class LoaderBase {
     return undefined;
   }
 
-  protected async lookForModule(filePath: string): Promise<string | undefined> {
+  /**
+   * Lookup for existing file path
+   * @param filePath
+   * @returns
+   */
+  protected async lookForExistingFilePath(filePath: string): Promise<string | undefined> {
     return (await existingFile(filePath)) ?? (this.allowDefaults ? lookForDefaultModule(filePath) : undefined);
   }
 }

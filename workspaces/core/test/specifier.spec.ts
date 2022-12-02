@@ -2,7 +2,7 @@ import { builtinModules } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import { isBuiltinModule, isFileSpecifier, isPackageMapping } from '../src/detect-module.js';
+import { isBuiltinModule, isFileSpecifier, isPackageSpecifier } from '../src/specifier.js';
 
 const builtinModulesToTest = [...builtinModules, ...builtinModules.map(builtinModule => `node:${builtinModule}`)];
 const fileModulesToTest = ['.', '#', resolve('/foo'), pathToFileURL('/foo').href];
@@ -37,16 +37,16 @@ describe('detect-module', () => {
     }
   });
 
-  describe('isPackageMapping', () => {
+  describe('isPackageSpecifier', () => {
     for (const packageModule of packageModulesToTest) {
       it(`should return true for ${packageModule}`, () => {
-        expect(isPackageMapping(packageModule)).toBe(true);
+        expect(isPackageSpecifier(packageModule)).toBe(true);
       });
     }
 
     for (const nonPackageModule of [...builtinModulesToTest, ...fileModulesToTest]) {
       it(`should return false for ${nonPackageModule}`, () => {
-        expect(isPackageMapping(nonPackageModule)).toBe(false);
+        expect(isPackageSpecifier(nonPackageModule)).toBe(false);
       });
     }
   });
