@@ -22,10 +22,10 @@
   "devDependencies": {
     "@types/stack-utils": "^2.0.1"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
