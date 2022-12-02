@@ -1,9 +1,7 @@
 import { inspect } from 'node:util';
-import { pathToFileURL } from 'node:url';
 import createDebug, { type Debugger } from 'debug';
 import { isBuiltinModule, isPackageSpecifier } from './specifier.js';
 
-import { existingFile, lookForDefaultModule, resolvePath } from './resolve-module.js';
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
 
 export type LoaderBaseOptions = {
@@ -114,35 +112,5 @@ export default class LoaderBase {
    */
   protected async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     throw new Error('not implemented');
-  }
-
-  /**
-   * Resolve and lookup for existing module (file)
-   * @param url
-   * @param parentUrl
-   * @returns
-   */
-  protected async resolveFileUrl(url: string, parentUrl?: string): Promise<string | undefined> {
-    this.log(`Resolving ${url} at ${parentUrl ?? 'unknown'}`);
-    const resolvedPath = await resolvePath(url, parentUrl);
-    if (resolvedPath) {
-      this.log(`Resolved to ${resolvedPath}`);
-      const resolvedModule = await this.lookForExistingFilePath(resolvedPath);
-      if (resolvedModule) {
-        this.log(`Resolved to ${inspect(resolvedModule)}`);
-        return pathToFileURL(resolvedModule).href;
-      }
-    }
-
-    return undefined;
-  }
-
-  /**
-   * Lookup for existing file path
-   * @param filePath
-   * @returns
-   */
-  protected async lookForExistingFilePath(filePath: string): Promise<string | undefined> {
-    return (await existingFile(filePath)) ?? (this.allowDefaults ? lookForDefaultModule(filePath) : undefined);
   }
 }

@@ -1,0 +1,38 @@
+{
+  "name": "@node-loaders/resolve",
+  "version": "0.0.0",
+  "private": false,
+  "bugs": "https://github.com/node-loaders/loaders/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-loaders/loaders.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "clean-all": "npm run clean && rimraf node_modules",
+    "fix": "xo --fix",
+    "prepare": "npm run build"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "d1930f1833eca9eb9febf659d22ac5d21673413b"
+}

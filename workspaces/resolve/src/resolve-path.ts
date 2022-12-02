@@ -1,7 +1,6 @@
 import { readdir, stat as fsStat } from 'node:fs/promises';
 import { basename, dirname, extname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isFileSpecifier } from './specifier.js';
 
 /**
  * Resolves a file specifier to a path
@@ -10,10 +9,6 @@ import { isFileSpecifier } from './specifier.js';
  * @returns resolved file path
  */
 export const resolvePath = async (url: string, parentUrl?: string) => {
-  if (!isFileSpecifier(url)) {
-    return undefined;
-  }
-
   if (isAbsolute(url)) {
     return url;
   }

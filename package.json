@@ -6,7 +6,8 @@
     "./workspaces/auto",
     "./workspaces/core",
     "./workspaces/esbuild",
-    "./workspaces/mock"
+    "./workspaces/mock",
+    "./workspaces/resolve"
   ],
   "scripts": {
     "build": "npm run build --workspaces",

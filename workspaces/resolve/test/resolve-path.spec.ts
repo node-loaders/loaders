@@ -2,7 +2,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import { existingFile, lookForAlternativeFiles, lookForDefaultModule, resolvePath } from '../src/resolve-module.js';
+import { existingFile, lookForAlternativeFiles, lookForDefaultModule, resolvePath } from '../src/resolve-path.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
