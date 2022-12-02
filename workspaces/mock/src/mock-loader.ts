@@ -5,6 +5,7 @@ import BaseLoader, {
   type NextResolve,
   type LoadedModule,
   type NextLoad,
+  isFileSpecifier,
 } from '@node-loaders/core';
 import {
   buildMockedSpecifierUrl,
@@ -56,6 +57,10 @@ export default class MockLoader extends BaseLoader {
         if (parentProtocol) {
           const parentURL = parentProtocol.protocol === mockedOriginProtocol ? parentProtocol.mockOrigin : undefined;
           parentSpecifier = (await nextResolve(parentProtocol.specifier, { ...context, parentURL })).url;
+        }
+        if (!getMockedData(cacheId, specifier) && !isFileSpecifier(specifier)) {
+          this.log(`Forwarding non mocked module ${specifier}`);
+          return nextResolve(specifier, { ...context, parentURL: parentSpecifier });
         }
 
         // Resolve the specifier using the chain
