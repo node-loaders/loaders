@@ -24,7 +24,7 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@esbuild-kit/core-utils": "^3.0.0",
+    "@esbuild-kit/core-utils": "3.0.0",
     "@node-loaders/core": "^0.0.1-alpha.4",
     "read-pkg-up": "^9.1.0"
   },
