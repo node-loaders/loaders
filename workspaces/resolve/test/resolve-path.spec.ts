@@ -2,7 +2,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import { existingFile, lookForAlternativeFiles, lookForDefaultModule, resolvePath } from '../src/resolve-path.js';
+import { existingFile, lookForAlternativeFiles, lookForDefaultModule, specifierToFilePath } from '../src/resolve-path.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -39,24 +39,24 @@ describe('resolve-module', () => {
     });
   });
 
-  describe('resolvePath', () => {
+  describe('specifierToFilePath', () => {
     it('should return the filePath for existing path', async () => {
       const module = join(__dirname, 'fixtures/default-modules/index.js');
-      expect(await resolvePath(module)).toBe(module);
+      expect(await specifierToFilePath(module)).toBe(module);
     });
     it('should return the filePath for url', async () => {
       const module = join(__dirname, 'fixtures/default-modules/index.js');
-      expect(await resolvePath(pathToFileURL(module).href)).toBe(module);
+      expect(await specifierToFilePath(pathToFileURL(module).href)).toBe(module);
     });
     it('should return the filePath for relative path and parent path', async () => {
       const module = join(__dirname, 'fixtures/default-modules/index.js');
       const parentUrl = join(__dirname, 'index.js');
-      expect(await resolvePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
+      expect(await specifierToFilePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
     });
     it('should return the filePath for relative path and parent url', async () => {
       const module = join(__dirname, 'fixtures/default-modules/index.js');
       const parentUrl = pathToFileURL(join(__dirname, 'index.js')).href;
-      expect(await resolvePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
+      expect(await specifierToFilePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
     });
   });
 });

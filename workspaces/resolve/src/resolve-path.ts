@@ -3,28 +3,24 @@ import { basename, dirname, extname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
- * Resolves a file specifier to a path
- * @param url
- * @param parentUrl
+ * Resolves a file specifier to a file path
+ * @param specifier accepts an absolute path, an relative path or and file url
+ * @param parentURL required for relative specifier, ignored otherwise
  * @returns resolved file path
  */
-export const resolvePath = async (url: string, parentUrl?: string) => {
-  if (isAbsolute(url)) {
-    return url;
+export const specifierToFilePath = (specifier: string, parentURL?: string): string => {
+  if (isAbsolute(specifier)) {
+    return specifier;
   }
 
-  try {
-    return fileURLToPath(url);
-  } catch {}
-
-  if (url.startsWith('.') && parentUrl) {
-    try {
-      const parentPath = isAbsolute(parentUrl) ? parentUrl : fileURLToPath(parentUrl);
-      return join(dirname(parentPath), url);
-    } catch {}
+  if (specifier.startsWith('.')) {
+    if (!parentURL) {
+      throw new Error(`Error resolving module ${specifier} without a parentUrl`);
+    }
+    return join(dirname(fileURLToPath(parentURL)), specifier);
   }
 
-  return undefined;
+  return fileURLToPath(specifier);
 };
 
 /**
