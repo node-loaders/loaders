@@ -5,24 +5,21 @@ import { isBuiltinModule, isPackageSpecifier } from './specifier.js';
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
 
 export type LoaderBaseOptions = {
-  matchBuiltin?: boolean;
-  matchPackageName?: boolean;
-  allowDefaults?: boolean;
+  matchBuiltinSpecifier?: boolean;
+  matchPackageSpecifier?: boolean;
 };
 
 export default class LoaderBase {
-  protected matchBuiltin: boolean;
-  protected matchPackageName: boolean;
-  protected allowDefaults: boolean;
+  protected matchBuiltinSpecifier: boolean;
+  protected matchPackageSpecifier: boolean;
 
   protected log: Debugger = createDebug('@node-loaders');
 
-  constructor(options?: LoaderBaseOptions) {
-    const { matchBuiltin = true, matchPackageName = true, allowDefaults = false } = options ?? {};
+  constructor(options: LoaderBaseOptions = {}) {
+    const { matchBuiltinSpecifier = true, matchPackageSpecifier = true } = options;
 
-    this.allowDefaults = allowDefaults;
-    this.matchBuiltin = matchBuiltin;
-    this.matchPackageName = matchPackageName;
+    this.matchBuiltinSpecifier = matchBuiltinSpecifier;
+    this.matchPackageSpecifier = matchPackageSpecifier;
   }
 
   exportResolve() {
@@ -41,12 +38,12 @@ export default class LoaderBase {
    */
   matchesEspecifier(specifier: string, context?: ResolveContext): boolean {
     this.log(`matchResolve ${specifier} with ${inspect(context)}`);
-    if (!this.matchBuiltin && isBuiltinModule(specifier)) {
+    if (!this.matchBuiltinSpecifier && isBuiltinModule(specifier)) {
       this.log(`fowarding builtin ${specifier}`);
       return false;
     }
 
-    if (!this.matchPackageName && isPackageSpecifier(specifier)) {
+    if (!this.matchPackageSpecifier && isPackageSpecifier(specifier)) {
       this.log(`fowarding package name ${specifier}`);
       return false;
     }
@@ -65,11 +62,12 @@ export default class LoaderBase {
     if (!nextResolve) {
       throw new Error(`Error resolving ${specifier} at ${context.parentURL ?? 'unknown'}, nextResolve is required for chaining`);
     }
+
     if (this.matchesEspecifier(specifier, context)) {
       return this._resolve(specifier, context, nextResolve);
     }
 
-    return nextResolve!(specifier, context);
+    return nextResolve(specifier, context);
   }
 
   /**
@@ -83,11 +81,12 @@ export default class LoaderBase {
     if (!nextLoad) {
       throw new Error(`Error loading ${url}, nextLoad is required for chaining`);
     }
+
     if (this.matchesEspecifier(url)) {
       return this._load(url, context, nextLoad);
     }
 
-    return nextLoad!(url, context);
+    return nextLoad(url, context);
   }
 
   protected _matchesEspecifier(specifier: string, context?: ResolveContext) {
