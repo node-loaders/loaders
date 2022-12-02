@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-import { transform } from '@esbuild-kit/core-utils';
+import { transform, installSourceMapSupport } from '@esbuild-kit/core-utils';
 import BaseLoader, {
   lookForDefaultModule,
   type LoadContext,
@@ -60,7 +60,7 @@ export default class EsbuildLoader extends BaseLoader {
       const transformed = await transform(code.toString(), filePath);
       return {
         format: context.format ?? (await detectFormatForEsbuildFilePath(filePath)),
-        source: transformed.code,
+        source: installSourceMapSupport()(transformed, url),
         shortCircuit: true,
       };
     }
