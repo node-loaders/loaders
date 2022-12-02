@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { dirname, extname } from 'node:path';
-import { lookForAlternativeFiles, type Format } from '@node-loaders/core';
+import { type Format } from '@node-loaders/core';
 import { readPackageUp } from 'read-pkg-up';
+import { lookForAlternativeFiles } from '@node-loaders/resolve';
 
 const esbuildExtensions = new Set<string>(['.ts', '.cts', '.mts', '.tsx']);
 const formatForExtension: Record<string, Format> = {
