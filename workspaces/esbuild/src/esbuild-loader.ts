@@ -108,10 +108,13 @@ export default class EsbuildLoader extends LoaderBase {
       this.sourceMapEnabled = true;
     }
 
-    const { code: source } = await transform(code.toString(), this.getOptions({
-      sourcefile,
-      format: esbuildFormat,
-    }));
+    const { code: source } = await transform(
+      code.toString(),
+      this.getOptions({
+        sourcefile,
+        format: esbuildFormat,
+      }),
+    );
 
     return { format, source };
   }
@@ -121,7 +124,7 @@ export default class EsbuildLoader extends LoaderBase {
       loader: 'default',
       target: `node14`,
       minifyWhitespace: true,
-		  keepNames: true,
+      keepNames: true,
       sourcemap: 'inline',
       ...options,
     };

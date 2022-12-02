@@ -1,6 +1,16 @@
 {
   "name": "@node-loaders/mock",
   "version": "0.1.0",
+  "keywords": [
+    "esm",
+    "import",
+    "loader",
+    "node",
+    "mock",
+    "esmock",
+    "proxyquire",
+    "rewire"
+  ],
   "type": "module",
   "exports": {
     ".": {

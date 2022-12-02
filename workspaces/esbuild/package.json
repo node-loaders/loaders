@@ -2,6 +2,15 @@
   "name": "@node-loaders/esbuild",
   "version": "0.1.0",
   "private": false,
+  "keywords": [
+    "esm",
+    "import",
+    "loader",
+    "node",
+    "esbuild",
+    "typescript",
+    "esm-loader"
+  ],
   "bugs": "https://github.com/node-loaders/loaders/issues",
   "repository": {
     "type": "git",
