@@ -50,7 +50,7 @@ export default class LoaderBase {
   }
 
   /**
-   * Filters the call and forwards to _resolve
+   * Filter calls and forwards to _resolve
    * @param specifier
    * @param context
    * @param nextResolve
@@ -72,7 +72,7 @@ export default class LoaderBase {
   }
 
   /**
-   * Filters the call and forwards to _load
+   * Filter calls and forwards to _load
    * @param url
    * @param context
    * @param nextLoad
