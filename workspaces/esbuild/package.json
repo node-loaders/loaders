@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/esbuild",
-  "version": "0.0.1-alpha.6",
+  "version": "0.1.0",
   "private": false,
   "bugs": "https://github.com/node-loaders/loaders/issues",
   "repository": {
@@ -24,8 +24,8 @@
     "test": "npm run build && mocha"
   },
   "dependencies": {
-    "@node-loaders/core": "^0.0.1-alpha.6",
-    "@node-loaders/resolve": "^0.0.1-alpha.0",
+    "@node-loaders/core": "^0.1.0",
+    "@node-loaders/resolve": "^0.1.0",
     "esbuild": "^0.15.16",
     "read-pkg-up": "^9.1.0"
   },
