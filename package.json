@@ -10,10 +10,11 @@
     "./workspaces/resolve"
   ],
   "scripts": {
-    "build": "npm run build -w workspaces/core && npm run build -w workspaces/resolve && npm run build -w workspaces/esbuild && npm run build -w workspaces/mock",
+    "build": "npm run build -w workspaces/core && npm run build -w workspaces/resolve && npm run build -w workspaces/esbuild && npm run build -w workspaces/mock && npm run build -w workspaces/auto",
     "clean": "npm run clean --workspaces",
     "clean-all": "npm run clean-all --workspaces && rimraf node_modules",
     "fix": "npm run fix --workspaces",
+    "prepare": "npm run build",
     "prettier": "prettier --write .",
     "test": "npm run test --workspaces"
   },
