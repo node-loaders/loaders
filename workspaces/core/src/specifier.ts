@@ -27,6 +27,6 @@ export const isPackageSpecifier = (specifier: string) => {
 export const isRelativeFileSpecifier = (specifier: string) => specifier.startsWith('.');
 
 export const isFileSpecifier = (specifier: string) =>
-isRelativeFileSpecifier(specifier) || isPackageJsonImportSpecifier(specifier) || isAbsolute(specifier) || isProtocol(specifier, 'file:');
+  isRelativeFileSpecifier(specifier) || isPackageJsonImportSpecifier(specifier) || isAbsolute(specifier) || isProtocol(specifier, 'file:');
 
 export const isPackageJsonImportSpecifier = (specifier: string) => specifier.startsWith('#');
