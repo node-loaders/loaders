@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/esbuild",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.1-alpha.5",
   "private": false,
   "bugs": "https://github.com/node-loaders/loaders/issues",
   "repository": {
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@esbuild-kit/core-utils": "3.0.0",
-    "@node-loaders/core": "^0.0.1-alpha.4",
+    "@node-loaders/core": "^0.0.1-alpha.5",
     "read-pkg-up": "^9.1.0"
   },
   "engines": {
