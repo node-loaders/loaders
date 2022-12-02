@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import process from 'node:process';
 
-import { transform, installSourceMapSupport } from '@esbuild-kit/core-utils';
+import { transform, type TransformOptions } from 'esbuild';
 import LoaderBase, {
   type LoadContext,
   type LoadedModule,
@@ -14,6 +15,7 @@ import LoaderBase, {
   isPackageJsonImportSpecifier,
 } from '@node-loaders/core';
 import { existingFile, lookForDefaultModule, specifierToFilePath } from '@node-loaders/resolve';
+
 import {
   detectFormatForEsbuildFileExtension,
   detectFormatForEsbuildFilePath,
@@ -27,6 +29,7 @@ export type EsbuildLoaderOptions = LoaderBaseOptions & {
 
 export default class EsbuildLoader extends LoaderBase {
   allowDefaults: boolean;
+  sourceMapEnabled = false;
 
   constructor(options: EsbuildLoaderOptions = {}) {
     // We want builtin modules and package import to pass through
@@ -81,16 +84,46 @@ export default class EsbuildLoader extends LoaderBase {
 
   protected override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
-      const filePath = fileURLToPath(url);
-      const code = await readFile(filePath);
-      const transformed = await transform(code.toString(), filePath);
       return {
-        format: context.format ?? (await detectFormatForEsbuildFilePath(filePath)),
-        source: installSourceMapSupport()(transformed, url),
+        ...(await this.transform(url, context)),
         shortCircuit: true,
       };
     }
 
     return nextLoad(url, context);
+  }
+
+  protected async transform(url: string, context: LoadContext): Promise<LoadedModule> {
+    const sourcefile = fileURLToPath(url);
+    const code = await readFile(sourcefile);
+    const format = context.format ?? (await detectFormatForEsbuildFilePath(sourcefile));
+    const esbuildFormat = format === 'module' ? 'esm' : 'cjs';
+
+    // We are transpiling, enable sourcemap is available
+    if (!this.sourceMapEnabled) {
+      if ('setSourceMapsEnabled' in process && typeof Error.prepareStackTrace !== 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        (process as any).setSourceMapsEnabled(true);
+      }
+      this.sourceMapEnabled = true;
+    }
+
+    const { code: source } = await transform(code.toString(), this.getOptions({
+      sourcefile,
+      format: esbuildFormat,
+    }));
+
+    return { format, source };
+  }
+
+  protected getOptions(options?: TransformOptions): TransformOptions {
+    return {
+      loader: 'default',
+      target: `node14`,
+      minifyWhitespace: true,
+		  keepNames: true,
+      sourcemap: 'inline',
+      ...options,
+    };
   }
 }

@@ -7,6 +7,7 @@
 For better interoperability use the auto detected installed loaders.
 
 ### Node
+
 #### cli
 
 ```shell
@@ -14,6 +15,7 @@ node --loader=@node-loaders/auto
 ```
 
 ### Mocha
+
 #### cli
 
 ```shell

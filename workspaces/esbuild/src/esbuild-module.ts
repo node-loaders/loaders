@@ -10,7 +10,8 @@ const formatForExtension: Record<string, Format> = {
   '.mts': 'module',
 };
 const replacementsForExtension: Record<string, string[]> = {
-  '.js': ['.ts'],
+  '.js': ['.ts', '.tsx', '.jsx'],
+  '.jsx': ['.tsx'],
   '.cjs': ['.cts'],
   '.mjs': ['.mts'],
 };
