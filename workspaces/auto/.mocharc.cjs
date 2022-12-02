@@ -1,5 +1,5 @@
 module.exports = {
   extension: ['spec.ts'],
-  'node-option': ['loader=@node-loaders/auto'],
+  loader: ['./dist/index.js'],
   spec: ['../esbuild/test/**/*.spec.*', '../mock/test/**/*.spec.*'],
 };
