@@ -1,16 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { isFileSpecifier, resolvePath } from '@node-loaders/core';
-
-import { importAndMergeModule } from './module-mock.js';
 
 export const globalCacheProperty = '@node-loaders';
 
-export type Mock = {
+export type MockedModuleData = {
   mock: any;
-  merged: any;
+  merged?: any;
 };
 
-export const getMockStore = (): Record<string, Record<string, Mock>> => {
+export const getMockedModuleStore = (): Record<string, Record<string, MockedModuleData>> => {
   if (!global[globalCacheProperty]) {
     global[globalCacheProperty] = { mocked: {} };
   } else if (!global[globalCacheProperty].mocked) {
@@ -20,28 +17,17 @@ export const getMockStore = (): Record<string, Record<string, Mock>> => {
   return global[globalCacheProperty].mocked;
 };
 
-export const addCachedMock = async (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): Promise<string> => {
+export const addMockedData = async (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): Promise<string> => {
   const uuid = randomUUID();
-  const mockStore = getMockStore();
-  mockStore[uuid] = {};
-
-  for (const [key, mock] of Object.entries(mockedModules)) {
-    const resolvedSpecifier = isFileSpecifier(key) ? await resolvePath(key, parentSpecifier) : key;
-    if (!resolvedSpecifier) {
-      throw new Error(`Error resolving module ${key} imported from ${parentSpecifier}`);
-    }
-
-    const merged = await importAndMergeModule(resolvedSpecifier, mock);
-    mockStore[uuid][key] = { mock, merged };
-  }
-
+  const mockStore = getMockedModuleStore();
+  mockStore[uuid] = Object.fromEntries(Object.entries(mockedModules).map(([key, mock]) => [key, { mock }]));
   return uuid;
 };
 
-export const getCachedMock = (cacheId: string, specifier: string): undefined | Mock => {
-  return getMockStore()[cacheId]?.[specifier];
+export const getMockedData = (cacheId: string, specifier: string): undefined | MockedModuleData => {
+  return getMockedModuleStore()[cacheId]?.[specifier];
 };
 
-export const deleteCachedMock = (cacheId: string): void => {
-  delete getMockStore()[cacheId];
+export const deleteMockedData = (cacheId: string): void => {
+  delete getMockedModuleStore()[cacheId];
 };
