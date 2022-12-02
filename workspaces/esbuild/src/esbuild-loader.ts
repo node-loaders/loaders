@@ -24,9 +24,9 @@ export default class EsbuildLoader extends BaseLoader {
     return isFileSpecifier(specifier);
   }
 
-  protected override async lookForModule(filePath: string): Promise<string | undefined> {
+  protected override async lookForExistingFilePath(filePath: string): Promise<string | undefined> {
     return (
-      (await super.lookForModule(filePath)) ??
+      (await super.lookForExistingFilePath(filePath)) ??
       (this.allowDefaults ? lookForDefaultModule(filePath, '.ts') : undefined) ??
       lookForEsbuildReplacementFile(filePath)
     );
@@ -37,7 +37,7 @@ export default class EsbuildLoader extends BaseLoader {
     context: ResolveContext,
     nextResolve?: NextResolve | undefined,
   ): Promise<ResolvedModule> {
-    const resolvedModule = await this.resolveModuleUrl(specifier, context.parentURL);
+    const resolvedModule = await this.resolveFileUrl(specifier, context.parentURL);
     if (resolvedModule) {
       if (nextResolve && !isEsbuildExtensionSupported(resolvedModule)) {
         return nextResolve(specifier, context);
