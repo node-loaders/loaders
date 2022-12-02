@@ -41,3 +41,7 @@ export const addCachedMock = async (mockedModules: Record<string, Record<string,
 export const getCachedMock = (cacheId: string, specifier: string): undefined | Mock => {
   return getMockStore()[cacheId]?.[specifier];
 };
+
+export const deleteCachedMock = (cacheId: string): void => {
+  delete getMockStore()[cacheId];
+};

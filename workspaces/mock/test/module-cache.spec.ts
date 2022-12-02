@@ -2,7 +2,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
-import { getMockStore, addCachedMock, globalCacheProperty, getCachedMock, extractCachedMock } from '../src/module-cache.js';
+import { getMockStore, addCachedMock, globalCacheProperty, getCachedMock, deleteCachedMock } from '../src/module-cache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -64,6 +64,19 @@ describe('module-cache', () => {
         },
       };
       expect(getCachedMock(cacheId, specifier)).toBe(target);
+    });
+  });
+
+  describe('deleteCachedMock', () => {
+    it('should get the mocked module', () => {
+      const cacheId = 'foo';
+      global[globalCacheProperty] = {
+        mocked: {
+          [cacheId]: {},
+        },
+      };
+      deleteCachedMock(cacheId);
+      expect(global[globalCacheProperty].mocked[cacheId]).toBe(undefined);
     });
   });
 });
