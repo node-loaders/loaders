@@ -9,7 +9,7 @@ Example: to mock typescript modules, the mock loader should be called before typ
 
 ## Usage
 
-See [usage](../../README.md)
+For configuration tools, refer to [usage](https://github.com/node-loaders/loaders#usage)
 
 ## License
 

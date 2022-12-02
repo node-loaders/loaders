@@ -4,7 +4,9 @@ Loader that mocks imported modules.
 
 ## Usage
 
-To configure node and utilites, see [usage](../../README.md)
+For configuration tools, refer to [usage](https://github.com/node-loaders/loaders#usage)
+
+Importing a module with mocked dependencies:
 
 ```js
 import { importMocked } from '@node-loaders/mock';
@@ -15,7 +17,7 @@ mockedModule.default();
 mockedModule.join();
 ```
 
-For better interoperability make sure to use [@node-loaders/auto](../auto/README.md).
+When using in combination with others @node-loaders modules make sure to use [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto#node-loadersauto) for better interoperability .
 
 ## License
 
