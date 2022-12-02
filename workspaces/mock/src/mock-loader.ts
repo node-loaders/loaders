@@ -9,12 +9,13 @@ import BaseLoader, {
 import {
   buildMockedSpecifierUrl,
   mockedSpecifierProtocol,
-  mockedModuleProtocol,
+  mockedOriginProtocol,
   parseProtocol,
   buildMockedModuleUrl,
 } from './url-protocol.js';
 import { getMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
+import { inspect } from 'node:util';
 
 export default class MockLoader extends BaseLoader {
   override matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
@@ -24,11 +25,12 @@ export default class MockLoader extends BaseLoader {
   protected async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     const mockData = parseProtocol(specifier);
     if (mockData) {
-      if (mockData.protocol === mockedModuleProtocol) {
+      this.log(`Handling mocked ${inspect(mockData)}`);
+      if (mockData.protocol === mockedOriginProtocol) {
         const resolvedSpecifier = await nextResolve(mockData.specifier, { ...context, parentURL: mockData.mockOrigin });
         // Rebuild the url with resolved specifier
         return {
-          url: buildMockedModuleUrl({ ...mockData, specifier: resolvedSpecifier.url }),
+          url: buildMockedModuleUrl({ cacheId: mockData.cacheId, specifier: resolvedSpecifier.url, resolvedParent: mockData.mockOrigin }),
           format: resolvedSpecifier.format,
           shortCircuit: true,
         };
@@ -45,10 +47,15 @@ export default class MockLoader extends BaseLoader {
     if (context.parentURL) {
       const mockedParent = parseProtocol(context.parentURL);
       if (mockedParent) {
+        this.log(`Handling mocked ${specifier} with parent ${inspect(mockedParent)}`);
         // Resolving a specifier loaded by a mocked module
-        const { protocol, cacheId, specifier: parentSpecifier } = mockedParent;
-        if (!getMockedData(cacheId, specifier)) {
-          throw new Error(`Error resolving mocked ${specifier} at ${parentSpecifier}, mocked object is unavailable`);
+        const { cacheId } = mockedParent;
+        let { specifier: parentSpecifier } = mockedParent;
+
+        const parentProtocol = parseProtocol(parentSpecifier);
+        if (parentProtocol) {
+          const parentURL = parentProtocol.protocol === mockedOriginProtocol ? parentProtocol.mockOrigin : undefined;
+          parentSpecifier = (await nextResolve(parentProtocol.specifier, { ...context, parentURL })).url;
         }
 
         // Resolve the specifier using the chain
@@ -71,20 +78,22 @@ export default class MockLoader extends BaseLoader {
   protected async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     const mockData = parseProtocol(url);
     if (mockData) {
+      this.log(`Handling load mocked ${inspect(mockData)}`);
       const { cacheId, specifier, protocol } = mockData;
       if (protocol === mockedSpecifierProtocol) {
         const mockedSpecifierDef = getMockedData(cacheId, specifier);
-        if (!mockedSpecifierDef) {
-          throw new Error(`Error loading mocked ${specifier}, mocked object is unavailable`);
+
+        if (mockedSpecifierDef) {
+          mockedSpecifierDef.merged = await importAndMergeModule(mockData.resolvedSpecifier, mockedSpecifierDef.mock);
+          const namedExports = getNamedExports(mockedSpecifierDef.merged);
+          return {
+            format: 'module',
+            shortCircuit: true,
+            source: generateSource(cacheId, specifier, namedExports),
+          };
         }
 
-        mockedSpecifierDef.merged = await importAndMergeModule(mockData.resolvedSpecifier, mockedSpecifierDef.mock);
-        const namedExports = getNamedExports(mockedSpecifierDef.merged);
-        return {
-          format: 'module',
-          shortCircuit: true,
-          source: generateSource(cacheId, specifier, namedExports),
-        };
+        return nextLoad(mockData.resolvedSpecifier, context)!;
       }
 
       return nextLoad(specifier, context)!;

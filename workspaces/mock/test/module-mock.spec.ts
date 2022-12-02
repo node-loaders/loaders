@@ -21,15 +21,15 @@ describe('module-merge', () => {
     describe('for esm modules', () => {
       it('should return the mocked named export', async () => {
         const mockedFunction = () => {};
-        const actual = await import('./fixtures/esm/module.mjs');
-        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/module.mjs'), { join: mockedFunction });
+        const actual = await import('./fixtures/esm/direct.mjs');
+        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/direct.mjs'), { join: mockedFunction });
         expect(mockedFs.join).toBe(mockedFunction);
         expect(mockedFs.join).not.toBe(actual.join);
       });
       it('should return the mocked named default export', async () => {
         const mockedFunction = () => {};
-        const actual = await import('./fixtures/esm/module.mjs');
-        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/module.mjs'), { default: mockedFunction });
+        const actual = await import('./fixtures/esm/direct.mjs');
+        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/direct.mjs'), { default: mockedFunction });
         expect(mockedFs.default).toBe(mockedFunction);
         expect(mockedFs.default).not.toBe(actual.default);
       });
@@ -40,13 +40,13 @@ describe('module-merge', () => {
     describe('for mocked esm modules', () => {
       it('should return the mocked named export function', async () => {
         const mockedFunction = () => {};
-        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/module.mjs'), { join: mockedFunction });
+        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/direct.mjs'), { join: mockedFunction });
         expect(getNamedExports(mockedFs)).toEqual(['default', 'join']);
       });
     });
     describe('for native esm modules', () => {
       it('should return the mocked named export function', async () => {
-        const mockedFs = await import('./fixtures/esm/module.mjs');
+        const mockedFs = await import('./fixtures/esm/direct.mjs');
         expect(getNamedExports(mockedFs)).toEqual(['default', 'join']);
       });
     });

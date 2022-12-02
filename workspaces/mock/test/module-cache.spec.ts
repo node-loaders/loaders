@@ -32,14 +32,14 @@ describe('module-cache', () => {
     describe('for esm modules', () => {
       it('should return the mocked named export', async () => {
         const mockedFunction = () => {};
-        const cacheId = await addMockedData({ 'node:path': { join: mockedFunction } }, join(__dirname, './fixtures/esm/module.mjs'));
+        const cacheId = await addMockedData({ 'node:path': { join: mockedFunction } }, join(__dirname, './fixtures/esm/direct.mjs'));
 
         const { mock } = global[globalCacheProperty].mocked[cacheId]['node:path'];
         expect(mock.join).toBe(mockedFunction);
       });
       it('should return the mocked named default export', async () => {
         const mockedFunction = () => {};
-        const cacheId = await addMockedData({ 'node:path': { default: mockedFunction } }, join(__dirname, './fixtures/esm/module.mjs'));
+        const cacheId = await addMockedData({ 'node:path': { default: mockedFunction } }, join(__dirname, './fixtures/esm/direct.mjs'));
 
         const { mock } = global[globalCacheProperty].mocked[cacheId]['node:path'];
         expect(mock.default).toBe(mockedFunction);
