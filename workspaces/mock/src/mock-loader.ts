@@ -6,12 +6,12 @@ import BaseLoader, {
   type LoadedModule,
   type NextLoad,
 } from '@node-loaders/core';
-import { buildMockedSpecifierUrl, parseProtocol } from './url-protocol.js';
+import { buildMockedSpecifierUrl, mockedSpecifierProtocol, parseProtocol } from './url-protocol.js';
 import { getCachedMock, globalCacheProperty } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
 
 export default class MockLoader extends BaseLoader {
-  protected override _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
+  override matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return parseProtocol(specifier) !== undefined || (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined);
   }
 
@@ -27,15 +27,13 @@ export default class MockLoader extends BaseLoader {
     if (context.parentURL) {
       const mockedParent = parseProtocol(context.parentURL);
       if (mockedParent) {
-        const cachedMock = getCachedMock(mockedParent.cacheId, specifier);
+        const { cacheId } = mockedParent;
+        const cachedMock = getCachedMock(cacheId, specifier);
         if (cachedMock) {
-          const resolvedSpecifier = (await this.resolveModuleUrl(specifier))!;
           return {
             url: buildMockedSpecifierUrl({
+              cacheId,
               specifier,
-              cacheId: mockedParent.cacheId,
-              resolvedSpecifier,
-              parentSpecifier: context.parentURL,
             }),
             shortCircuit: true,
             format: 'module',
@@ -52,20 +50,22 @@ export default class MockLoader extends BaseLoader {
   }
 
   protected async _load(url: string, context: LoadContext, nextLoad?: NextLoad | undefined): Promise<LoadedModule> {
-    const mockedModule = parseProtocol(url);
-    if (mockedModule) {
-      const { cacheId, specifier } = mockedModule;
-      const mockedSpecifierDef = getCachedMock(cacheId, specifier);
-      if (mockedSpecifierDef) {
-        const namedExports = getNamedExports(mockedSpecifierDef.merged);
-        return {
-          format: 'module',
-          shortCircuit: true,
-          source: generateSource(cacheId, specifier, namedExports),
-        };
+    const mockData = parseProtocol(url);
+    if (mockData) {
+      const { cacheId, specifier, protocol } = mockData;
+      if (protocol === mockedSpecifierProtocol) {
+        const mockedSpecifierDef = getCachedMock(cacheId, specifier);
+        if (mockedSpecifierDef) {
+          const namedExports = getNamedExports(mockedSpecifierDef.merged);
+          return {
+            format: 'module',
+            shortCircuit: true,
+            source: generateSource(cacheId, specifier, namedExports),
+          };
+        }
       }
 
-      return nextLoad?.(mockedModule.specifier, context)!;
+      return nextLoad?.(specifier, context)!;
     }
 
     return nextLoad?.(url, context)!;
