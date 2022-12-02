@@ -50,7 +50,7 @@ describe('resolve-module', () => {
     });
     it('should return the filePath for relative path and parent path', async () => {
       const module = join(__dirname, 'fixtures/default-modules/index.js');
-      const parentUrl = join(__dirname, 'index.js');
+      const parentUrl = pathToFileURL(join(__dirname, 'index.js')).href;
       expect(await specifierToFilePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
     });
     it('should return the filePath for relative path and parent url', async () => {
