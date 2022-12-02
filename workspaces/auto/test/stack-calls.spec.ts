@@ -1,2 +1,1 @@
-describe('stack-calls', () => {
-});
+describe('stack-calls', () => {});

@@ -13,13 +13,14 @@ export default class LoaderBase {
   protected matchBuiltinSpecifier: boolean;
   protected matchPackageSpecifier: boolean;
 
-  protected log: Debugger = createDebug('@node-loaders');
+  protected log: Debugger;
 
   constructor(options: LoaderBaseOptions = {}) {
     const { matchBuiltinSpecifier = true, matchPackageSpecifier = true } = options;
 
     this.matchBuiltinSpecifier = matchBuiltinSpecifier;
     this.matchPackageSpecifier = matchPackageSpecifier;
+    this.log = createDebug(`@node-loaders:${this.constructor.name}`);
   }
 
   exportResolve() {
@@ -37,18 +38,15 @@ export default class LoaderBase {
    * @returns
    */
   matchesEspecifier(specifier: string, context?: ResolveContext): boolean {
-    this.log(`matchResolve ${specifier} with ${inspect(context)}`);
     if (!this.matchBuiltinSpecifier && isBuiltinModule(specifier)) {
-      this.log(`fowarding builtin ${specifier}`);
       return false;
     }
 
     if (!this.matchPackageSpecifier && isPackageSpecifier(specifier)) {
-      this.log(`fowarding package name ${specifier}`);
       return false;
     }
 
-    return this._matchesEspecifier(specifier);
+    return this._matchesEspecifier(specifier, context);
   }
 
   /**
@@ -59,14 +57,17 @@ export default class LoaderBase {
    * @returns
    */
   async resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve): Promise<ResolvedModule> {
+    this.log(`Start resolving ${specifier} with ${inspect(context)}`);
     if (!nextResolve) {
       throw new Error(`Error resolving ${specifier} at ${context.parentURL ?? 'unknown'}, nextResolve is required for chaining`);
     }
 
     if (this.matchesEspecifier(specifier, context)) {
+      this.log(`Handling resolve specifier ${specifier}`);
       return this._resolve(specifier, context, nextResolve);
     }
 
+    this.log(`Fowarding resolve specifier ${specifier}`);
     return nextResolve(specifier, context);
   }
 
@@ -78,14 +79,17 @@ export default class LoaderBase {
    * @returns
    */
   async load(url: string, context: LoadContext, nextLoad?: NextLoad): Promise<LoadedModule> {
+    this.log(`Start loading ${url}`);
     if (!nextLoad) {
       throw new Error(`Error loading ${url}, nextLoad is required for chaining`);
     }
 
     if (this.matchesEspecifier(url)) {
+      this.log(`Handling load url ${url}`);
       return this._load(url, context, nextLoad);
     }
 
+    this.log(`Fowarding load url ${url}`);
     return nextLoad(url, context);
   }
 
