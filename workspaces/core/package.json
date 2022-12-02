@@ -24,7 +24,8 @@
     "clean": "rimraf dist",
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "npm run build && mocha"
   },
   "dependencies": {
     "@types/debug": "^4.1.7",
@@ -32,7 +33,6 @@
     "validate-npm-package-name": "^5.0.0"
   },
   "devDependencies": {
-    "@node-loaders/esbuild": "file:../esbuild",
     "@types/validate-npm-package-name": "^4.0.0"
   },
   "engines": {

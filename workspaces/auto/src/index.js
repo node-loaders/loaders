@@ -1,3 +1,5 @@
+import createStack from './stack-calls.js';
+
 const loadersList = [];
 
 try {
@@ -7,16 +9,6 @@ try {
 try {
   loadersList.push(await import('@node-loaders/esbuild'));
 } catch (error) {}
-
-const createStack = functions => {
-  let stacked = functions.pop();
-  while (functions.length > 0) {
-    const last = functions.pop();
-    const tmp = stacked;
-    stacked = (arg1, arg2) => last(arg1, arg2, tmp);
-  }
-  return stacked;
-};
 
 export const resolve = (identifier, context, nextResolve) => {
   return createStack([...loadersList.map(loader => loader.resolve), nextResolve])(identifier, context);

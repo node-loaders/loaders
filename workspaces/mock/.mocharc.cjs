@@ -1,4 +1,4 @@
 module.exports = {
   extension: ['spec.ts'],
-  'node-option': ['loader=@node-loaders/mock', 'loader=@node-loaders/esbuild'],
+  'node-option': ['loader=./dist/index.js', 'loader=@node-loaders/esbuild'],
 };

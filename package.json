@@ -10,11 +10,12 @@
     "./workspaces/resolve"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build -w workspaces/core && npm run build -w workspaces/resolve && npm run build -w workspaces/esbuild && npm run build -w workspaces/mock",
     "clean": "npm run clean --workspaces",
     "clean-all": "npm run clean-all --workspaces && rimraf node_modules",
     "fix": "npm run fix --workspaces",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "test": "npm run test --workspaces"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
