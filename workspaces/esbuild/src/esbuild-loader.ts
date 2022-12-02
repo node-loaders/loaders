@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { inspect } from 'node:util';
 
 import { transform, installSourceMapSupport } from '@esbuild-kit/core-utils';
 import LoaderBase, {
@@ -12,8 +11,9 @@ import LoaderBase, {
   type ResolveContext,
   type ResolvedModule,
   isFileSpecifier,
+  isPackageJsonImportSpecifier,
 } from '@node-loaders/core';
-import { existingFile, lookForDefaultModule, resolvePath } from '@node-loaders/resolve';
+import { existingFile, lookForDefaultModule, specifierToFilePath } from '@node-loaders/resolve';
 import {
   detectFormatForEsbuildFileExtension,
   detectFormatForEsbuildFilePath,
@@ -37,40 +37,15 @@ export default class EsbuildLoader extends LoaderBase {
     this.allowDefaults = allowDefaults;
   }
 
-  /**
-   * Resolve and lookup for existing module (file)
-   * @param url
-   * @param parentUrl
-   * @returns
-   */
-   protected async resolveFileUrl(url: string, parentUrl?: string): Promise<string | undefined> {
-    this.log(`Resolving ${url} at ${parentUrl ?? 'unknown'}`);
-    const resolvedPath = await resolvePath(url, parentUrl);
-    if (resolvedPath) {
-      this.log(`Resolved to ${resolvedPath}`);
-      const resolvedModule = await this.lookForExistingFilePath(resolvedPath);
-      if (resolvedModule) {
-        this.log(`Resolved to ${inspect(resolvedModule)}`);
-        return pathToFileURL(resolvedModule).href;
-      }
-    }
-
-    return undefined;
-  }
-
-  /**
-   * Lookup for existing file path
-   * @param filePath
-   * @returns
-   */
-  protected async lookForExistingJsFilePath(filePath: string): Promise<string | undefined> {
-    return (await existingFile(filePath)) ?? (this.allowDefaults ? lookForDefaultModule(filePath) : undefined);
-  }
-
-  protected async lookForExistingFilePath(filePath: string): Promise<string | undefined> {
+  protected async lookForExistingEsbuildFilePath(filePath: string): Promise<string | undefined> {
     return (
-      (await this.lookForExistingJsFilePath(filePath)) ??
+      // Look for the bare resolved path
+      (await existingFile(filePath)) ??
+      // Optionally look for js directory imports and imports without extension
+      (this.allowDefaults ? lookForDefaultModule(filePath) : undefined) ??
+      // Optionally look for ts directory imports and imports without extension
       (this.allowDefaults ? lookForDefaultModule(filePath, '.ts') : undefined) ??
+      // Look for replacements files
       lookForEsbuildReplacementFile(filePath)
     );
   }
@@ -79,28 +54,32 @@ export default class EsbuildLoader extends LoaderBase {
     return isFileSpecifier(specifier);
   }
 
-  protected override async _resolve(
-    specifier: string,
-    context: ResolveContext,
-    nextResolve?: NextResolve | undefined,
-  ): Promise<ResolvedModule> {
-    const resolvedModule = await this.resolveFileUrl(specifier, context.parentURL);
-    if (resolvedModule) {
-      if (nextResolve && !isEsbuildExtensionSupported(resolvedModule)) {
-        return nextResolve(specifier, context);
-      }
+  protected override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+    if (isPackageJsonImportSpecifier(specifier)) {
+      // Delegate package.json imports mapping to the chain.
+      const resolved = await nextResolve(specifier, context);
+      specifier = resolved.url;
+    }
 
+    const filePath = specifierToFilePath(specifier, context.parentURL);
+    const resolvedFilePath = await this.lookForExistingEsbuildFilePath(filePath);
+    if (!resolvedFilePath) {
+      throw new Error(`Module not found ${specifier}`);
+    }
+
+    if (isEsbuildExtensionSupported(resolvedFilePath)) {
+      const resolvedUrl = pathToFileURL(resolvedFilePath).href;
       return {
-        url: resolvedModule,
+        url: resolvedUrl,
         shortCircuit: true,
-        format: detectFormatForEsbuildFileExtension(resolvedModule),
+        format: detectFormatForEsbuildFileExtension(resolvedUrl),
       };
     }
 
-    throw new Error(`Module not found ${specifier}`);
+    return nextResolve(specifier, context);
   }
 
-  protected override async _load(url: string, context: LoadContext, nextLoad?: NextLoad | undefined): Promise<LoadedModule> {
+  protected override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
       const filePath = fileURLToPath(url);
       const code = await readFile(filePath);
@@ -112,6 +91,6 @@ export default class EsbuildLoader extends LoaderBase {
       };
     }
 
-    return nextLoad!(url, context);
+    return nextLoad(url, context);
   }
 }
