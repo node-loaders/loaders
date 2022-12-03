@@ -38,6 +38,9 @@
     "test": "mocha",
     "test-coverage": "c8 mocha"
   },
+  "dependencies": {
+    "@node-loaders/core": "^0.1.0"
+  },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
   },
