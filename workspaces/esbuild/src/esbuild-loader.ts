@@ -3,7 +3,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
 
 import { transform, type TransformOptions } from 'esbuild';
-import LoaderBase, {
+import {
   type LoadContext,
   type LoadedModule,
   type LoaderBaseOptions,
@@ -13,6 +13,7 @@ import LoaderBase, {
   type ResolvedModule,
   isFileSpecifier,
   isPackageJsonImportSpecifier,
+  Node14Loader,
 } from '@node-loaders/core';
 import {
   existingFile,
@@ -28,7 +29,7 @@ export type EsbuildLoaderOptions = LoaderBaseOptions & {
   allowDefaults?: boolean;
 };
 
-export default class EsbuildLoader extends LoaderBase {
+export default class EsbuildLoader extends Node14Loader {
   allowDefaults: boolean;
   sourceMapEnabled = false;
 
@@ -54,8 +55,27 @@ export default class EsbuildLoader extends LoaderBase {
     );
   }
 
-  protected override _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
+  override _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return isFileSpecifier(specifier);
+  }
+
+  async _getFormat(url: string, context: Record<string, unknown>): Promise<undefined | { format: string }> {
+    if (!isEsbuildExtensionSupported(url)) {
+      return undefined;
+    }
+
+    const format = detectFormatForEsbuildFileExtension(url) ?? (await detectPackageJsonType(fileURLToPath(url)));
+    return { format };
+  }
+
+  async _getSource(url: string, context: { format: string }): Promise<undefined | { source: string | SharedArrayBuffer | Uint8Array }> {
+    if (!isEsbuildExtensionSupported(url)) {
+      return undefined;
+    }
+
+    return {
+      source: await this.transform(fileURLToPath(url), context.format),
+    };
   }
 
   protected override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
@@ -78,13 +98,17 @@ export default class EsbuildLoader extends LoaderBase {
       };
     }
 
+    this.log(`Forwarding ${specifier}`);
     return nextResolve(specifier, context);
   }
 
   protected override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
+      const filePath = fileURLToPath(url);
+      const format = context.format ?? (await detectPackageJsonType(filePath));
       return {
-        ...(await this.transform(url, context)),
+        format,
+        source: await this.transform(filePath, format),
         shortCircuit: true,
       };
     }
@@ -92,10 +116,9 @@ export default class EsbuildLoader extends LoaderBase {
     return nextLoad(url, context);
   }
 
-  protected async transform(url: string, context: LoadContext): Promise<LoadedModule> {
-    const sourcefile = fileURLToPath(url);
-    const code = await readFile(sourcefile);
-    const format = context.format ?? (await detectPackageJsonType(sourcefile));
+  protected async transform(filePath: string, format: string): Promise<string> {
+    this.log(`Transforming ${filePath}`);
+    const code = await readFile(filePath);
     const esbuildFormat = format === 'module' ? 'esm' : 'cjs';
 
     // We are transpiling, enable sourcemap is available
@@ -111,12 +134,12 @@ export default class EsbuildLoader extends LoaderBase {
     const { code: source } = await transform(
       code.toString(),
       this.getOptions({
-        sourcefile,
+        sourcefile: filePath,
         format: esbuildFormat,
       }),
     );
 
-    return { format, source };
+    return source;
   }
 
   protected getOptions(options?: TransformOptions): TransformOptions {
