@@ -2,12 +2,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import {
-  detectFormatForEsbuildFileExtension,
-  isEsbuildExtensionSupported,
-  detectFormatForEsbuildFilePath,
-  lookForEsbuildReplacementFile,
-} from '../src/esbuild-module.js';
+import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from '../src/esbuild-module.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -44,17 +39,6 @@ describe('esbuild-module', () => {
 
     it('should return false not known extension', () => {
       expect(isEsbuildExtensionSupported('file.foo')).toBe(false);
-    });
-  });
-
-  describe('detectFormatForEsbuildFilePath', () => {
-    it('should return commonjs when nearest package.json type field is undefined', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/commonjs/module.cts');
-      expect(await detectFormatForEsbuildFilePath(module)).toBe('commonjs');
-    });
-    it('should return the nearest package.json type field', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/esm/module.mts');
-      expect(await detectFormatForEsbuildFilePath(module)).toBe('module');
     });
   });
 

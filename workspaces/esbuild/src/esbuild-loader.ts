@@ -14,14 +14,15 @@ import LoaderBase, {
   isFileSpecifier,
   isPackageJsonImportSpecifier,
 } from '@node-loaders/core';
-import { existingFile, lookForDefaultModule, specifierToFilePath } from '@node-loaders/resolve';
-
 import {
-  detectFormatForEsbuildFileExtension,
-  detectFormatForEsbuildFilePath,
-  isEsbuildExtensionSupported,
-  lookForEsbuildReplacementFile,
-} from './esbuild-module.js';
+  existingFile,
+  lookForDefaultModule,
+  specifierToFilePath,
+  detectPackageJsonType,
+  resolvePackageJsonImports,
+} from '@node-loaders/resolve';
+
+import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-module.js';
 
 export type EsbuildLoaderOptions = LoaderBaseOptions & {
   allowDefaults?: boolean;
@@ -59,9 +60,7 @@ export default class EsbuildLoader extends LoaderBase {
 
   protected override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     if (isPackageJsonImportSpecifier(specifier)) {
-      // Delegate package.json imports mapping to the chain.
-      const resolved = await nextResolve(specifier, context);
-      specifier = resolved.url;
+      specifier = await resolvePackageJsonImports(specifier, context.parentURL!);
     }
 
     const filePath = specifierToFilePath(specifier, context.parentURL);
@@ -96,7 +95,7 @@ export default class EsbuildLoader extends LoaderBase {
   protected async transform(url: string, context: LoadContext): Promise<LoadedModule> {
     const sourcefile = fileURLToPath(url);
     const code = await readFile(sourcefile);
-    const format = context.format ?? (await detectFormatForEsbuildFilePath(sourcefile));
+    const format = context.format ?? (await detectPackageJsonType(sourcefile));
     const esbuildFormat = format === 'module' ? 'esm' : 'cjs';
 
     // We are transpiling, enable sourcemap is available

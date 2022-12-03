@@ -19,7 +19,7 @@
   "license": "MIT",
   "type": "module",
   "imports": {
-    "#local": "./test/fixtures/imports/index.ts"
+    "#local": "./test/fixtures/imports/default-fallback/index.js"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -39,8 +39,7 @@
   "dependencies": {
     "@node-loaders/core": "^0.1.0",
     "@node-loaders/resolve": "^0.1.0",
-    "esbuild": "^0.15.16",
-    "read-pkg-up": "^9.1.0"
+    "esbuild": "^0.15.16"
   },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"

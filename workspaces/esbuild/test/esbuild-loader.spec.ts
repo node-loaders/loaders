@@ -8,7 +8,7 @@ import compat from '../src/compat.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const actualDefault = await import('./fixtures/imports/index.js');
+const actualDefault = await import('./fixtures/imports/default-fallback/index.js');
 
 describe('esbuild-loader', () => {
   it('should import package.json imports', async () => {
@@ -16,25 +16,29 @@ describe('esbuild-loader', () => {
     expect(local).toBe(actualDefault);
   });
   it('should throw on missing file', async () => {
-    await expect(import('./fixtures/imports/non-existing.js')).rejects.toThrow(/^Module not found/);
+    await expect(import('./fixtures/imports/default-fallback/non-existing.js')).rejects.toThrow(/^Module not found/);
   });
 
   describe('lookForExistingEsbuildFilePath', () => {
     describe('for enabled allowDefaults', () => {
       it('should find the file without extension', async () => {
-        expect(await compat.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/index'))).toMatch(/index.ts$/);
+        expect(await compat.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/default-fallback/index'))).toMatch(
+          /index.ts$/,
+        );
       });
       it('should find directory default', async () => {
-        expect(await compat.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports'))).toMatch(/index.ts$/);
+        expect(await compat.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/default-fallback'))).toMatch(/index.ts$/);
       });
     });
 
     describe('for disabled allowDefaults', () => {
       it('should not find the file without extension', async () => {
-        expect(await loader.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/index'))).toBeUndefined();
+        expect(
+          await loader.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/default-fallback/index')),
+        ).toBeUndefined();
       });
       it('should not find directory default', async () => {
-        expect(await loader.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports'))).toBeUndefined();
+        expect(await loader.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/default-fallback'))).toBeUndefined();
       });
     });
   });
