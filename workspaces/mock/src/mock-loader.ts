@@ -1,5 +1,6 @@
 import { inspect } from 'node:util';
-import BaseLoader, {
+import {
+  type Format,
   type LoadContext,
   type ResolveContext,
   type ResolvedModule,
@@ -7,6 +8,7 @@ import BaseLoader, {
   type LoadedModule,
   type NextLoad,
   isFileSpecifier,
+  Node14Loader,
 } from '@node-loaders/core';
 import {
   buildMockedSpecifierUrl,
@@ -14,12 +16,12 @@ import {
   mockedOriginProtocol,
   parseProtocol,
   buildMockedModuleUrl,
-  mockedModuleProtocol,
 } from './url-protocol.js';
+
 import { getMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
 
-export default class MockLoader extends BaseLoader {
+export default class MockLoader extends Node14Loader {
   override matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return parseProtocol(specifier) !== undefined || (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined);
   }
@@ -88,9 +90,33 @@ export default class MockLoader extends BaseLoader {
         };
       }
 
-      return nextLoad(mockData.resolvedSpecifier, context)!;
+      return nextLoad(mockData.resolvedSpecifier, context);
     }
 
-    return nextLoad(specifier, context)!;
+    return nextLoad(specifier, context);
+  }
+}
+
+export class Node14MockLoader extends MockLoader {
+  async _getFormat(url: string, context: Record<string, unknown>): Promise<{ format: string } | undefined> {
+    return { format: 'module' };
+  }
+
+  async _getSource(
+    url: string,
+    context: { format: string },
+    defaultGetSource: (url: string, context: { format: string }) => Promise<{ source: string | SharedArrayBuffer | Uint8Array }>,
+  ): Promise<{ source: string | SharedArrayBuffer | Uint8Array } | undefined> {
+    const loadedModule = await this._load(
+      url,
+      { format: context.format as Format, importAssertions: {}, conditions: [] },
+      async (nextUrl: string, nextContext: LoadContext) => {
+        const { source } = await defaultGetSource(nextUrl, { format: nextContext.format! });
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        return { source: source.toString(), format: nextContext.format! };
+      },
+    );
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    return { source: loadedModule.source.toString() };
   }
 }
