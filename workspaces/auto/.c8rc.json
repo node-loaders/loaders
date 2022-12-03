@@ -1,6 +1,6 @@
 {
   "checkCoverage": true,
-  "lines": 100,
+  "lines": 80,
   "branches": 77,
-  "statements": 100
+  "statements": 80
 }
