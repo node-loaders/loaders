@@ -32,7 +32,7 @@
     "fix": "xo --fix",
     "test": "mocha",
     "test-coverage": "c8 mocha",
-    "test-node14": "mocha -c .mocharc.node14.js test"
+    "test-node14": "mocha -c .mocharc.node14.cjs test"
   },
   "dependencies": {
     "@types/debug": "^4.1.7",
