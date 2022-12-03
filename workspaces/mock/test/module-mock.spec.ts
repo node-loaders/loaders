@@ -1,5 +1,5 @@
 import { dirname, join as pathJoin } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
 import { importAndMergeModule, getNamedExports } from '../src/module-mock.js';
@@ -22,14 +22,18 @@ describe('module-merge', () => {
       it('should return the mocked named export', async () => {
         const mockedFunction = () => {};
         const actual = await import('./fixtures/esm/direct.mjs');
-        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/direct.mjs'), { join: mockedFunction });
+        const mockedFs = await importAndMergeModule(pathToFileURL(pathJoin(__dirname, './fixtures/esm/direct.mjs')).href, {
+          join: mockedFunction,
+        });
         expect(mockedFs.join).toBe(mockedFunction);
         expect(mockedFs.join).not.toBe(actual.join);
       });
       it('should return the mocked named default export', async () => {
         const mockedFunction = () => {};
         const actual = await import('./fixtures/esm/direct.mjs');
-        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/direct.mjs'), { default: mockedFunction });
+        const mockedFs = await importAndMergeModule(pathToFileURL(pathJoin(__dirname, './fixtures/esm/direct.mjs')).href, {
+          default: mockedFunction,
+        });
         expect(mockedFs.default).toBe(mockedFunction);
         expect(mockedFs.default).not.toBe(actual.default);
       });
@@ -40,7 +44,9 @@ describe('module-merge', () => {
     describe('for mocked esm modules', () => {
       it('should return the mocked named export function', async () => {
         const mockedFunction = () => {};
-        const mockedFs = await importAndMergeModule(pathJoin(__dirname, './fixtures/esm/direct.mjs'), { join: mockedFunction });
+        const mockedFs = await importAndMergeModule(pathToFileURL(pathJoin(__dirname, './fixtures/esm/direct.mjs')).href, {
+          join: mockedFunction,
+        });
         expect(getNamedExports(mockedFs)).toEqual(['default', 'join']);
       });
     });
