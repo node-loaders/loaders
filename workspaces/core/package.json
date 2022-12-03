@@ -31,7 +31,8 @@
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
     "test": "mocha",
-    "test-coverage": "c8 mocha"
+    "test-coverage": "c8 mocha",
+    "test-node14": "mocha -c .mocharc.node14.js test"
   },
   "dependencies": {
     "@types/debug": "^4.1.7",

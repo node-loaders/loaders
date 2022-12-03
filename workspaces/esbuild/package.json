@@ -37,7 +37,8 @@
     "fix": "xo --fix",
     "pretest": "xo",
     "test": "mocha",
-    "test-coverage": "c8 mocha"
+    "test-coverage": "c8 mocha",
+    "test-node14": "mocha -c .mocharc.node14.js test"
   },
   "dependencies": {
     "@node-loaders/core": "^0.1.0",
