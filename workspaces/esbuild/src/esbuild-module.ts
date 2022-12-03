@@ -22,7 +22,7 @@ export function detectFormatForEsbuildFileExtension(filePath: string): Format {
 
 export async function detectFormatForEsbuildFilePath(filePath: string): Promise<Format> {
   const read = await readPackageUp({ cwd: dirname(filePath) });
-  return read?.packageJson?.type ?? 'commonjs';
+  return read!.packageJson!.type ?? 'commonjs';
 }
 
 export function isEsbuildExtensionSupported(filePath: string): boolean {

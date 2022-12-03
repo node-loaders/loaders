@@ -40,7 +40,7 @@ export default class EsbuildLoader extends LoaderBase {
     this.allowDefaults = allowDefaults;
   }
 
-  protected async lookForExistingEsbuildFilePath(filePath: string): Promise<string | undefined> {
+  async lookForExistingEsbuildFilePath(filePath: string): Promise<string | undefined> {
     return (
       // Look for the bare resolved path
       (await existingFile(filePath)) ??

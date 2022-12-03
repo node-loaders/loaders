@@ -71,5 +71,13 @@ describe('esbuild-module', () => {
       const module = join(__dirname, 'fixtures/detect-format/esm/module.mjs');
       expect(await lookForEsbuildReplacementFile(module)).toMatch(/module\.mts$/);
     });
+    it('should return undefined for non existing alternative', async () => {
+      const module = join(__dirname, 'fixtures/detect-format/esm/non-existing.mjs');
+      expect(await lookForEsbuildReplacementFile(module)).toBeUndefined();
+    });
+    it('should return undefined for unknown mapping', async () => {
+      const module = join(__dirname, 'fixtures/detect-format/ts/module.ts');
+      expect(await lookForEsbuildReplacementFile(module)).toBeUndefined();
+    });
   });
 });

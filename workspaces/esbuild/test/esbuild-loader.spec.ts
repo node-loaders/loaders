@@ -1,5 +1,12 @@
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import loader from '../dist/index.js';
+
+import loader from '../src/index.js';
+import compat from '../src/compat.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const actualDefault = await import('./fixtures/imports/index.js');
 
@@ -12,21 +19,23 @@ describe('esbuild-loader', () => {
     await expect(import('./fixtures/imports/non-existing.js')).rejects.toThrow(/^Module not found/);
   });
 
-  describe('when allowDefaults is enabled', () => {
-    beforeEach(() => {
-      loader.allowDefaults = true;
-    });
-    afterEach(() => {
-      loader.allowDefaults = false;
+  describe('lookForExistingEsbuildFilePath', () => {
+    describe('for enabled allowDefaults', () => {
+      it('should find the file without extension', async () => {
+        expect(await compat.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/index'))).toMatch(/index.ts$/);
+      });
+      it('should find directory default', async () => {
+        expect(await compat.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports'))).toMatch(/index.ts$/);
+      });
     });
 
-    it('should import extension less', async () => {
-      const local = await import('./fixtures/imports/index');
-      expect(local).toBe(actualDefault);
-    });
-    it('should import directory', async () => {
-      const local = await import('./fixtures/imports');
-      expect(local).toBe(actualDefault);
+    describe('for disabled allowDefaults', () => {
+      it('should not find the file without extension', async () => {
+        expect(await loader.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports/index'))).toBeUndefined();
+      });
+      it('should not find directory default', async () => {
+        expect(await loader.lookForExistingEsbuildFilePath(resolve(__dirname, './fixtures/imports'))).toBeUndefined();
+      });
     });
   });
 });
