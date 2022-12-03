@@ -117,3 +117,86 @@ export default class LoaderBase {
     throw new Error('not implemented');
   }
 }
+
+type SourceType = string | SharedArrayBuffer | Uint8Array;
+
+type Node14Format = {
+  format: string;
+};
+
+type Node14Source = {
+  source: SourceType;
+};
+
+type Node14TransformContext = Node14Format & { url: string };
+
+export class Node14Loader extends LoaderBase {
+  exportGetFormat() {
+    return this.getFormat.bind(this);
+  }
+
+  exportGetSource() {
+    return this.getSource.bind(this);
+  }
+
+  exportTransformSource() {
+    return this.transformSource.bind(this);
+  }
+
+  async getFormat(
+    url: string,
+    context: Record<string, unknown>,
+    defaultGetFormat: (url: string, context: Record<string, unknown>) => Promise<Node14Format>,
+  ): Promise<Node14Format> {
+    if (this.matchesEspecifier(url)) {
+      const returnValue = await this._getFormat(url, context);
+      if (returnValue) {
+        return returnValue;
+      }
+    }
+
+    return defaultGetFormat(url, context);
+  }
+
+  async _getFormat(url: string, context: Record<string, unknown>): Promise<undefined | Node14Format> {
+    throw new Error('Not implemented');
+  }
+
+  async getSource(
+    url: string,
+    context: Node14Format,
+    defaultGetSource: (url: string, context: Node14Format) => Promise<Node14Source>,
+  ): Promise<Node14Source> {
+    if (this.matchesEspecifier(url)) {
+      const returnValue = await this._getSource(url, context);
+      if (returnValue) {
+        return returnValue;
+      }
+    }
+
+    return defaultGetSource(url, context);
+  }
+
+  async _getSource(url: string, context: Node14Format): Promise<undefined | Node14Source> {
+    throw new Error('Not implemented');
+  }
+
+  async transformSource(
+    source: SourceType,
+    context: Node14TransformContext,
+    defaultTransform: (source: SourceType, context: Node14TransformContext) => Promise<Node14Source>,
+  ): Promise<Node14Source> {
+    if (this.matchesEspecifier(context.url)) {
+      const returnValue = await this._transformSource(source, context);
+      if (returnValue) {
+        return returnValue;
+      }
+    }
+
+    return defaultTransform(source, context);
+  }
+
+  async _transformSource(source: SourceType, context: Node14TransformContext): Promise<undefined | Node14Source> {
+    throw new Error('Not implemented');
+  }
+}
