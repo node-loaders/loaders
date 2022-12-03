@@ -1,6 +1,44 @@
-import { readdir, stat as fsStat } from 'node:fs/promises';
-import { basename, dirname, extname, isAbsolute, join } from 'node:path';
+import { readFile, stat as fsStat } from 'node:fs/promises';
+import { dirname, extname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { locatePath } from 'locate-path';
+import { findUp, pathExists, findUpStop } from 'find-up';
+import { readPackageUp } from 'read-pkg-up';
+
+export async function detectPackageJsonType(filePath: string): Promise<'commonjs' | 'module'> {
+  const read = await readPackageUp({ cwd: dirname(filePath) });
+  return read!.packageJson.type ?? 'commonjs';
+}
+
+export const resolvePackageJsonImports = async (specifier: string, parentUrl: string): Promise<string> => {
+  let resolvePath: string | undefined;
+  await findUp(
+    async directory => {
+      const filePath = join(directory, 'package.json');
+      const hasPackageJson = await pathExists(filePath);
+      if (hasPackageJson) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, unicorn/no-await-expression-member
+          const contents = JSON.parse((await readFile(filePath)).toString());
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const mapping = contents.imports?.[specifier];
+          if (mapping) {
+            resolvePath = join(directory, mapping);
+            return findUpStop;
+          }
+        } catch {}
+      }
+    },
+    { cwd: specifierToFilePath(parentUrl) },
+  );
+
+  if (resolvePath) {
+    return resolvePath;
+  }
+
+  throw new Error(`Cannot find module '${specifier}' imported from '${parentUrl}`);
+};
 
 /**
  * Resolves a file specifier to a file path
@@ -17,6 +55,7 @@ export const specifierToFilePath = (specifier: string, parentURL?: string): stri
     if (!parentURL) {
       throw new Error(`Error resolving module ${specifier} without a parentUrl`);
     }
+
     return join(dirname(fileURLToPath(parentURL)), specifier);
   }
 
@@ -44,26 +83,7 @@ export const existingFile = async (filePath: string): Promise<string | undefined
  * @returns the default filePath fallback if is found, undefined otherwise
  */
 export const lookForDefaultModule = async (filePath: string, extension = '.js'): Promise<string | undefined> => {
-  try {
-    const stat = await fsStat(filePath);
-    if (stat.isDirectory()) {
-      const indexFile = join(filePath, `${'index'}${extension}`);
-      const statIndex = await fsStat(indexFile);
-      if (statIndex.isFile()) {
-        return indexFile;
-      }
-    }
-  } catch {}
-
-  try {
-    const fileWithExtesion = `${filePath}${extension}`;
-    const stat = await fsStat(fileWithExtesion);
-    if (stat.isFile()) {
-      return fileWithExtesion;
-    }
-  } catch {}
-
-  return undefined;
+  return locatePath([join(filePath, `${'index'}${extension}`), `${filePath}${extension}`], { type: 'file' });
 };
 
 /**
@@ -71,13 +91,11 @@ export const lookForDefaultModule = async (filePath: string, extension = '.js'):
  * @param filePath
  * @returns existing files with alternative extensions
  */
-export const lookForAlternativeFiles = async (filePath: string): Promise<string[]> => {
+export const resolveAlternativeFile = async (filePath: string, extensions: string[]): Promise<string | undefined> => {
   const extension = extname(filePath);
-  const filename = basename(filePath, extension);
-  const directoryPath = dirname(filePath);
-  const list = await readdir(directoryPath);
-  return list
-    .filter(file => file.startsWith(`${filename}.`))
-    .filter(file => basename(file, extname(file)) === filename)
-    .map(file => join(directoryPath, file));
+  const extensionLess = filePath.slice(0, -extension.length);
+  return locatePath(
+    extensions.map(alternative => `${extensionLess}${alternative}`),
+    { type: 'file' },
+  );
 };

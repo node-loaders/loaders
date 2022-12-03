@@ -32,6 +32,11 @@
     "fix": "xo --fix",
     "test": "mocha"
   },
+  "dependencies": {
+    "find-up": "^6.3.0",
+    "locate-path": "^7.1.1",
+    "read-pkg-up": "^9.1.0"
+  },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
   },
