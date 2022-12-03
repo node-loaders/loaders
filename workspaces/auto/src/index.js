@@ -4,11 +4,11 @@ const loadersList = [];
 
 try {
   loadersList.push(await import('@node-loaders/mock'));
-} catch (error) {}
+} catch {}
 
 try {
   loadersList.push(await import('@node-loaders/esbuild'));
-} catch (error) {}
+} catch {}
 
 export const resolve = (identifier, context, nextResolve) => {
   return createStack([...loadersList.map(loader => loader.resolve), nextResolve])(identifier, context);
