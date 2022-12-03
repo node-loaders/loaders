@@ -1,11 +1,12 @@
-import { Node14Loader } from './loader-base.js';
+import BaseLoader from './loader-base.js';
+import Node14Loader from './loader-base-node14.js';
 import { createChainMethod } from './chain.js';
 
-export class ChainLoader extends Node14Loader {
+export class ChainLoader extends BaseLoader {
   protected loaders: any[];
 
   constructor(loaders) {
-    super();
+    super('chain');
 
     this.loaders = loaders;
 
@@ -14,9 +15,16 @@ export class ChainLoader extends Node14Loader {
   }
 }
 
-export class Node14ChainLoader extends ChainLoader {
+export class Node14ChainLoader extends Node14Loader {
+  protected loaders: any[];
+
   constructor(loaders) {
-    super(loaders);
+    super('chain');
+
+    this.loaders = loaders;
+
+    this.resolve = createChainMethod(this.loaders, 'resolve');
+    this.load = createChainMethod(this.loaders, 'load');
 
     this.getFormat = createChainMethod(this.loaders, 'getFormat');
     this.getSource = createChainMethod(this.loaders, 'getSource');
