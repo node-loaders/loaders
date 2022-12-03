@@ -36,7 +36,7 @@
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
     "test": "mocha",
-    "test-coverage": "c8 mocha"
+    "test-coverage": "mocha"
   },
   "dependencies": {
     "@node-loaders/core": "^0.1.0"
