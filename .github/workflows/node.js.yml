@@ -26,6 +26,9 @@ jobs:
         if: matrix.node-version == '14.x'
       - run: npm ci
       - run: npm test
-        if: matrix.node-version != '16.x' || matrix.os != 'ubuntu-latest'
+        if: matrix.node-version != '14.x' && (matrix.node-version != '16.x' || matrix.os != 'ubuntu-latest')
+      - run: npm run test-node14
+        # Mock tests fails due to conflict with esbuild loader, should use auto instead
+        if: matrix.node-version == '14.x'
       - run: npm run test-coverage
         if: matrix.node-version == '16.x' && matrix.os == 'ubuntu-latest'
