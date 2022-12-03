@@ -1,10 +1,15 @@
-import loader from './index.js';
+import { Node14EsbuildLoader } from './esbuild-loader.js';
 
-export * from './index.js';
+const loader = new Node14EsbuildLoader();
+
+export default loader;
+
+export const resolve = loader.exportResolve();
+export const load = loader.exportLoad();
 
 // Keep node 14 compatibility
 export const getFormat = loader.exportGetFormat();
 export const getSource = loader.exportGetSource();
 export const transformSource = loader.exportTransformSource();
 
-export { default } from './index.js';
+export { Node14EsbuildLoader } from './esbuild-loader.js';

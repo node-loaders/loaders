@@ -1,10 +1,15 @@
-import loader from './compat.js';
+import { Node14EsbuildLoader } from './esbuild-loader.js';
 
-export * from './compat.js';
+const loader = new Node14EsbuildLoader({ allowDefaults: true });
+
+export default loader;
+
+export const resolve = loader.exportResolve();
+export const load = loader.exportLoad();
 
 // Keep node 14 compatibility
 export const getFormat = loader.exportGetFormat();
 export const getSource = loader.exportGetSource();
 export const transformSource = loader.exportTransformSource();
 
-export { default } from './compat.js';
+export { Node14EsbuildLoader } from './esbuild-loader.js';
