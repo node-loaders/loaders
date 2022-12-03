@@ -18,7 +18,7 @@
     "prettier": "prettier --write .",
     "test": "npm run test --workspaces",
     "test-coverage": "npm run test-coverage --workspaces",
-    "test-node14": "npm run test --workspace workspaces/auto && npm run test --workspace workspaces/core && npm run test --workspace workspaces/esbuild && npm run test --workspace workspaces/resolve"
+    "test-node14": "npm run test --workspace workspaces/core && npm run test --workspace workspaces/esbuild && npm run test --workspace workspaces/resolve && npm run test --workspace workspaces/auto"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
