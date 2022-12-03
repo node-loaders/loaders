@@ -10,10 +10,24 @@ try {
   loadersList.push(await import('@node-loaders/esbuild'));
 } catch {}
 
-export const resolve = (identifier, context, nextResolve) => {
-  return createStack([...loadersList.map(loader => loader.resolve), nextResolve])(identifier, context);
+const filterPropertyStack = (list, property, last) => createStack([...list.map(loader => loader[property]).filter(Boolean), last]);
+
+export const resolve = (identifier, context, next) => {
+  return filterPropertyStack(loadersList, 'resolve', next)(identifier, context);
 };
 
-export const load = (url, context, nextLoad) => {
-  return createStack([...loadersList.map(loader => loader.load), nextLoad])(url, context);
+export const load = (url, context, next) => {
+  return filterPropertyStack(loadersList, 'load', next)(url, context);
+};
+
+export const getFormat = (url, context, next) => {
+  return filterPropertyStack(loadersList, 'getFormat', next)(url, context);
+};
+
+export const getSource = (url, context, next) => {
+  return filterPropertyStack(loadersList, 'getSource', next)(url, context);
+};
+
+export const transformSource = (url, context, next) => {
+  return filterPropertyStack(loadersList, 'transformSource', next)(url, context);
 };
