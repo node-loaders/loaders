@@ -11,12 +11,19 @@
   "overrides": [
     {
       "files": "src/*",
-      "rules": {}
+      "rules": {
+        "@typescript-eslint/naming-convention": "off"
+      }
     },
     {
       "files": "test/*",
       "rules": {
-        "import/no-extraneous-dependencies": "off"
+        "import/no-extraneous-dependencies": "off",
+        "max-nested-callbacks": "off",
+        "@typescript-eslint/naming-convention": "off",
+        "@typescript-eslint/no-dynamic-delete": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off"
       }
     }
   ]

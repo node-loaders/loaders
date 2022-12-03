@@ -1,4 +1,5 @@
 import { isAbsolute, join } from 'node:path';
+import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import StackUtils from 'stack-utils';
 
@@ -20,6 +21,7 @@ export const resolveCallerUrl = (): string => {
       }
 
       try {
+        // eslint-disable-next-line no-new
         new URL(parsed.file);
         return parsed.file;
       } catch {}

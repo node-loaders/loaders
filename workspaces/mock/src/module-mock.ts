@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { globalCacheProperty } from './module-cache.js';
 
 export const importAndMergeModule = async (specifier: string, mocked: any): Promise<any> => {

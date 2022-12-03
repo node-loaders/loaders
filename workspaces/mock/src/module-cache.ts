@@ -14,7 +14,7 @@ export const getMockedModuleStore = (): Record<string, Record<string, MockedModu
     global[globalCacheProperty].mocked = {};
   }
 
-  return global[globalCacheProperty].mocked;
+  return global[globalCacheProperty].mocked as unknown as Record<string, Record<string, MockedModuleData>>;
 };
 
 export const addMockedData = async (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): Promise<string> => {
@@ -29,5 +29,6 @@ export const getMockedData = (cacheId: string, specifier: string): undefined | M
 };
 
 export const deleteMockedData = (cacheId: string): void => {
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
   delete getMockedModuleStore()[cacheId];
 };

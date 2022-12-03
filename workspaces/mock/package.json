@@ -27,6 +27,7 @@
     "clean": "rimraf dist",
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
+    "pretest": "xo",
     "test": "npm run build && mocha"
   },
   "dependencies": {
