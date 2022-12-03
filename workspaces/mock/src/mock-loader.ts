@@ -56,12 +56,12 @@ export default class MockLoader extends BaseLoader {
 
     const mockData = parseProtocol(specifier)!;
     this.log(`Handling mocked ${inspect(mockData)}`);
-    if (mockData.type === mockedOriginProtocol) {
-      const { mockOrigin } = mockData;
+    const { type, cacheId, mockOrigin } = mockData;
+    if (type === mockedOriginProtocol) {
       const resolvedSpecifier = await nextResolve(mockData.specifier, { ...context, parentURL: mockOrigin });
       // Rebuild the url with resolved specifier
       return {
-        url: buildMockedModuleUrl({ cacheId: mockData.cacheId, specifier: resolvedSpecifier.url, resolvedParent: mockOrigin, mockOrigin }),
+        url: buildMockedModuleUrl({ cacheId, specifier: resolvedSpecifier.url, resolvedParent: mockOrigin, mockOrigin }),
         format: resolvedSpecifier.format,
         shortCircuit: true,
       };
