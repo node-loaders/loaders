@@ -1,6 +1,9 @@
 import EsbuildLoader from './esbuild-loader.js';
 
-const routerLoader = new EsbuildLoader();
+const loader = new EsbuildLoader();
 
-export const resolve = routerLoader.exportResolve();
-export const load = routerLoader.exportLoad();
+export default loader;
+export const resolve = loader.exportResolve();
+export const load = loader.exportLoad();
+
+export { default as EsbuildLoader } from './esbuild-loader.js';

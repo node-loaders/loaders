@@ -45,9 +45,9 @@ export default class EsbuildLoader extends LoaderBase {
       // Look for the bare resolved path
       (await existingFile(filePath)) ??
       // Optionally look for js directory imports and imports without extension
-      (this.allowDefaults ? lookForDefaultModule(filePath) : undefined) ??
+      (this.allowDefaults ? await lookForDefaultModule(filePath) : undefined) ??
       // Optionally look for ts directory imports and imports without extension
-      (this.allowDefaults ? lookForDefaultModule(filePath, '.ts') : undefined) ??
+      (this.allowDefaults ? await lookForDefaultModule(filePath, '.ts') : undefined) ??
       // Look for replacements files
       lookForEsbuildReplacementFile(filePath)
     );
@@ -105,6 +105,7 @@ export default class EsbuildLoader extends LoaderBase {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         (process as any).setSourceMapsEnabled(true);
       }
+
       this.sourceMapEnabled = true;
     }
 
@@ -122,7 +123,7 @@ export default class EsbuildLoader extends LoaderBase {
   protected getOptions(options?: TransformOptions): TransformOptions {
     return {
       loader: 'default',
-      target: `node14`,
+      target: `node16`,
       minifyWhitespace: true,
       keepNames: true,
       sourcemap: 'inline',
