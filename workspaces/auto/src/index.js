@@ -1,4 +1,5 @@
-import createStack from './stack-calls.js';
+import { Node14Loader } from '@node-loaders/core';
+import { createChainMethod } from './chain.js';
 
 const loadersList = [];
 
@@ -10,24 +11,37 @@ try {
   loadersList.push(await import('@node-loaders/esbuild'));
 } catch {}
 
-const filterPropertyStack = (list, property, last) => createStack([...list.map(loader => loader[property]).filter(Boolean), last]);
+export class ChainLoader extends Node14Loader {
+  constructor(loaders) {
+    super();
 
-export const resolve = (identifier, context, next) => {
-  return filterPropertyStack(loadersList, 'resolve', next)(identifier, context);
-};
+    this.loaders = loaders;
 
-export const load = (url, context, next) => {
-  return filterPropertyStack(loadersList, 'load', next)(url, context);
-};
+    this.resolve = createChainMethod(this.loaders, 'resolve');
+    this.load = createChainMethod(this.loaders, 'load');
+  }
+}
 
-export const getFormat = (url, context, next) => {
-  return filterPropertyStack(loadersList, 'getFormat', next)(url, context);
-};
+export class Node14ChainLoader extends Node14Loader {
+  constructor(loaders) {
+    super();
 
-export const getSource = (url, context, next) => {
-  return filterPropertyStack(loadersList, 'getSource', next)(url, context);
-};
+    this.loaders = loaders;
 
-export const transformSource = (url, context, next) => {
-  return filterPropertyStack(loadersList, 'transformSource', next)(url, context);
-};
+    this.getFormat = createChainMethod(this.loaders, 'getFormat');
+    this.getSource = createChainMethod(this.loaders, 'getSource');
+    this.transformSource = createChainMethod(this.loaders, 'transformSource');
+  }
+}
+
+const loader = new ChainLoader(loadersList);
+
+export const resolve = loader.exportResolve();
+
+export const load = loader.exportLoad();
+
+export const getFormat = loader.exportGetFormat();
+
+export const getSource = loader.exportGetSource();
+
+export const transformSource = loader.exportTransformSource();
