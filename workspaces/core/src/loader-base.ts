@@ -130,6 +130,12 @@ type Node14Source = {
 
 type Node14TransformContext = Node14Format & { url: string };
 
+type DefaultGetFormat = (url: string, context: Record<string, unknown>) => Promise<Node14Format>;
+
+type DefaultGetSource = (url: string, context: Node14Format) => Promise<Node14Source>;
+
+type DefaultTransformSource = (source: SourceType, context: Node14TransformContext) => Promise<Node14Source>;
+
 export class Node14Loader extends LoaderBase {
   exportGetFormat() {
     return this.getFormat.bind(this);
@@ -143,13 +149,9 @@ export class Node14Loader extends LoaderBase {
     return this.transformSource.bind(this);
   }
 
-  async getFormat(
-    url: string,
-    context: Record<string, unknown>,
-    defaultGetFormat: (url: string, context: Record<string, unknown>) => Promise<Node14Format>,
-  ): Promise<Node14Format> {
+  async getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<Node14Format> {
     if (this.matchesEspecifier(url)) {
-      const returnValue = await this._getFormat(url, context);
+      const returnValue = await this._getFormat(url, context, defaultGetFormat);
       if (returnValue) {
         return returnValue;
       }
@@ -158,17 +160,13 @@ export class Node14Loader extends LoaderBase {
     return defaultGetFormat(url, context);
   }
 
-  async _getFormat(url: string, context: Record<string, unknown>): Promise<undefined | Node14Format> {
+  async _getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<undefined | Node14Format> {
     throw new Error('Not implemented');
   }
 
-  async getSource(
-    url: string,
-    context: Node14Format,
-    defaultGetSource: (url: string, context: Node14Format) => Promise<Node14Source>,
-  ): Promise<Node14Source> {
+  async getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<Node14Source> {
     if (this.matchesEspecifier(url)) {
-      const returnValue = await this._getSource(url, context);
+      const returnValue = await this._getSource(url, context, defaultGetSource);
       if (returnValue) {
         return returnValue;
       }
@@ -177,17 +175,17 @@ export class Node14Loader extends LoaderBase {
     return defaultGetSource(url, context);
   }
 
-  async _getSource(url: string, context: Node14Format): Promise<undefined | Node14Source> {
+  async _getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<undefined | Node14Source> {
     throw new Error('Not implemented');
   }
 
   async transformSource(
     source: SourceType,
     context: Node14TransformContext,
-    defaultTransform: (source: SourceType, context: Node14TransformContext) => Promise<Node14Source>,
+    defaultTransform: DefaultTransformSource,
   ): Promise<Node14Source> {
     if (this.matchesEspecifier(context.url)) {
-      const returnValue = await this._transformSource(source, context);
+      const returnValue = await this._transformSource(source, context, defaultTransform);
       if (returnValue) {
         return returnValue;
       }
@@ -196,7 +194,11 @@ export class Node14Loader extends LoaderBase {
     return defaultTransform(source, context);
   }
 
-  async _transformSource(source: SourceType, context: Node14TransformContext): Promise<undefined | Node14Source> {
+  async _transformSource(
+    source: SourceType,
+    context: Node14TransformContext,
+    defaultTransform: DefaultTransformSource,
+  ): Promise<undefined | Node14Source> {
     throw new Error('Not implemented');
   }
 }
