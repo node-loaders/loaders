@@ -23,9 +23,8 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js"
-    }
+    ".": "./dist/index.js",
+    "./node14": "./dist/node14.js"
   },
   "files": [
     "./dist"

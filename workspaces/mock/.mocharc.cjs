@@ -1,4 +1,4 @@
 module.exports = {
   extension: ['spec.ts'],
-  loader: ['@node-loaders/esbuild', './dist/index.js'],
+  loader: ['@node-loaders/esbuild/node14', './dist/node14.js'],
 };

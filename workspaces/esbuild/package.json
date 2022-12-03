@@ -23,7 +23,9 @@
   },
   "exports": {
     ".": "./dist/index.js",
-    "./compat": "./dist/compat.js"
+    "./compat": "./dist/compat.js",
+    "./node14": "./dist/node14.js",
+    "./compat-node14": "./dist/compat-node14.js"
   },
   "files": [
     "./dist"
