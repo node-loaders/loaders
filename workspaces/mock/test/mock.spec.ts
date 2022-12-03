@@ -35,6 +35,15 @@ describe('mock', () => {
           expect(mockedFs.join).toBe(join);
         });
       });
+      describe('with 3 levels mocked module', () => {
+        it('should return the mocked named export', async () => {
+          const join = {};
+          const actual = await import('./fixtures/esm/three-levels.mjs');
+          const mockedFs = await importMocked('./fixtures/esm/three-levels.mjs', { 'node:path': { join } });
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.join).toBe(join);
+        });
+      });
     });
 
     describe('typescript esm modules', () => {
