@@ -30,7 +30,8 @@
     "clean": "rimraf dist",
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
-    "test": "c8 mocha"
+    "test": "mocha",
+    "test-coverage": "c8 mocha"
   },
   "dependencies": {
     "find-up": "^6.3.0",

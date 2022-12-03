@@ -35,7 +35,8 @@
     "clean": "rimraf dist",
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
-    "test": "c8 mocha"
+    "test": "mocha",
+    "test-coverage": "c8 mocha"
   },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"

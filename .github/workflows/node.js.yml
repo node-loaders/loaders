@@ -26,3 +26,6 @@ jobs:
         if: matrix.node-version == '14.x'
       - run: npm ci
       - run: npm test
+        if: matrix.node-version != '16.x' || matrix.os != 'ubuntu-latest'
+      - run: npm run test-coverage
+        if: matrix.node-version == '16.x' && matrix.os == 'ubuntu-latest'
