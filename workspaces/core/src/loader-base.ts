@@ -181,7 +181,7 @@ export class Node14Loader extends LoaderBase {
   }
 
   async _getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<undefined | Node14Format> {
-    throw new Error('Not implemented');
+    return defaultGetFormat(url, context);
   }
 
   async getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<Node14Source> {
@@ -196,7 +196,7 @@ export class Node14Loader extends LoaderBase {
   }
 
   async _getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<undefined | Node14Source> {
-    throw new Error('Not implemented');
+    return defaultGetSource(url, context);
   }
 
   async transformSource(
@@ -219,6 +219,6 @@ export class Node14Loader extends LoaderBase {
     context: Node14TransformContext,
     defaultTransform: DefaultTransformSource,
   ): Promise<undefined | Node14Source> {
-    throw new Error('Not implemented');
+    return defaultTransform(source, context);
   }
 }
