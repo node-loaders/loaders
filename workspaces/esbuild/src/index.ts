@@ -1,6 +1,6 @@
-import EsbuildLoader from './esbuild-loader.js';
+import { Node14EsbuildLoader } from './esbuild-loader.js';
 
-const loader = new EsbuildLoader();
+const loader = new Node14EsbuildLoader();
 
 export default loader;
 export const resolve = loader.exportResolve();

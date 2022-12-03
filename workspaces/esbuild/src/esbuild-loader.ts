@@ -59,25 +59,6 @@ export default class EsbuildLoader extends Node14Loader {
     return isFileSpecifier(specifier);
   }
 
-  async _getFormat(url: string, context: Record<string, unknown>): Promise<undefined | { format: string }> {
-    if (!isEsbuildExtensionSupported(url)) {
-      return undefined;
-    }
-
-    const format = detectFormatForEsbuildFileExtension(url) ?? (await detectPackageJsonType(fileURLToPath(url)));
-    return { format };
-  }
-
-  async _getSource(url: string, context: { format: string }): Promise<undefined | { source: string | SharedArrayBuffer | Uint8Array }> {
-    if (!isEsbuildExtensionSupported(url)) {
-      return undefined;
-    }
-
-    return {
-      source: await this.transform(fileURLToPath(url), context.format),
-    };
-  }
-
   protected override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     if (isPackageJsonImportSpecifier(specifier)) {
       specifier = await resolvePackageJsonImports(specifier, context.parentURL!);
@@ -150,6 +131,27 @@ export default class EsbuildLoader extends Node14Loader {
       keepNames: true,
       sourcemap: 'inline',
       ...options,
+    };
+  }
+}
+
+export class Node14EsbuildLoader extends EsbuildLoader {
+  async _getFormat(url: string, context: Record<string, unknown>): Promise<undefined | { format: string }> {
+    if (!isEsbuildExtensionSupported(url)) {
+      return undefined;
+    }
+
+    const format = detectFormatForEsbuildFileExtension(url) ?? (await detectPackageJsonType(fileURLToPath(url)));
+    return { format };
+  }
+
+  async _getSource(url: string, context: { format: string }): Promise<undefined | { source: string | SharedArrayBuffer | Uint8Array }> {
+    if (!isEsbuildExtensionSupported(url)) {
+      return undefined;
+    }
+
+    return {
+      source: await this.transform(fileURLToPath(url), context.format),
     };
   }
 }
