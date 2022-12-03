@@ -1,16 +1,27 @@
 import { readFile, stat as fsStat } from 'node:fs/promises';
 import { dirname, extname, isAbsolute, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { locatePath } from 'locate-path';
 import { findUp, pathExists, findUpStop } from 'find-up';
 import { readPackageUp } from 'read-pkg-up';
 
+/**
+ * Look for nearest package.json type field
+ * @param filePath
+ * @returns
+ */
 export async function detectPackageJsonType(filePath: string): Promise<'commonjs' | 'module'> {
   const read = await readPackageUp({ cwd: dirname(filePath) });
   return read!.packageJson.type ?? 'commonjs';
 }
 
+/**
+ * Look for package.json imports that matches the specifier
+ * @param specifier
+ * @param parentUrl
+ * @returns the resolved file url
+ */
 export const resolvePackageJsonImports = async (specifier: string, parentUrl: string): Promise<string> => {
   let resolvePath: string | undefined;
   await findUp(
@@ -34,7 +45,7 @@ export const resolvePackageJsonImports = async (specifier: string, parentUrl: st
   );
 
   if (resolvePath) {
-    return resolvePath;
+    return pathToFileURL(resolvePath).href;
   }
 
   throw new Error(`Cannot find module '${specifier}' imported from '${parentUrl}`);

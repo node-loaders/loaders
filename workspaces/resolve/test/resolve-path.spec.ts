@@ -1,4 +1,4 @@
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { jestExpect as expect } from 'mocha-expect-snapshot';
@@ -63,7 +63,7 @@ describe('resolve-module', () => {
     });
     it('should add index.js to the directory', async () => {
       const module = join(__dirname, 'fixtures/default-modules');
-      expect(await lookForDefaultModule(module)).toBe(`${module}/index.js`);
+      expect(await lookForDefaultModule(module)).toBe(resolve(`${module}/index.js`));
     });
   });
 
