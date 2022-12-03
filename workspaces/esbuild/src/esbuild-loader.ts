@@ -35,7 +35,7 @@ export default class EsbuildLoader extends Node14Loader {
 
   constructor(options: EsbuildLoaderOptions = {}) {
     // We want builtin modules and package import to pass through
-    super({ matchBuiltinSpecifier: false, matchPackageSpecifier: false, ...options });
+    super({ forwardBuiltinSpecifiers: true, forwardPackageSpecifiers: true, ...options });
 
     const { allowDefaults = false } = options;
 

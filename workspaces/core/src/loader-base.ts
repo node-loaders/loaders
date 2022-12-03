@@ -5,21 +5,21 @@ import { isBuiltinModule, isPackageSpecifier } from './specifier.js';
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
 
 export type LoaderBaseOptions = {
-  matchBuiltinSpecifier?: boolean;
-  matchPackageSpecifier?: boolean;
+  forwardBuiltinSpecifiers?: boolean;
+  forwardPackageSpecifiers?: boolean;
 };
 
 export default class LoaderBase {
-  protected matchBuiltinSpecifier: boolean;
-  protected matchPackageSpecifier: boolean;
+  protected forwardBuiltinSpecifiers: boolean;
+  protected forwardPackageSpecifiers: boolean;
 
   protected log: Debugger;
 
   constructor(options: LoaderBaseOptions = {}) {
-    const { matchBuiltinSpecifier = true, matchPackageSpecifier = true } = options;
+    const { forwardBuiltinSpecifiers = false, forwardPackageSpecifiers = false } = options;
 
-    this.matchBuiltinSpecifier = matchBuiltinSpecifier;
-    this.matchPackageSpecifier = matchPackageSpecifier;
+    this.forwardBuiltinSpecifiers = forwardBuiltinSpecifiers;
+    this.forwardPackageSpecifiers = forwardPackageSpecifiers;
     this.log = createDebug(`@node-loaders:${this.constructor.name}`);
   }
 
@@ -38,11 +38,11 @@ export default class LoaderBase {
    * @returns
    */
   matchesEspecifier(specifier: string, context?: ResolveContext): boolean {
-    if (!this.matchBuiltinSpecifier && isBuiltinModule(specifier)) {
+    if (this.forwardBuiltinSpecifiers && isBuiltinModule(specifier)) {
       return false;
     }
 
-    if (!this.matchPackageSpecifier && isPackageSpecifier(specifier)) {
+    if (this.forwardPackageSpecifiers && isPackageSpecifier(specifier)) {
       return false;
     }
 

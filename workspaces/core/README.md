@@ -29,7 +29,10 @@ class CustomLoader extends BaseLoader {
   }
 }
 
-const loader = new CustomLoader({ matchBuiltinSpecifier: false, matchPackageSpecifier: false });
+const loader = new CustomLoader({
+  forwardBuiltinSpecifiers: true,
+  forwardPackageSpecifiers: true,
+});
 
 export const resolve = loader.exportResolve();
 export const load = loader.exportLoad();
