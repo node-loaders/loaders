@@ -1,8 +1,8 @@
-import MockLoader from './mock-loader.js';
+import { Node14MockLoader } from './mock-loader.js';
 
 export * from './mock.js';
 
-const loader = new MockLoader();
+const loader = new Node14MockLoader();
 
 export default loader;
 export const resolve = loader.exportResolve();
