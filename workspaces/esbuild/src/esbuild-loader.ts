@@ -136,7 +136,7 @@ export default class EsbuildLoader extends Node14Loader {
 }
 
 export class Node14EsbuildLoader extends EsbuildLoader {
-  async _getFormat(url: string, context: Record<string, unknown>): Promise<undefined | { format: string }> {
+  override async _getFormat(url: string): Promise<undefined | { format: string }> {
     if (!isEsbuildExtensionSupported(url)) {
       return undefined;
     }
@@ -145,7 +145,10 @@ export class Node14EsbuildLoader extends EsbuildLoader {
     return { format };
   }
 
-  async _getSource(url: string, context: { format: string }): Promise<undefined | { source: string | SharedArrayBuffer | Uint8Array }> {
+  override async _getSource(
+    url: string,
+    context: { format: string },
+  ): Promise<undefined | { source: string | SharedArrayBuffer | Uint8Array }> {
     if (!isEsbuildExtensionSupported(url)) {
       return undefined;
     }
