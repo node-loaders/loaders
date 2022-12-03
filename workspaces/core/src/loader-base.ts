@@ -1,6 +1,6 @@
 import { inspect } from 'node:util';
 import createDebug, { type Debugger } from 'debug';
-import { isBuiltinModule, isPackageSpecifier } from './specifier.js';
+import { isBuiltinModule, isPackageSpecifier, isCheckUrl } from './specifier.js';
 
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
 
@@ -10,17 +10,19 @@ export type LoaderBaseOptions = {
 };
 
 export default class LoaderBase {
-  protected forwardBuiltinSpecifiers: boolean;
-  protected forwardPackageSpecifiers: boolean;
+  protected readonly name: string;
+  protected readonly forwardBuiltinSpecifiers: boolean;
+  protected readonly forwardPackageSpecifiers: boolean;
 
-  protected log: Debugger;
+  protected readonly log: Debugger;
 
-  constructor(options: LoaderBaseOptions = {}) {
+  constructor(name?: string, options: LoaderBaseOptions = {}) {
     const { forwardBuiltinSpecifiers = false, forwardPackageSpecifiers = false } = options;
 
+    this.name = name ?? this.constructor.name;
     this.forwardBuiltinSpecifiers = forwardBuiltinSpecifiers;
     this.forwardPackageSpecifiers = forwardPackageSpecifiers;
-    this.log = createDebug(`@node-loaders:${this.constructor.name}`);
+    this.log = createDebug(`@node-loaders:${this.name}`);
   }
 
   exportResolve() {
@@ -58,6 +60,15 @@ export default class LoaderBase {
    */
   async resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve): Promise<ResolvedModule> {
     this.log(`Start resolving ${specifier} with ${inspect(context)}`);
+    if (isCheckUrl(specifier, this.name)) {
+      this.log(`Fowarding node loader check ${specifier}`);
+      return {
+        url: specifier,
+        format: 'module',
+        shortCircuit: true,
+      };
+    }
+
     if (!nextResolve) {
       throw new Error(`Error resolving ${specifier} at ${context.parentURL ?? 'unknown'}, nextResolve is required for chaining`);
     }
@@ -80,6 +91,15 @@ export default class LoaderBase {
    */
   async load(url: string, context: LoadContext, nextLoad?: NextLoad): Promise<LoadedModule> {
     this.log(`Start loading ${url}`);
+    if (isCheckUrl(url, this.name)) {
+      this.log(`Generating ${url}`);
+      return {
+        source: 'export default true;',
+        format: 'module',
+        shortCircuit: true,
+      };
+    }
+
     if (!nextLoad) {
       throw new Error(`Error loading ${url}, nextLoad is required for chaining`);
     }
