@@ -40,7 +40,8 @@
   "dependencies": {
     "@node-loaders/core": "^0.1.0",
     "@node-loaders/resolve": "^0.1.0",
-    "esbuild": "^0.15.16"
+    "esbuild": "^0.15.16",
+    "get-tsconfig": "^4.2.0"
   },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"

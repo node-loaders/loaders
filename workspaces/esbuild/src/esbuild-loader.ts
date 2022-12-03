@@ -1,8 +1,10 @@
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dirname } from 'node:path';
 import process from 'node:process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { transform, type TransformOptions } from 'esbuild';
+import { getTsconfig } from 'get-tsconfig';
 import {
   type LoadContext,
   type LoadedModule,
@@ -123,13 +125,15 @@ export default class EsbuildLoader extends Node14Loader {
     return source;
   }
 
-  protected getOptions(options?: TransformOptions): TransformOptions {
+  protected getOptions(options: TransformOptions & Required<Pick<TransformOptions, 'sourcefile'>>): TransformOptions {
+    const tsconfigRaw = getTsconfig(dirname(options.sourcefile))?.config as unknown;
     return {
       loader: 'default',
-      target: `node16`,
       minifyWhitespace: true,
       keepNames: true,
       sourcemap: 'inline',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      tsconfigRaw: tsconfigRaw as any,
       ...options,
     };
   }
