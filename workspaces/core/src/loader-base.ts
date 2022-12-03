@@ -37,7 +37,7 @@ export default class LoaderBase {
    * @param context
    * @returns
    */
-  matchesEspecifier(specifier: string, context?: ResolveContext): boolean {
+  handlesEspecifier(specifier: string, context?: ResolveContext): boolean {
     if (this.forwardBuiltinSpecifiers && isBuiltinModule(specifier)) {
       return false;
     }
@@ -46,7 +46,7 @@ export default class LoaderBase {
       return false;
     }
 
-    return this._matchesEspecifier(specifier, context);
+    return this._handlesEspecifier(specifier, context);
   }
 
   /**
@@ -62,7 +62,7 @@ export default class LoaderBase {
       throw new Error(`Error resolving ${specifier} at ${context.parentURL ?? 'unknown'}, nextResolve is required for chaining`);
     }
 
-    if (this.matchesEspecifier(specifier, context)) {
+    if (this.handlesEspecifier(specifier, context)) {
       this.log(`Handling resolve specifier ${specifier}`);
       return this._resolve(specifier, context, nextResolve);
     }
@@ -84,7 +84,7 @@ export default class LoaderBase {
       throw new Error(`Error loading ${url}, nextLoad is required for chaining`);
     }
 
-    if (this.matchesEspecifier(url)) {
+    if (this.handlesEspecifier(url)) {
       this.log(`Handling load url ${url}`);
       return this._load(url, context, nextLoad);
     }
@@ -93,7 +93,7 @@ export default class LoaderBase {
     return nextLoad(url, context);
   }
 
-  protected _matchesEspecifier(specifier: string, context?: ResolveContext) {
+  protected _handlesEspecifier(specifier: string, context?: ResolveContext) {
     return false;
   }
 
@@ -150,7 +150,7 @@ export class Node14Loader extends LoaderBase {
   }
 
   async getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<Node14Format> {
-    if (this.matchesEspecifier(url)) {
+    if (this.handlesEspecifier(url)) {
       const returnValue = await this._getFormat(url, context, defaultGetFormat);
       if (returnValue) {
         return returnValue;
@@ -165,7 +165,7 @@ export class Node14Loader extends LoaderBase {
   }
 
   async getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<Node14Source> {
-    if (this.matchesEspecifier(url)) {
+    if (this.handlesEspecifier(url)) {
       const returnValue = await this._getSource(url, context, defaultGetSource);
       if (returnValue) {
         return returnValue;
@@ -184,7 +184,7 @@ export class Node14Loader extends LoaderBase {
     context: Node14TransformContext,
     defaultTransform: DefaultTransformSource,
   ): Promise<Node14Source> {
-    if (this.matchesEspecifier(context.url)) {
+    if (this.handlesEspecifier(context.url)) {
       const returnValue = await this._transformSource(source, context, defaultTransform);
       if (returnValue) {
         return returnValue;

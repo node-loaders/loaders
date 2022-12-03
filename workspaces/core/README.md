@@ -10,22 +10,22 @@ Creating a new Loader:
 import BaseLoader from '@node-loaders/core';
 
 class CustomLoader extends BaseLoader {
-  _matchesEspecifier(specifier, ...) {
+  _handlesEspecifier(specifier, ...) {
     /*
      * Filter calls, non related calls should be forwarded for best interoperatbility.
      *
      * Constructor options provides rules implementation for builtin and package specifiers.
-     * To ignore those options override matchesEspecifier instead
+     * To ignore those options override handlesEspecifier instead
      */
     return isTypescriptFile(specifier);
   }
 
   _resolve(...) {
-    // Filtered (by matchesEspecifier) resolve
+    // Filtered (by handlesEspecifier) resolve
   }
 
   _load(...) {
-    // Filtered (by matchesEspecifier) load
+    // Filtered (by handlesEspecifier) load
   }
 }
 

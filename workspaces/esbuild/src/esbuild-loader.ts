@@ -55,7 +55,7 @@ export default class EsbuildLoader extends Node14Loader {
     );
   }
 
-  override _matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
+  override _handlesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return isFileSpecifier(specifier);
   }
 

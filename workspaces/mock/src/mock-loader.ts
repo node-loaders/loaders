@@ -22,7 +22,7 @@ import { getMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
 
 export default class MockLoader extends Node14Loader {
-  override matchesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
+  override _handlesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return parseProtocol(specifier) !== undefined || (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined);
   }
 
