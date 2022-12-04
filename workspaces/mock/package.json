@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/mock",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "keywords": [
     "esm",
     "import",
@@ -31,7 +31,7 @@
     "test-node14": "mocha --config .mocharc.node14.cjs test"
   },
   "dependencies": {
-    "@node-loaders/core": "^0.1.0",
+    "@node-loaders/core": "^0.2.0",
     "stack-utils": "^2.0.6"
   },
   "devDependencies": {
