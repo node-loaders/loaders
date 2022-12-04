@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { transform, type TransformOptions } from 'esbuild';
 import { getTsconfig } from 'get-tsconfig';
-import {
+import LoaderBase, {
   type LoadContext,
   type LoadedModule,
   type LoaderBaseOptions,
@@ -15,7 +15,6 @@ import {
   type ResolvedModule,
   isFileSpecifier,
   isPackageJsonImportSpecifier,
-  Node14Loader,
 } from '@node-loaders/core';
 import {
   existingFile,
@@ -31,7 +30,7 @@ export type EsbuildLoaderOptions = LoaderBaseOptions & {
   allowDefaults?: boolean;
 };
 
-export default class EsbuildLoader extends Node14Loader {
+export default class EsbuildLoader extends LoaderBase {
   allowDefaults: boolean;
   sourceMapEnabled = false;
 
@@ -61,7 +60,7 @@ export default class EsbuildLoader extends Node14Loader {
     return isFileSpecifier(specifier);
   }
 
-  protected override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+  override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     if (isPackageJsonImportSpecifier(specifier)) {
       specifier = await resolvePackageJsonImports(specifier, context.parentURL!);
     }
@@ -85,7 +84,7 @@ export default class EsbuildLoader extends Node14Loader {
     return nextResolve(specifier, context);
   }
 
-  protected override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
+  override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
       const filePath = fileURLToPath(url);
       const format = context.format ?? (await detectPackageJsonType(filePath));
@@ -99,7 +98,7 @@ export default class EsbuildLoader extends Node14Loader {
     return nextLoad(url, context);
   }
 
-  protected async transform(filePath: string, format: string): Promise<string> {
+  async transform(filePath: string, format: string): Promise<string> {
     this.log(`Transforming ${filePath}`);
     const code = await readFile(filePath);
     const esbuildFormat = format === 'module' ? 'esm' : 'cjs';
@@ -125,7 +124,7 @@ export default class EsbuildLoader extends Node14Loader {
     return source;
   }
 
-  protected getOptions(options: TransformOptions & Required<Pick<TransformOptions, 'sourcefile'>>): TransformOptions {
+  getOptions(options: TransformOptions & Required<Pick<TransformOptions, 'sourcefile'>>): TransformOptions {
     const tsconfigRaw = getTsconfig(dirname(options.sourcefile))?.config as unknown;
     return {
       loader: 'default',
@@ -135,30 +134,6 @@ export default class EsbuildLoader extends Node14Loader {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       tsconfigRaw: tsconfigRaw as any,
       ...options,
-    };
-  }
-}
-
-export class Node14EsbuildLoader extends EsbuildLoader {
-  override async _getFormat(url: string): Promise<undefined | { format: string }> {
-    if (!isEsbuildExtensionSupported(url)) {
-      return undefined;
-    }
-
-    const format = detectFormatForEsbuildFileExtension(url) ?? (await detectPackageJsonType(fileURLToPath(url)));
-    return { format };
-  }
-
-  override async _getSource(
-    url: string,
-    context: { format: string },
-  ): Promise<undefined | { source: string | SharedArrayBuffer | Uint8Array }> {
-    if (!isEsbuildExtensionSupported(url)) {
-      return undefined;
-    }
-
-    return {
-      source: await this.transform(fileURLToPath(url), context.format),
     };
   }
 }

@@ -1,4 +1,4 @@
-import { Node14EsbuildLoader } from './esbuild-loader.js';
+import { Node14EsbuildLoader } from './node14.js';
 
 const loader = new Node14EsbuildLoader({ allowDefaults: true });
 
@@ -12,4 +12,4 @@ export const getFormat = loader.exportGetFormat();
 export const getSource = loader.exportGetSource();
 export const transformSource = loader.exportTransformSource();
 
-export { Node14EsbuildLoader } from './esbuild-loader.js';
+export { Node14EsbuildLoader } from './node14.js';

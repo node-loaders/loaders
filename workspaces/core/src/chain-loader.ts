@@ -8,6 +8,7 @@ export class ChainLoader extends BaseLoader {
   constructor(loaders) {
     super('chain');
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.loaders = loaders;
 
     this.resolve = createChainMethod(this.loaders, 'resolve');
@@ -21,6 +22,7 @@ export class Node14ChainLoader extends Node14Loader {
   constructor(loaders) {
     super('chain');
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.loaders = loaders;
 
     this.resolve = createChainMethod(this.loaders, 'resolve');

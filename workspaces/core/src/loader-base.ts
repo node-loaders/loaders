@@ -10,11 +10,11 @@ export type LoaderBaseOptions = {
 };
 
 export default class LoaderBase {
-  protected readonly name: string;
-  protected readonly forwardBuiltinSpecifiers: boolean;
-  protected readonly forwardPackageSpecifiers: boolean;
+  readonly name: string;
+  readonly forwardBuiltinSpecifiers: boolean;
+  readonly forwardPackageSpecifiers: boolean;
 
-  protected readonly log: Debugger;
+  readonly log: Debugger;
 
   constructor(name?: string, options: LoaderBaseOptions = {}) {
     const { forwardBuiltinSpecifiers = false, forwardPackageSpecifiers = false } = options;
@@ -113,7 +113,7 @@ export default class LoaderBase {
     return nextLoad(url, context);
   }
 
-  protected _handlesEspecifier(specifier: string, context?: ResolveContext) {
+  _handlesEspecifier(specifier: string, context?: ResolveContext) {
     return false;
   }
 
@@ -123,7 +123,7 @@ export default class LoaderBase {
    * @param context
    * @param nextResolve
    */
-  protected async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+  async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     throw new Error('not implemented');
   }
 
@@ -133,7 +133,7 @@ export default class LoaderBase {
    * @param context
    * @param nextLoad
    */
-  protected async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
+  async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     throw new Error('not implemented');
   }
 }

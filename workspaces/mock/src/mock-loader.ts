@@ -1,6 +1,5 @@
 import { inspect } from 'node:util';
-import {
-  type Format,
+import BaseLoader, {
   type LoadContext,
   type ResolveContext,
   type ResolvedModule,
@@ -8,7 +7,6 @@ import {
   type LoadedModule,
   type NextLoad,
   isFileSpecifier,
-  Node14Loader,
 } from '@node-loaders/core';
 import {
   buildMockedSpecifierUrl,
@@ -21,7 +19,7 @@ import {
 import { getMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
 
-export default class MockLoader extends Node14Loader {
+export default class MockLoader extends BaseLoader {
   constructor() {
     super('mock');
   }
@@ -30,7 +28,7 @@ export default class MockLoader extends Node14Loader {
     return parseProtocol(specifier) !== undefined || (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined);
   }
 
-  protected async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+  async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     const mockedParent = context?.parentURL && parseProtocol(context.parentURL);
     if (mockedParent) {
       this.log(`Handling mocked ${specifier} with parent ${inspect(mockedParent)}`);
@@ -76,7 +74,7 @@ export default class MockLoader extends Node14Loader {
     throw new Error(`Error resolving mocked ${specifier}, origin type is required`);
   }
 
-  protected async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
+  async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     const mockData = parseProtocol(url)!;
     this.log(`Handling load mocked ${inspect(mockData)}`);
     const { cacheId, specifier, type } = mockData;
@@ -98,29 +96,5 @@ export default class MockLoader extends Node14Loader {
     }
 
     return nextLoad(specifier, context);
-  }
-}
-
-export class Node14MockLoader extends MockLoader {
-  async _getFormat(url: string, context: Record<string, unknown>): Promise<{ format: string } | undefined> {
-    return { format: 'module' };
-  }
-
-  async _getSource(
-    url: string,
-    context: { format: string },
-    defaultGetSource: (url: string, context: { format: string }) => Promise<{ source: string | SharedArrayBuffer | Uint8Array }>,
-  ): Promise<{ source: string | SharedArrayBuffer | Uint8Array } | undefined> {
-    const loadedModule = await this._load(
-      url,
-      { format: context.format as Format, importAssertions: {}, conditions: [] },
-      async (nextUrl: string, nextContext: LoadContext) => {
-        const { source } = await defaultGetSource(nextUrl, { format: nextContext.format! });
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        return { source: source.toString(), format: nextContext.format! };
-      },
-    );
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    return { source: loadedModule.source.toString() };
   }
 }

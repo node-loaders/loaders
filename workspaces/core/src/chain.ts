@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment */
 export const createChainMethod = (list, property) => (identifier, context, next) =>
   createChain([...list.map(loader => loader[property]).filter(Boolean), (...args) => next(...args)])(identifier, context);
 

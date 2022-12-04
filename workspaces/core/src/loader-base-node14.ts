@@ -1,5 +1,6 @@
-import LoaderBase from "./loader-base.js";
-import { isCheckUrl } from "./specifier.js";
+import LoaderBase from './loader-base.js';
+import { isCheckUrl } from './specifier.js';
+import { type Format, type LoadContext } from './index.js';
 
 type SourceType = string | SharedArrayBuffer | Uint8Array;
 
@@ -19,83 +20,104 @@ type DefaultGetSource = (url: string, context: Node14Format) => Promise<Node14So
 
 type DefaultTransformSource = (source: SourceType, context: Node14TransformContext) => Promise<Node14Source>;
 
-export default class Node14Loader extends LoaderBase {
-  exportGetFormat() {
-    return this.getFormat.bind(this);
-  }
+type Constructor<Foo extends LoaderBase> = new (...args: any[]) => Foo;
 
-  exportGetSource() {
-    return this.getSource.bind(this);
-  }
-
-  exportTransformSource() {
-    return this.transformSource.bind(this);
-  }
-
-  async getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<Node14Format> {
-    if (isCheckUrl(url, this.name)) {
-      this.log(`Fowarding node loader check ${url}`);
-      return {
-        format: 'module',
-      };
+export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent: Parent) {
+  return class WithNode14Loader extends parent {
+    exportGetFormat() {
+      return this.getFormat.bind(this);
     }
 
-    if (this.handlesEspecifier(url)) {
-      const returnValue = await this._getFormat(url, context, defaultGetFormat);
-      if (returnValue) {
-        return returnValue;
+    exportGetSource() {
+      return this.getSource.bind(this);
+    }
+
+    exportTransformSource() {
+      return this.transformSource.bind(this);
+    }
+
+    async getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<Node14Format> {
+      if (isCheckUrl(url, this.name)) {
+        this.log(`Fowarding node loader check ${url}`);
+        return {
+          format: 'module',
+        };
       }
-    }
 
-    return defaultGetFormat(url, context);
-  }
-
-  async _getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<undefined | Node14Format> {
-    return defaultGetFormat(url, context);
-  }
-
-  async getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<Node14Source> {
-    if (isCheckUrl(url, this.name)) {
-      this.log(`Generating ${url}`);
-      return {
-        source: 'export default true;',
-      };
-    }
-
-    if (this.handlesEspecifier(url)) {
-      const returnValue = await this._getSource(url, context, defaultGetSource);
-      if (returnValue) {
-        return returnValue;
+      if (this.handlesEspecifier(url)) {
+        const returnValue = await this._getFormat(url, context, defaultGetFormat);
+        if (returnValue) {
+          return returnValue;
+        }
       }
+
+      return defaultGetFormat(url, context);
     }
 
-    return defaultGetSource(url, context);
-  }
+    async _getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<undefined | Node14Format> {
+      return defaultGetFormat(url, context);
+    }
 
-  async _getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<undefined | Node14Source> {
-    return defaultGetSource(url, context);
-  }
-
-  async transformSource(
-    source: SourceType,
-    context: Node14TransformContext,
-    defaultTransform: DefaultTransformSource,
-  ): Promise<Node14Source> {
-    if (this.handlesEspecifier(context.url)) {
-      const returnValue = await this._transformSource(source, context, defaultTransform);
-      if (returnValue) {
-        return returnValue;
+    async getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<Node14Source> {
+      if (isCheckUrl(url, this.name)) {
+        this.log(`Generating ${url}`);
+        return {
+          source: 'export default true;',
+        };
       }
+
+      if (this.handlesEspecifier(url)) {
+        const returnValue = await this._getSource(url, context, defaultGetSource);
+        if (returnValue) {
+          return returnValue;
+        }
+      }
+
+      return defaultGetSource(url, context);
     }
 
-    return defaultTransform(source, context);
-  }
+    // Pass to _load by default
+    async _getSource(
+      url: string,
+      context: { format: string },
+      defaultGetSource: (url: string, context: { format: string }) => Promise<{ source: string | SharedArrayBuffer | Uint8Array }>,
+    ): Promise<{ source: string | SharedArrayBuffer | Uint8Array } | undefined> {
+      const loadedModule = await this._load(
+        url,
+        { format: context.format as Format, importAssertions: {}, conditions: [] },
+        async (nextUrl: string, nextContext: LoadContext) => {
+          const { source } = await defaultGetSource(nextUrl, { format: nextContext.format! });
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          return { source: source.toString(), format: nextContext.format! };
+        },
+      );
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
+      return { source: loadedModule.source.toString() };
+    }
 
-  async _transformSource(
-    source: SourceType,
-    context: Node14TransformContext,
-    defaultTransform: DefaultTransformSource,
-  ): Promise<undefined | Node14Source> {
-    return defaultTransform(source, context);
-  }
+    async transformSource(
+      source: SourceType,
+      context: Node14TransformContext,
+      defaultTransform: DefaultTransformSource,
+    ): Promise<Node14Source> {
+      if (this.handlesEspecifier(context.url)) {
+        const returnValue = await this._transformSource(source, context, defaultTransform);
+        if (returnValue) {
+          return returnValue;
+        }
+      }
+
+      return defaultTransform(source, context);
+    }
+
+    async _transformSource(
+      source: SourceType,
+      context: Node14TransformContext,
+      defaultTransform: DefaultTransformSource,
+    ): Promise<undefined | Node14Source> {
+      return defaultTransform(source, context);
+    }
+  };
 }
+
+export default class Node14Loader extends addNode14Support(LoaderBase) {}
