@@ -1,27 +1,38 @@
 import { inspect } from 'node:util';
 import createDebug, { type Debugger } from 'debug';
-import { isBuiltinModule, isPackageSpecifier, isCheckUrl } from './specifier.js';
+import { isBuiltinModule, isPackageSpecifier, isCheckUrl, isNodeModulesSpecifier } from './specifier.js';
 
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
 
 export type LoaderBaseOptions = {
   forwardBuiltinSpecifiers?: boolean;
   forwardPackageSpecifiers?: boolean;
+  forwardNodeModulesSpecifiers?: boolean;
+  forwardNodeModulesParentSpecifiers?: boolean;
 };
 
 export default class LoaderBase {
   readonly name: string;
   readonly forwardBuiltinSpecifiers: boolean;
   readonly forwardPackageSpecifiers: boolean;
+  readonly forwardNodeModulesSpecifiers: boolean;
+  readonly forwardNodeModulesParentSpecifiers: boolean;
 
   readonly log: Debugger;
 
   constructor(name?: string, options: LoaderBaseOptions = {}) {
-    const { forwardBuiltinSpecifiers = false, forwardPackageSpecifiers = false } = options;
+    const {
+      forwardBuiltinSpecifiers = false,
+      forwardPackageSpecifiers = false,
+      forwardNodeModulesSpecifiers = false,
+      forwardNodeModulesParentSpecifiers = false,
+    } = options;
 
     this.name = name ?? this.constructor.name;
     this.forwardBuiltinSpecifiers = forwardBuiltinSpecifiers;
     this.forwardPackageSpecifiers = forwardPackageSpecifiers;
+    this.forwardNodeModulesSpecifiers = forwardNodeModulesSpecifiers;
+    this.forwardNodeModulesParentSpecifiers = forwardNodeModulesParentSpecifiers;
     this.log = createDebug(`@node-loaders:${this.name}`);
   }
 
@@ -45,6 +56,14 @@ export default class LoaderBase {
     }
 
     if (this.forwardPackageSpecifiers && isPackageSpecifier(specifier)) {
+      return false;
+    }
+
+    if (this.forwardNodeModulesSpecifiers && isNodeModulesSpecifier(specifier)) {
+      return false;
+    }
+
+    if (this.forwardNodeModulesParentSpecifiers && context?.parentURL && isNodeModulesSpecifier(context.parentURL)) {
       return false;
     }
 

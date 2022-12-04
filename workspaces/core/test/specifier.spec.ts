@@ -2,7 +2,7 @@ import { builtinModules } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import { isBuiltinModule, isFileSpecifier, isPackageSpecifier } from '../src/specifier.js';
+import { isBuiltinModule, isFileSpecifier, isNodeModulesSpecifier, isPackageSpecifier } from '../src/specifier.js';
 
 const builtinModulesToTest = [...builtinModules, ...builtinModules.map(builtinModule => `node:${builtinModule}`)];
 const fileModulesToTest = ['.', '#', resolve('/foo'), pathToFileURL('/foo').href];
@@ -47,6 +47,20 @@ describe('detect-module', () => {
     for (const nonPackageModule of [...builtinModulesToTest, ...fileModulesToTest]) {
       it(`should return false for ${nonPackageModule}`, () => {
         expect(isPackageSpecifier(nonPackageModule)).toBe(false);
+      });
+    }
+  });
+
+  describe('isNodeModulesSpecifier', () => {
+    for (const nodeModulesSpecifier of ['/node_modules/', 'a/node_modules/b', 'a\\node_modules\\a', '\\\\node_modules\\\\']) {
+      it(`should return true for ${nodeModulesSpecifier}`, () => {
+        expect(isNodeModulesSpecifier(nodeModulesSpecifier)).toBe(true);
+      });
+    }
+
+    for (const nonNodeModulesSpecifier of ['/anode_modules/', '/node_modulesb', 'anode_modulesb']) {
+      it(`should return false for ${nonNodeModulesSpecifier}`, () => {
+        expect(isNodeModulesSpecifier(nonNodeModulesSpecifier)).toBe(false);
       });
     }
   });
