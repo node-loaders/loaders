@@ -36,7 +36,13 @@ export default class EsbuildLoader extends LoaderBase {
 
   constructor(options: EsbuildLoaderOptions = {}) {
     // We want builtin modules and package import to pass through
-    super('esbuild', { forwardBuiltinSpecifiers: true, forwardPackageSpecifiers: true, ...options });
+    super('esbuild', {
+      forwardBuiltinSpecifiers: true,
+      forwardPackageSpecifiers: true,
+      forwardNodeModulesSpecifiers: true,
+      forwardNodeModulesParentSpecifiers: true,
+      ...options,
+    });
 
     const { allowDefaults = false } = options;
 
