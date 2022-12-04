@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { url } from 'node:inspector';
 import { transform, type TransformOptions } from 'esbuild';
 import { getTsconfig } from 'get-tsconfig';
 import LoaderBase, {
@@ -68,7 +69,15 @@ export default class EsbuildLoader extends LoaderBase {
 
   override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     if (isPackageJsonImportSpecifier(specifier)) {
-      specifier = await resolvePackageJsonImports(specifier, context.parentURL!);
+      try {
+        return await nextResolve(specifier, context);
+      } catch (error: unknown) {
+        const message = (error as any).message as string;
+        const result = /'([^']*)'/.exec(message);
+        if (result && result.length > 1) {
+          specifier = result[1];
+        }
+      }
     }
 
     const filePath = specifierToFilePath(specifier, context.parentURL);
