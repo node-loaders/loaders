@@ -7,7 +7,7 @@ import { importAndMergeModule, getNamedExports } from '../src/module-mock.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-describe('module-merge', () => {
+describe('module-mock', () => {
   describe('importAndMergeModule', () => {
     describe('for builtin module', () => {
       it('should return the mocked named export function', async () => {
@@ -47,13 +47,13 @@ describe('module-merge', () => {
         const mockedFs = await importAndMergeModule(pathToFileURL(pathJoin(__dirname, './fixtures/esm/direct.mjs')).href, {
           join: mockedFunction,
         });
-        expect(getNamedExports(mockedFs)).toEqual(['default', 'join']);
+        expect(getNamedExports(mockedFs)).toEqual(['default', 'jestMock', 'join']);
       });
     });
     describe('for native esm modules', () => {
       it('should return the mocked named export function', async () => {
         const mockedFs = await import('./fixtures/esm/direct.mjs');
-        expect(getNamedExports(mockedFs)).toEqual(['default', 'join']);
+        expect(getNamedExports(mockedFs)).toEqual(['default', 'jestMock', 'join']);
       });
     });
   });

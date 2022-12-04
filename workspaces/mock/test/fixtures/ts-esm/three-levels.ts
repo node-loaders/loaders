@@ -1,1 +1,1 @@
-export { default, join } from './indirect.js';
+export { default, join, jestMock } from './indirect.js';

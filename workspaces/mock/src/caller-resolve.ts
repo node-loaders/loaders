@@ -9,11 +9,8 @@ const stackLineToGet = 3;
 export const resolveCallerUrl = (): string => {
   const stackUtils = new StackUtils({ cwd: 'please I want absolutes paths' });
   const error = new Error('Get stack');
-  if (!error.stack) {
-    throw new Error('Could not find the origin. Stack is missing.');
-  }
 
-  const stack = error.stack.split('\n');
+  const stack = error.stack!.split('\n');
   while (!/^\s*at /.test(stack[0])) {
     stack.shift();
   }
@@ -26,16 +23,17 @@ export const resolveCallerUrl = (): string => {
         return pathToFileURL(parsed.file).href;
       }
 
+      // Stack trace usually are paths, url may happen specially on windows
+      /* c8 ignore next 5 */
       try {
         // eslint-disable-next-line no-new
         new URL(parsed.file);
         return parsed.file;
       } catch {}
-
-      // ParseLine makes the file relative.
-      return pathToFileURL(join(process.cwd(), parsed.file)).href;
     }
   }
 
+  // Not supposed to happen
+  /* c8 ignore next */
   throw new Error(`Could not find the source at ${inspect(lines)}`);
 };

@@ -1,1 +1,1 @@
-export { default, join } from './three-levels.mjs';
+export { default, join, jestMock } from './three-levels.mjs';

@@ -1,25 +1,19 @@
 export type MockModuleData = Record<string, unknown>;
 
 export const mockedOriginProtocol = 'node-loaders-mock-origin:';
-export const mockedModuleProtocol = 'node-loaders-mock-module:';
 export const mockedSpecifierProtocol = 'node-loaders-mock-specifier:';
 
-type Type = typeof mockedOriginProtocol | typeof mockedSpecifierProtocol | typeof mockedModuleProtocol;
+type Type = typeof mockedOriginProtocol | typeof mockedSpecifierProtocol;
 
 export type MockedIdData = {
   type: Type;
   cacheId: string;
   specifier: string;
-  mockOrigin: string;
 };
 
 export type MockedOriginData = MockedIdData & {
   type: typeof mockedOriginProtocol;
-};
-
-export type MockedModuleData = MockedIdData & {
-  type: typeof mockedModuleProtocol;
-  resolvedParent: string;
+  mockOrigin: string;
 };
 
 export type MockedSpecifierData = MockedIdData & {
@@ -30,70 +24,50 @@ export type MockedSpecifierData = MockedIdData & {
 const mockedTypeSearchParameter = '@node-loaders/mocked-type';
 const mockedIdSearchParameter = '@node-loaders/mocked-id';
 const mockedSpecifierSearchParameter = '@node-loaders/mocked-specifier';
-const mockedResolvedSpecifierSearchParameter = '@node-loaders/mocked-resolved-specifier';
-const mockedOriginSearchParameter = '@node-loaders/mocked-origin';
-const mockedResovedParentSearchParameter = '@node-loaders/mocked-resolved-parent';
 
-export const parseProtocol = (url: string): MockedSpecifierData | MockedOriginData | MockedModuleData | undefined => {
+export const parseProtocol = (url: string): MockedSpecifierData | MockedOriginData | undefined => {
+  let parsedUrl: URL;
   try {
-    const parsedUrl = new URL(url);
-    const type = parsedUrl.searchParams.get(mockedTypeSearchParameter);
-    if (type) {
-      const cacheId = parsedUrl.searchParams.get(mockedIdSearchParameter);
-      const specifier = parsedUrl.searchParams.get(mockedSpecifierSearchParameter);
-      const mockOrigin = parsedUrl.href.slice(0, -parsedUrl.search.length);
-      if (!cacheId || !specifier) {
-        throw new Error(`Error parsing mocking url ${url}`);
-      }
-
-      if (type === mockedOriginProtocol) {
-        return { type, cacheId, specifier, mockOrigin };
-      }
-
-      if (type === mockedSpecifierProtocol) {
-        const resolvedSpecifier = parsedUrl.searchParams.get(mockedResolvedSpecifierSearchParameter)!;
-        return { type, cacheId, specifier, resolvedSpecifier, mockOrigin };
-      }
-
-      if (type === mockedModuleProtocol) {
-        const resolvedParent = parsedUrl.searchParams.get(mockedResovedParentSearchParameter)!;
-        return { type, cacheId, specifier, resolvedParent, mockOrigin };
-      }
-    }
-  } catch {}
-
-  return undefined;
-};
-
-export const buildMockedOriginUrl = (data: Omit<MockedOriginData, 'type'>): string => {
-  const url = buildUrl(mockedOriginProtocol, data);
-  if (data.mockOrigin) {
-    url.searchParams.set(mockedOriginSearchParameter, data.mockOrigin);
+    parsedUrl = new URL(url);
+  } catch {
+    return undefined;
   }
 
-  return url.href;
-};
-
-export const buildMockedModuleUrl = (data: Omit<MockedModuleData, 'type'>): string => {
-  const url = buildUrl(mockedOriginProtocol, data);
-  if (data.resolvedParent) {
-    url.searchParams.set(mockedResovedParentSearchParameter, data.resolvedParent);
+  const type = parsedUrl.searchParams.get(mockedTypeSearchParameter);
+  if (!type) {
+    return undefined;
   }
 
-  return url.href;
-};
-
-export const buildMockedSpecifierUrl = (data: Omit<MockedSpecifierData, 'type'>): string => {
-  const url = buildUrl(mockedSpecifierProtocol, data);
-  if (data.resolvedSpecifier) {
-    url.searchParams.set(mockedResolvedSpecifierSearchParameter, data.resolvedSpecifier);
+  const cacheId = parsedUrl.searchParams.get(mockedIdSearchParameter);
+  const specifier = parsedUrl.searchParams.get(mockedSpecifierSearchParameter);
+  const baseUrl = parsedUrl.href.slice(0, -parsedUrl.search.length);
+  /* c8 ignore next 4 */
+  if (!cacheId || !specifier) {
+    // Typescript forbids this error
+    throw new Error(`Error parsing mocking url ${url}`);
   }
 
-  return url.href;
+  if (type === mockedOriginProtocol) {
+    return { type, cacheId, specifier, mockOrigin: baseUrl };
+  }
+
+  if (type === mockedSpecifierProtocol) {
+    return { type, cacheId, specifier, resolvedSpecifier: baseUrl };
+  }
+
+  throw new Error(`Bad type: ${type}`);
 };
 
-const buildUrl = (type: string, data: Omit<MockedIdData, 'type'>): URL => {
-  const url = new URL(data.mockOrigin);
+export const buildMockedOriginUrl = (originUrl: string, data: Omit<MockedOriginData, 'type' | 'mockOrigin'>): string => {
+  return buildUrl(mockedOriginProtocol, originUrl, data).href;
+};
+
+export const buildMockedSpecifierUrl = (resolvedUrl: string, data: Omit<MockedSpecifierData, 'type' | 'resolvedSpecifier'>): string => {
+  return buildUrl(mockedSpecifierProtocol, resolvedUrl, data).href;
+};
+
+export const buildUrl = (type: string, baseUrl: string, data: Omit<MockedIdData, 'type'>): URL => {
+  const url = new URL(baseUrl);
   url.searchParams.set(mockedTypeSearchParameter, type);
   url.searchParams.set(mockedIdSearchParameter, data.cacheId);
   url.searchParams.set(mockedSpecifierSearchParameter, data.specifier);

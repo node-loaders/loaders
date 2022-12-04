@@ -9,20 +9,14 @@ import BaseLoader, {
   type ResolvedModule,
   isFileSpecifier,
 } from '@node-loaders/core';
-import {
-  buildMockedSpecifierUrl,
-  mockedSpecifierProtocol,
-  mockedOriginProtocol,
-  parseProtocol,
-  buildMockedModuleUrl,
-} from './url-protocol.js';
+import { buildMockedSpecifierUrl, mockedSpecifierProtocol, mockedOriginProtocol, parseProtocol } from './url-protocol.js';
 
 import { getMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
-    super('mock', { forwardNodeModulesSpecifiers: true, ...options });
+    super('mock', options);
   }
 
   override _handlesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
@@ -32,13 +26,13 @@ export default class MockLoader extends BaseLoader {
   async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     const mockedParent = context?.parentURL && parseProtocol(context.parentURL);
     if (mockedParent) {
+      if (mockedParent.type !== mockedSpecifierProtocol) {
+        throw new Error(`Error resolving mocked ${specifier}, specifier type is mandatory for the parentURL param`);
+      }
+
       this.log(`Handling mocked ${specifier} with parent ${inspect(mockedParent)}`);
       // Resolving a specifier loaded by a mocked module
-      const { cacheId, mockOrigin } = mockedParent;
-      let { specifier: parentSpecifier } = mockedParent;
-      if (mockedParent.type === mockedSpecifierProtocol) {
-        parentSpecifier = mockedParent.resolvedSpecifier;
-      }
+      const { cacheId, resolvedSpecifier: parentSpecifier } = mockedParent;
 
       if (!getMockedData(cacheId, specifier) && !isFileSpecifier(specifier)) {
         this.log(`Forwarding non mocked module ${specifier}`);
@@ -48,31 +42,34 @@ export default class MockLoader extends BaseLoader {
       // Resolve the specifier using the chain
       const resolvedSpecifier = await nextResolve(specifier, { ...context, parentURL: parentSpecifier });
       return {
-        url: buildMockedSpecifierUrl({
+        url: buildMockedSpecifierUrl(resolvedSpecifier.url, {
           cacheId,
           specifier,
-          resolvedSpecifier: resolvedSpecifier.url,
-          mockOrigin,
         }),
         shortCircuit: true,
-        format: 'module',
+        format: resolvedSpecifier.format,
       };
     }
 
     const mockData = parseProtocol(specifier)!;
     this.log(`Handling mocked ${inspect(mockData)}`);
-    const { type, cacheId, mockOrigin } = mockData;
+    const { type, cacheId } = mockData;
     if (type === mockedOriginProtocol) {
-      const resolvedSpecifier = await nextResolve(mockData.specifier, { ...context, parentURL: mockOrigin });
+      const parentURL = mockData.mockOrigin;
+      const resolvedSpecifier = await nextResolve(mockData.specifier, { ...context, parentURL });
+
       // Rebuild the url with resolved specifier
       return {
-        url: buildMockedModuleUrl({ cacheId, specifier: resolvedSpecifier.url, resolvedParent: mockOrigin, mockOrigin }),
+        url: buildMockedSpecifierUrl(resolvedSpecifier.url, {
+          cacheId,
+          specifier,
+        }),
         format: resolvedSpecifier.format,
         shortCircuit: true,
       };
     }
 
-    throw new Error(`Error resolving mocked ${specifier}, origin type is required`);
+    throw new Error(`Error resolving mocked ${specifier}, origin type is mandatory for the specifier param`);
   }
 
   async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
@@ -96,6 +93,6 @@ export default class MockLoader extends BaseLoader {
       return nextLoad(mockData.resolvedSpecifier, context);
     }
 
-    return nextLoad(specifier, context);
+    throw new Error(`Loading ${url} is not supported, protocol is invalid`);
   }
 }

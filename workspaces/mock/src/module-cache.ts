@@ -2,19 +2,19 @@ import { randomUUID } from 'node:crypto';
 
 export const globalCacheProperty = '@node-loaders';
 
-export type MockedModuleData = {
+export type MockedParentData = {
   mock: any;
   merged?: any;
 };
 
-export const getMockedModuleStore = (): Record<string, Record<string, MockedModuleData>> => {
+export const getMockedModuleStore = (): Record<string, Record<string, MockedParentData>> => {
   if (!global[globalCacheProperty]) {
     global[globalCacheProperty] = { mocked: {} };
   } else if (!global[globalCacheProperty].mocked) {
     global[globalCacheProperty].mocked = {};
   }
 
-  return global[globalCacheProperty].mocked as unknown as Record<string, Record<string, MockedModuleData>>;
+  return global[globalCacheProperty].mocked as unknown as Record<string, Record<string, MockedParentData>>;
 };
 
 export const addMockedData = async (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): Promise<string> => {
@@ -24,7 +24,7 @@ export const addMockedData = async (mockedModules: Record<string, Record<string,
   return uuid;
 };
 
-export const getMockedData = (cacheId: string, specifier: string): undefined | MockedModuleData => {
+export const getMockedData = (cacheId: string, specifier: string): undefined | MockedParentData => {
   return getMockedModuleStore()[cacheId]?.[specifier];
 };
 

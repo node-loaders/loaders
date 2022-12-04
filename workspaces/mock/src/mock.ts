@@ -11,8 +11,11 @@ export const mock = async (specifier: string, mockedSpecifiers: Record<string, R
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const mockImport = await import(createCheckUrl('mock'));
       checked = mockImport.default as boolean;
+      /* c8 ignore next */
     } catch {}
 
+    // Tests have the loader installed, so the query will always succed
+    /* c8 ignore next 3 */
     if (!checked) {
       throw new Error('The mock loader is not loaded correctly. Refer to https://github.com/node-loaders/loaders#usage');
     }
@@ -20,7 +23,7 @@ export const mock = async (specifier: string, mockedSpecifiers: Record<string, R
 
   const mockOrigin = resolveCallerUrl();
   const cacheId = await addMockedData(mockedSpecifiers, specifier);
-  const mockedSpecifier = buildMockedOriginUrl({ specifier, cacheId, mockOrigin });
+  const mockedSpecifier = buildMockedOriginUrl(mockOrigin, { specifier, cacheId });
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const module = await import(mockedSpecifier);
   deleteMockedData(cacheId);

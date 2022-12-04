@@ -1,1 +1,1 @@
-export { default, join } from './direct.mjs';
+export { default, join, jestMock } from './direct.mjs';
