@@ -1,11 +1,12 @@
 import { inspect } from 'node:util';
 import BaseLoader, {
   type LoadContext,
+  type LoadedModule,
+  type LoaderBaseOptions,
+  type NextResolve,
+  type NextLoad,
   type ResolveContext,
   type ResolvedModule,
-  type NextResolve,
-  type LoadedModule,
-  type NextLoad,
   isFileSpecifier,
 } from '@node-loaders/core';
 import {
@@ -20,8 +21,8 @@ import { getMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
 
 export default class MockLoader extends BaseLoader {
-  constructor() {
-    super('mock');
+  constructor(options: LoaderBaseOptions = {}) {
+    super('mock', { forwardNodeModulesSpecifiers: true, forwardNodeModulesParentSpecifiers: true, ...options });
   }
 
   override _handlesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
