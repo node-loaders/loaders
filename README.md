@@ -4,7 +4,12 @@
 
 ## Usage
 
-For better interoperability use the auto detected installed loaders.
+For better interoperability use the [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto) that detects installed loaders.
+
+### Node 14
+
+Loaders api at [Node 14](https://nodejs.org/docs/latest-v14.x/api/esm.html#esm_loaders) is quite different from [Node 16](https://nodejs.org/docs/latest-v16.x/api/esm.html#loaders).
+For Node 14, use the `@node-loaders/*/node14` exported path.
 
 ### Node
 
