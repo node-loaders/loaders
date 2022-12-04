@@ -3,7 +3,6 @@ import { dirname } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { url } from 'node:inspector';
 import { transform, type TransformOptions } from 'esbuild';
 import { getTsconfig } from 'get-tsconfig';
 import LoaderBase, {
@@ -17,13 +16,7 @@ import LoaderBase, {
   isFileSpecifier,
   isPackageJsonImportSpecifier,
 } from '@node-loaders/core';
-import {
-  existingFile,
-  lookForDefaultModule,
-  specifierToFilePath,
-  detectPackageJsonType,
-  resolvePackageJsonImports,
-} from '@node-loaders/resolve';
+import { existingFile, lookForDefaultModule, specifierToFilePath, detectPackageJsonType } from '@node-loaders/resolve';
 
 import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-module.js';
 
@@ -41,7 +34,8 @@ export default class EsbuildLoader extends LoaderBase {
       forwardBuiltinSpecifiers: true,
       forwardPackageSpecifiers: true,
       forwardNodeModulesSpecifiers: true,
-      forwardNodeModulesParentSpecifiers: true,
+      // Libs can import a resolved development file.
+      forwardNodeModulesParentSpecifiers: false,
       ...options,
     });
 
