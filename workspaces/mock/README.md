@@ -9,9 +9,12 @@ For configuration tools, refer to [usage](https://github.com/node-loaders/loader
 Importing a module with mocked dependencies:
 
 ```js
-import { importMocked } from '@node-loaders/mock';
+import { mock } from '@node-loaders/mock';
 
-const mockedModule = await importMocked('./module.js', { default: spy(), join: spy() });
+const mockedModule = await mock('./module.js', {
+  default: spy(),
+  join: spy(),
+});
 
 mockedModule.default();
 mockedModule.join();

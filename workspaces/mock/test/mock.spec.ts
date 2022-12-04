@@ -1,6 +1,6 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
-import { importMocked } from '../src/mock.js';
+import { mock } from '../src/mock.js';
 import { globalCacheProperty } from '../src/module-cache.js';
 
 describe('mock', () => {
@@ -8,20 +8,20 @@ describe('mock', () => {
     delete global[globalCacheProperty];
   });
 
-  describe('importMocked', () => {
+  describe('mock', () => {
     describe('javascript esm modules', () => {
       describe('with direct mocked module', () => {
         it('should return the named export', async () => {
           const join = {};
           const actual = await import('./fixtures/esm/direct.mjs');
-          const mockedFs = await importMocked('./fixtures/esm/direct.mjs', { foo: { join } });
+          const mockedFs = await mock('./fixtures/esm/direct.mjs', { foo: { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
         });
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/esm/direct.mjs');
-          const mockedFs = await importMocked('./fixtures/esm/direct.mjs', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/esm/direct.mjs', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });
@@ -30,7 +30,7 @@ describe('mock', () => {
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/esm/indirect.mjs');
-          const mockedFs = await importMocked('./fixtures/esm/indirect.mjs', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/esm/indirect.mjs', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });
@@ -39,7 +39,7 @@ describe('mock', () => {
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/esm/three-levels.mjs');
-          const mockedFs = await importMocked('./fixtures/esm/three-levels.mjs', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/esm/three-levels.mjs', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });
@@ -48,7 +48,7 @@ describe('mock', () => {
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/esm/four-levels.mjs');
-          const mockedFs = await importMocked('./fixtures/esm/four-levels.mjs', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/esm/four-levels.mjs', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });
@@ -60,14 +60,14 @@ describe('mock', () => {
         it('should return the named export', async () => {
           const join = {};
           const actual = await import('./fixtures/ts-esm/direct.js');
-          const mockedFs = await importMocked('./fixtures/ts-esm/direct.js', { foo: { join } });
+          const mockedFs = await mock('./fixtures/ts-esm/direct.js', { foo: { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
         });
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/ts-esm/direct.js');
-          const mockedFs = await importMocked('./fixtures/ts-esm/direct.js', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/ts-esm/direct.js', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });
@@ -76,7 +76,7 @@ describe('mock', () => {
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/ts-esm/indirect.js');
-          const mockedFs = await importMocked('./fixtures/ts-esm/indirect.js', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/ts-esm/indirect.js', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });
@@ -85,7 +85,7 @@ describe('mock', () => {
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/ts-esm/three-levels.js');
-          const mockedFs = await importMocked('./fixtures/ts-esm/three-levels.js', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/ts-esm/three-levels.js', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });
@@ -94,7 +94,7 @@ describe('mock', () => {
         it('should return the mocked named export', async () => {
           const join = {};
           const actual = await import('./fixtures/ts-esm/four-levels.js');
-          const mockedFs = await importMocked('./fixtures/ts-esm/four-levels.js', { 'node:path': { join } });
+          const mockedFs = await mock('./fixtures/ts-esm/four-levels.js', { 'node:path': { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
         });

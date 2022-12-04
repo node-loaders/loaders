@@ -5,7 +5,7 @@ import { buildMockedOriginUrl } from './url-protocol.js';
 
 let checked = false;
 
-export const importMocked = async (specifier: string, mockedSpecifiers: Record<string, Record<string, any>>): Promise<any> => {
+export const mock = async (specifier: string, mockedSpecifiers: Record<string, Record<string, any>>): Promise<any> => {
   if (!checked) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
