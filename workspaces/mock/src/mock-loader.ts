@@ -22,7 +22,7 @@ import { generateSource, getNamedExports, importAndMergeModule } from './module-
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
-    super('mock', { forwardNodeModulesSpecifiers: true, forwardNodeModulesParentSpecifiers: true, ...options });
+    super('mock', { forwardNodeModulesSpecifiers: true, ...options });
   }
 
   override _handlesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
