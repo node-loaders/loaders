@@ -19,7 +19,7 @@
   "license": "MIT",
   "type": "module",
   "imports": {
-    "#local": "./test/fixtures/imports/default-fallback/index.js"
+    "#local": "./test/fixtures/imports/local/index.js"
   },
   "exports": {
     ".": "./dist/index.js",

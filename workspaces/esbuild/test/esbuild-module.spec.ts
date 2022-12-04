@@ -1,11 +1,8 @@
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from '../src/esbuild-module.js';
+import { existingFile } from '@node-loaders/resolve';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from '../src/esbuild-module.js';
+import { resolvePackage, resolveNonExisting } from '../../test/src/index.js';
 
 const commonjsExtensions = ['.cts'];
 const esmExtensions = ['.mts'];
@@ -44,23 +41,24 @@ describe('esbuild-module', () => {
 
   describe('lookForEsbuildReplacementFile', () => {
     it('should return ts file for js file', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/ts/module.js');
-      expect(await lookForEsbuildReplacementFile(module)).toMatch(/module\.ts$/);
+      const module = resolvePackage('ts-esm-simple/simple.js');
+      expect(await lookForEsbuildReplacementFile(module)).toMatch(/simple\.ts$/);
     });
     it('should return cts file for cjs file', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/commonjs/module.cjs');
-      expect(await lookForEsbuildReplacementFile(module)).toMatch(/module\.cts$/);
+      const module = resolvePackage('cts-simple/simple.cjs');
+      expect(await lookForEsbuildReplacementFile(module)).toMatch(/simple\.cts$/);
     });
     it('should return mts file for mjs file', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/esm/module.mjs');
-      expect(await lookForEsbuildReplacementFile(module)).toMatch(/module\.mts$/);
+      const module = resolvePackage('mts-simple/simple.mjs');
+      expect(await lookForEsbuildReplacementFile(module)).toMatch(/simple\.mts$/);
     });
     it('should return undefined for non existing alternative', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/esm/non-existing.mjs');
+      const module = resolveNonExisting('esm/non-existing.mjs');
       expect(await lookForEsbuildReplacementFile(module)).toBeUndefined();
     });
     it('should return undefined for unknown mapping', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/ts/module.ts');
+      const module = resolvePackage('ts-esm-simple/package.json');
+      expect(existingFile(module)).toBeTruthy();
       expect(await lookForEsbuildReplacementFile(module)).toBeUndefined();
     });
   });
