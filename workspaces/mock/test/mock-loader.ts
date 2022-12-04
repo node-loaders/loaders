@@ -55,7 +55,6 @@ describe('mock-loader', () => {
         // ResolvedSpecifier,
       } as any);
       const mockedModule = await import(mockUrl);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       mockedModule.default();
       expect(mockedDefault).toBeCalled();
     });

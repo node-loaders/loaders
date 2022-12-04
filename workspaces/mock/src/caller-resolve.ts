@@ -1,20 +1,26 @@
 import { isAbsolute, join } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
+import { inspect } from 'node:util';
 import StackUtils from 'stack-utils';
 
+const stackLineToGet = 3;
+
 export const resolveCallerUrl = (): string => {
-  const stack = new StackUtils();
+  const stackUtils = new StackUtils({ cwd: 'please I want absolutes paths' });
   const error = new Error('Get stack');
-  const lines = error.stack?.split('\n');
-  if (lines) {
-    while (lines.length > 0 && !lines[0].startsWith('Error: Get stack')) {
-      lines.shift();
-    }
+  if (!error.stack) {
+    throw new Error('Could not find the origin. Stack is missing.');
   }
 
-  if (lines && lines.length > 3) {
-    const parsed = stack.parseLine(lines[3]);
+  const stack = error.stack.split('\n');
+  while (!/^\s*at /.test(stack[0])) {
+    stack.shift();
+  }
+
+  const lines = stackUtils.clean(stack).split('\n');
+  if (lines && lines.length >= stackLineToGet) {
+    const parsed = stackUtils.parseLine(lines[stackLineToGet - 1]);
     if (parsed?.file) {
       if (isAbsolute(parsed.file)) {
         return pathToFileURL(parsed.file).href;
@@ -31,5 +37,5 @@ export const resolveCallerUrl = (): string => {
     }
   }
 
-  throw new Error(`Could not find the source`);
+  throw new Error(`Could not find the source at ${inspect(lines)}`);
 };

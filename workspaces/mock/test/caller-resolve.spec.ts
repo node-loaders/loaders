@@ -3,14 +3,14 @@ import { jestExpect as expect } from 'mocha-expect-snapshot';
 import { resolveCallerUrl } from '../src/caller-resolve.js';
 
 // Add intermediate call to mock mock
-function resolveCallerUrlWrapper() {
-  return resolveCallerUrl();
+function wrap(fn) {
+  return fn();
 }
 
 describe('caller-resolve', () => {
   describe('resolveCallerUrl', () => {
     it('should return current file', () => {
-      expect(resolveCallerUrlWrapper().toLowerCase()).toBe(import.meta.url.toLowerCase());
+      expect(wrap(resolveCallerUrl).toLowerCase()).toBe(import.meta.url.toLowerCase());
     });
   });
 });
