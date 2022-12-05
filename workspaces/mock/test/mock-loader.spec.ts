@@ -71,7 +71,8 @@ describe('mock-loader', () => {
         expect(result).toMatchInlineSnapshot(`
           {
             "format": "commonjs",
-            "url": "file:///resolvedspecifier",
+            "shortCircuit": true,
+            "url": "file:///resolvedspecifier?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier",
           }
         `);
       });

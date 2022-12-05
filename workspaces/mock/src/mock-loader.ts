@@ -34,11 +34,6 @@ export default class MockLoader extends BaseLoader {
       // Resolving a specifier loaded by a mocked module
       const { cacheId, resolvedSpecifier: parentSpecifier } = mockedParent;
 
-      if (!getMockedData(cacheId, specifier) && !isFileSpecifier(specifier)) {
-        this.log(`Forwarding non mocked module ${specifier}`);
-        return nextResolve(specifier, { ...context, parentURL: parentSpecifier });
-      }
-
       // Resolve the specifier using the chain
       const resolvedSpecifier = await nextResolve(specifier, { ...context, parentURL: parentSpecifier });
       return {
