@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import LoaderBase from './loader-base.js';
 import { isCheckUrl } from './specifier.js';
 import { type Format, type LoadContext } from './index.js';
@@ -121,3 +122,4 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
 }
 
 export default class Node14Loader extends addNode14Support(LoaderBase) {}
+/* c8 ignore stop */
