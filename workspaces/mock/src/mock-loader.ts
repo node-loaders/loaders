@@ -81,7 +81,8 @@ export default class MockLoader extends BaseLoader {
 
       if (mockedSpecifierDef) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        mockedSpecifierDef.merged = await importAndMergeModule(mockData.resolvedSpecifier, mockedSpecifierDef.mock);
+        mockedSpecifierDef.merged =
+          mockedSpecifierDef.merged ?? (await importAndMergeModule(mockData.resolvedSpecifier, mockedSpecifierDef.mock));
         const namedExports = getNamedExports(mockedSpecifierDef.merged);
         return {
           format: 'module',
