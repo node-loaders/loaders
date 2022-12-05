@@ -1,9 +1,9 @@
 import BaseLoader from './loader-base.js';
-import Node14Loader from './loader-base-node14.js';
+import { addNode14Support } from './loader-base-node14.js';
 import { createChainMethod } from './chain.js';
 
 export class ChainLoader extends BaseLoader {
-  protected loaders: any[];
+  public loaders: any[];
 
   constructor(loaders) {
     super('chain');
@@ -11,25 +11,17 @@ export class ChainLoader extends BaseLoader {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.loaders = loaders;
 
-    this.resolve = createChainMethod(this.loaders, 'resolve');
-    this.load = createChainMethod(this.loaders, 'load');
+    this.resolve = createChainMethod(this.loaders, 'resolve') as unknown as BaseLoader['resolve'];
+    this.load = createChainMethod(this.loaders, 'load') as unknown as BaseLoader['load'];
   }
 }
 
-export class Node14ChainLoader extends Node14Loader {
-  protected loaders: any[];
-
+export class Node14ChainLoader extends addNode14Support(ChainLoader) {
   constructor(loaders) {
-    super('chain');
+    super(loaders);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.loaders = loaders;
-
-    this.resolve = createChainMethod(this.loaders, 'resolve');
-    this.load = createChainMethod(this.loaders, 'load');
-
-    this.getFormat = createChainMethod(this.loaders, 'getFormat');
-    this.getSource = createChainMethod(this.loaders, 'getSource');
-    this.transformSource = createChainMethod(this.loaders, 'transformSource');
+    this.getFormat = createChainMethod(this.loaders, 'getFormat') as unknown as Node14ChainLoader['getFormat'];
+    this.getSource = createChainMethod(this.loaders, 'getSource') as unknown as Node14ChainLoader['getSource'];
+    this.transformSource = createChainMethod(this.loaders, 'transformSource') as unknown as Node14ChainLoader['transformSource'];
   }
 }

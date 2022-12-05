@@ -1,14 +1,27 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment */
-export const createChainMethod = (list, property) => (identifier, context, next) =>
-  createChain([...list.map(loader => loader[property]).filter(Boolean), (...args) => next(...args)])(identifier, context);
+export type LoaderNext = (arg1: unknown, arg2: unknown) => unknown;
+export type LoaderFunction = (arg1: unknown, arg2: unknown, arg3?: LoaderNext) => unknown;
 
-export const createChain = functions => {
-  let stacked = functions.pop();
-  while (functions.length > 0) {
-    const last = functions.pop();
-    const temporary = stacked;
-    stacked = (arg1, arg2) => last(arg1, arg2, temporary);
+export function createChainMethod<PropName extends string>(list: Array<Record<PropName, LoaderFunction>>, property: PropName) {
+  return (identifier, context, next: LoaderNext): unknown => {
+    const functions = list.map(loader => loader[property]).filter(Boolean) as LoaderFunction[];
+    const last: LoaderFunction = (arg1, arg2, arg3) => next(arg1, arg2);
+    const chain = createChain(...functions, last);
+    return chain(identifier, context);
+  };
+}
+
+export const createChain = (...functions: LoaderFunction[]): LoaderNext => {
+  if (functions.length === 0) {
+    throw new Error('At least 1 method is required');
   }
 
-  return stacked;
+  let next = functions.pop()!;
+  while (functions.length > 0) {
+    const temporary = next;
+    const last = functions.pop()!;
+
+    next = (arg1, arg2) => last(arg1, arg2, temporary);
+  }
+
+  return next;
 };
