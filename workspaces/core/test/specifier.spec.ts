@@ -73,10 +73,10 @@ describe('detect-module', () => {
 
   describe('convertUrlDriveLetterToUpperCase', () => {
     it('converts drive letter to upper case', () => {
-      expect(convertUrlDriveLetterToUpperCase('file://c:')).toEqual('file://C:');
+      expect(convertUrlDriveLetterToUpperCase('file:///c:')).toEqual('file:///C:');
     });
     it("don't touch others urls", () => {
-      expect(convertUrlDriveLetterToUpperCase('file://c')).toEqual('file://c');
+      expect(convertUrlDriveLetterToUpperCase('file:///c')).toEqual('file:///c');
     });
   });
 });

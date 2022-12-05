@@ -46,8 +46,8 @@ export const isFileSpecifier = (specifier: string) =>
  * @returns
  */
 export const convertUrlDriveLetterToUpperCase = (url: string): string => {
-  if (/^file:\/\/\w:/.test(url)) {
-    return `${url.slice(0, 7)}${url.slice(7, 8).toUpperCase()}${url.slice(8)}`;
+  if (/^file:\/\/\/\w:/.test(url)) {
+    return `${url.slice(0, 8)}${url.slice(8, 9).toUpperCase()}${url.slice(9)}`;
   }
 
   return url;
