@@ -31,6 +31,9 @@ describe('chain', () => {
       expect(spy1).toHaveBeenCalledWith(arg1, arg2, spy2);
       expect(spy2).toBeCalledWith(arg1, arg2);
     });
+    it('should throw on no function', () => {
+      expect(() => createChain()).toThrow('At least 1 method is required');
+    });
   });
   describe('createChainMethod', () => {
     it('should chain properties', () => {
