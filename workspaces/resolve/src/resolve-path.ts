@@ -1,9 +1,8 @@
-import { readFile, stat as fsStat } from 'node:fs/promises';
+import { stat as fsStat } from 'node:fs/promises';
 import { dirname, extname, isAbsolute, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import { locatePath } from 'locate-path';
-import { findUp, pathExists, findUpStop } from 'find-up';
 import { readPackageUp } from 'read-pkg-up';
 
 /**
@@ -15,41 +14,6 @@ export async function detectPackageJsonType(filePath: string): Promise<'commonjs
   const read = await readPackageUp({ cwd: dirname(filePath) });
   return read!.packageJson.type ?? 'commonjs';
 }
-
-/**
- * Look for package.json imports that matches the specifier
- * @param specifier
- * @param parentUrl
- * @returns the resolved file url
- */
-export const resolvePackageJsonImports = async (specifier: string, parentUrl: string): Promise<string> => {
-  let resolvePath: string | undefined;
-  await findUp(
-    async directory => {
-      const filePath = join(directory, 'package.json');
-      const hasPackageJson = await pathExists(filePath);
-      if (hasPackageJson) {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, unicorn/no-await-expression-member
-          const contents = JSON.parse((await readFile(filePath)).toString());
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const mapping = contents.imports?.[specifier];
-          if (mapping) {
-            resolvePath = join(directory, mapping);
-            return findUpStop;
-          }
-        } catch {}
-      }
-    },
-    { cwd: specifierToFilePath(parentUrl) },
-  );
-
-  if (resolvePath) {
-    return pathToFileURL(resolvePath).href;
-  }
-
-  throw new Error(`Cannot find module '${specifier}' imported from '${parentUrl}`);
-};
 
 /**
  * Resolves a file specifier to a file path

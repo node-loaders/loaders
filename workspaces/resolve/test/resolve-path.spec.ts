@@ -7,7 +7,6 @@ import {
   detectPackageJsonType,
   resolveAlternativeFile,
   lookForDefaultModule,
-  resolvePackageJsonImports,
   specifierToFilePath,
 } from '../src/resolve-path.js';
 
@@ -27,13 +26,6 @@ describe('resolve-module', () => {
     it('should return undefined for directory', async () => {
       const filePath = join(__dirname, 'fixtures');
       expect(await existingFile(filePath)).toBe(undefined);
-    });
-  });
-
-  describe('resolvePackageJsonImports', () => {
-    it('should resolve imports', async () => {
-      const module = join(__dirname, 'fixtures/detect-format/esm/module.mts');
-      expect(await resolvePackageJsonImports('#local', module)).toMatch(/module.mjs$/);
     });
   });
 
