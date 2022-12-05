@@ -10,7 +10,7 @@ function wrap(fn) {
 describe('caller-resolve', () => {
   describe('resolveCallerUrl', () => {
     it('should return current file', () => {
-      expect(wrap(resolveCallerUrl).toLowerCase()).toBe(import.meta.url.toLowerCase());
+      expect(wrap(resolveCallerUrl)).toBe(import.meta.url);
     });
   });
 });

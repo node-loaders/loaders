@@ -1,8 +1,8 @@
-import { isAbsolute, join } from 'node:path';
-import process from 'node:process';
+import { isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { inspect } from 'node:util';
 import StackUtils from 'stack-utils';
+import { convertUrlDriveLetterToUpperCase } from '@node-loaders/core';
 
 const stackLineToGet = 3;
 
@@ -20,7 +20,7 @@ export const resolveCallerUrl = (): string => {
     const parsed = stackUtils.parseLine(lines[stackLineToGet - 1]);
     if (parsed?.file) {
       if (isAbsolute(parsed.file)) {
-        return pathToFileURL(parsed.file).href;
+        return convertUrlDriveLetterToUpperCase(pathToFileURL(parsed.file).href);
       }
 
       // Stack trace usually are paths, url may happen specially on windows
@@ -28,7 +28,7 @@ export const resolveCallerUrl = (): string => {
       try {
         // eslint-disable-next-line no-new
         new URL(parsed.file);
-        return parsed.file;
+        return convertUrlDriveLetterToUpperCase(parsed.file);
       } catch {}
     }
   }

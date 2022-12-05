@@ -2,7 +2,13 @@ import { builtinModules } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-import { isBuiltinModule, isFileSpecifier, isNodeModulesSpecifier, isPackageSpecifier } from '../src/specifier.js';
+import {
+  convertUrlDriveLetterToUpperCase,
+  isBuiltinModule,
+  isFileSpecifier,
+  isNodeModulesSpecifier,
+  isPackageSpecifier,
+} from '../src/specifier.js';
 
 const builtinModulesToTest = [...builtinModules, ...builtinModules.map(builtinModule => `node:${builtinModule}`)];
 const fileModulesToTest = ['.', '#', resolve('/foo'), pathToFileURL('/foo').href];
@@ -63,5 +69,14 @@ describe('detect-module', () => {
         expect(isNodeModulesSpecifier(nonNodeModulesSpecifier)).toBe(false);
       });
     }
+  });
+
+  describe('convertUrlDriveLetterToUpperCase', () => {
+    it('converts drive letter to upper case', () => {
+      expect(convertUrlDriveLetterToUpperCase('file:///c:')).toEqual('file:///C:');
+    });
+    it("don't touch others urls", () => {
+      expect(convertUrlDriveLetterToUpperCase('file:///c')).toEqual('file:///c');
+    });
   });
 });
