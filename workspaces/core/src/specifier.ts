@@ -37,3 +37,18 @@ export const isNodeModulesSpecifier = (specifier: string) => /[/\\]node_modules[
 
 export const isFileSpecifier = (specifier: string) =>
   isRelativeFileSpecifier(specifier) || isPackageJsonImportSpecifier(specifier) || isAbsolute(specifier) || hasProtocol(specifier, 'file:');
+
+/**
+ * Convert driver letter to upper case on windows.
+ * Node uses upper case letters, source-maps/stack traces are generated with lower case.
+ * Convert to upper case otherwise they are considered different files/modules.
+ * @param url
+ * @returns
+ */
+export const convertUrlDriveLetterToUpperCase = (url: string): string => {
+  if (/^file:\/\/\w:/.test(url)) {
+    return `${url.slice(0, 7)}${url.slice(7, 8).toUpperCase()}${url.slice(8)}`;
+  }
+
+  return url;
+};
