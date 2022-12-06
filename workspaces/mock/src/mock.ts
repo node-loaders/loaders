@@ -1,11 +1,27 @@
 import { createCheckUrl } from '@node-loaders/core';
-import { addMockedData, deleteMockedData } from './module-cache.js';
+import {
+  addMockedData,
+  deleteAllMockedData,
+  deleteMockedData,
+  getAllMockedData,
+  getMockedModuleStore,
+  type MockCache,
+} from './module-cache.js';
 import { resolveCallerUrl } from './caller-resolve.js';
 import { buildMockedOriginUrl } from './url-protocol.js';
+import { ignoreCounterCheck, cacheId as cacheIdSymbol } from './symbols-internal.js';
+import { importMockedModule } from './module-mock.js';
 
 let checked = false;
 
-export const mock = async (specifier: string, mockedSpecifiers: Record<string, Record<string, any>>): Promise<any> => {
+export type MockedModule<MockedType = any> = {
+  [cacheIdSymbol]: boolean;
+} & MockedType;
+
+export async function mock<MockedType = any>(
+  specifier: string,
+  mockedSpecifiers: Record<string, Record<string, any>>,
+): Promise<MockedModule<MockedType>> {
   if (!checked) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -14,7 +30,7 @@ export const mock = async (specifier: string, mockedSpecifiers: Record<string, R
       /* c8 ignore next */
     } catch {}
 
-    // Tests have the loader installed, so the query will always succed
+    // Tests have the loader installed, so the query will always succeed
     /* c8 ignore next 3 */
     if (!checked) {
       throw new Error('The mock loader is not loaded correctly. Refer to https://github.com/node-loaders/loaders#usage');
@@ -22,11 +38,52 @@ export const mock = async (specifier: string, mockedSpecifiers: Record<string, R
   }
 
   const mockOrigin = resolveCallerUrl();
-  const cacheId = addMockedData(mockedSpecifiers, specifier);
+  const cacheId = addMockedData(mockedSpecifiers);
   const mockedSpecifier = buildMockedOriginUrl(mockOrigin, { specifier, cacheId });
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const module = await import(mockedSpecifier);
-  deleteMockedData(cacheId);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return module;
+  return importMockedModule(mockedSpecifier, cacheId);
+}
+
+const getUnusedPaths = (mockCache: MockCache): string[] =>
+  Object.entries(mockCache)
+    .filter(([mockPath, mock]) => typeof mockPath === 'string' && mock.counter === 0 && !mock.mock[ignoreCounterCheck])
+    .map(([mockPath]) => mockPath);
+
+export const checkMock = (mockedModule: MockedModule, deleteMock = true): void => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const cacheId: string = mockedModule[cacheIdSymbol];
+  if (!cacheId) {
+    throw new Error(`Passed module is not a mocked module`);
+  }
+
+  const cache = getAllMockedData(cacheId)!;
+  const unusedPaths = getUnusedPaths(cache);
+  if (deleteMock) {
+    deleteMockedData(cacheId);
+  }
+
+  if (unusedPaths.length > 0 && !cache[ignoreCounterCheck]) {
+    throw new Error(`Unused mock, ${unusedPaths.join(', ')} is unused at ${cacheId}.`);
+  }
+};
+
+export const checkMocks = (deleteMocks = true) => {
+  const unusedCaches: string[] = Object.entries(getMockedModuleStore())
+    .map(([cacheId, cache]) => {
+      const unusedPaths = getUnusedPaths(cache);
+      if (cache[ignoreCounterCheck]) {
+        return undefined;
+      }
+
+      return unusedPaths.length > 0 ? `${unusedPaths.join(', ')} is unused at ${cacheId}` : undefined;
+    })
+    .filter(unused => typeof unused === 'string') as string[];
+
+  if (deleteMocks) {
+    deleteAllMockedData();
+  }
+
+  if (unusedCaches.length > 0) {
+    throw new Error(`Unused mock, ${unusedCaches.join(', ')}.`);
+  }
 };

@@ -7,12 +7,13 @@ import BaseLoader, {
   type NextLoad,
   type ResolveContext,
   type ResolvedModule,
-  isFileSpecifier,
 } from '@node-loaders/core';
 import { buildMockedSpecifierUrl, mockedSpecifierProtocol, mockedOriginProtocol, parseProtocol } from './url-protocol.js';
 
-import { getMockedData } from './module-cache.js';
+import { existsMockedData, type MockedParentData, useMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
+import { fullMock } from './symbols.js';
+import { emptyMock } from './symbols-internal.js';
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
@@ -72,12 +73,23 @@ export default class MockLoader extends BaseLoader {
     this.log(`Handling load mocked ${inspect(mockData)}`);
     const { cacheId, specifier, type } = mockData;
     if (type === mockedSpecifierProtocol) {
-      const mockedSpecifierDef = getMockedData(cacheId, specifier);
+      if (existsMockedData(cacheId, specifier)) {
+        const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
+        if (!mockedSpecifierDef.merged) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const { mock } = mockedSpecifierDef;
+          if (mock[emptyMock]) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            mockedSpecifierDef.merged = await import(mockData.resolvedSpecifier);
+          } else if (mock[fullMock]) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            mockedSpecifierDef.merged = { ...mock };
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            mockedSpecifierDef.merged = await importAndMergeModule(mockData.resolvedSpecifier, mock);
+          }
+        }
 
-      if (mockedSpecifierDef) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        mockedSpecifierDef.merged =
-          mockedSpecifierDef.merged ?? (await importAndMergeModule(mockData.resolvedSpecifier, mockedSpecifierDef.mock));
         const namedExports = getNamedExports(mockedSpecifierDef.merged);
         return {
           format: 'module',

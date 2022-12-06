@@ -1,7 +1,8 @@
 import { addNode14Support, isBuiltinModule } from '@node-loaders/core';
 import MockLoader from './mock-loader.js';
 import { type MockedSpecifierData, parseProtocol } from './url-protocol.js';
-import { addMockedSpecifier, getMockedData } from './module-cache.js';
+import { addMockedSpecifier, existsMockedData } from './module-cache.js';
+import { emptyMock } from './symbols-internal.js';
 
 export class Node14MockLoader extends addNode14Support(MockLoader) {
   async _getFormat(
@@ -12,15 +13,15 @@ export class Node14MockLoader extends addNode14Support(MockLoader) {
     const mockData = parseProtocol(url) as MockedSpecifierData;
     if (mockData) {
       if (isBuiltinModule(mockData.specifier)) {
-        if (!getMockedData(mockData.cacheId, mockData.specifier)) {
+        if (!existsMockedData(mockData.cacheId, mockData.specifier)) {
           // At node 14 we always need to mock a builtin module
-          addMockedSpecifier(mockData.cacheId, mockData.specifier, {});
+          addMockedSpecifier(mockData.cacheId, mockData.specifier, { [emptyMock]: true });
         }
 
         return { format: 'module' };
       }
 
-      if (getMockedData(mockData.cacheId, mockData.specifier)) {
+      if (existsMockedData(mockData.cacheId, mockData.specifier)) {
         return { format: 'module' };
       }
 
