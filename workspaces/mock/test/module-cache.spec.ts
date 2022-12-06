@@ -3,9 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
 import {
-  getMockedModuleStore,
   addMockedData,
-  globalCacheProperty,
   existsMockedData,
   useMockedData,
   deleteMockedData,
@@ -14,8 +12,7 @@ import {
   type MockStore,
   type MockedParentData,
 } from '../src/module-cache.js';
-import { fullMock } from '../src/symbols.js';
-import { ignoreCounterCheck } from '../src/symbols-internal.js';
+import { fullMock, ignoreUnused } from '../src/symbols.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,7 +33,7 @@ describe('module-cache', () => {
   beforeEach(() => {
     existingSpecifierData = {
       counter: 0,
-      [ignoreCounterCheck]: false,
+      [ignoreUnused]: false,
       [fullMock]: false,
       mock: {},
     };

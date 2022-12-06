@@ -9,8 +9,9 @@ import {
 } from './module-cache.js';
 import { resolveCallerUrl } from './caller-resolve.js';
 import { buildMockedOriginUrl } from './url-protocol.js';
-import { ignoreCounterCheck, cacheId as cacheIdSymbol } from './symbols-internal.js';
+import { cacheId as cacheIdSymbol } from './symbols-internal.js';
 import { importMockedModule } from './module-mock.js';
+import { ignoreUnused } from './symbols.js';
 
 let checked = false;
 
@@ -46,7 +47,7 @@ export async function mock<MockedType = any>(
 
 const getUnusedPaths = (mockCache: MockCache): string[] =>
   Object.entries(mockCache)
-    .filter(([mockPath, mock]) => typeof mockPath === 'string' && mock.counter === 0 && !mock.mock[ignoreCounterCheck])
+    .filter(([mockPath, mock]) => typeof mockPath === 'string' && mock.counter === 0 && !mock.mock[ignoreUnused])
     .map(([mockPath]) => mockPath);
 
 export const checkMock = (mockedModule: MockedModule, deleteMock = true): void => {
@@ -62,7 +63,7 @@ export const checkMock = (mockedModule: MockedModule, deleteMock = true): void =
     deleteMockedData(cacheId);
   }
 
-  if (unusedPaths.length > 0 && !cache[ignoreCounterCheck]) {
+  if (unusedPaths.length > 0 && !cache[ignoreUnused]) {
     throw new Error(`Unused mock, ${unusedPaths.join(', ')} is unused at ${cacheId}.`);
   }
 };
@@ -71,7 +72,7 @@ export const checkMocks = (deleteMocks = true) => {
   const unusedCaches: string[] = Object.entries(getMockedModuleStore())
     .map(([cacheId, cache]) => {
       const unusedPaths = getUnusedPaths(cache);
-      if (cache[ignoreCounterCheck]) {
+      if (cache[ignoreUnused]) {
         return undefined;
       }
 

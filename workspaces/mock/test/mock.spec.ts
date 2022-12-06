@@ -2,8 +2,8 @@ import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
 
 import { mock, checkMocks, checkMock } from '../src/mock.js';
-import { emptyMock, ignoreCounterCheck } from '../src/symbols-internal.js';
-import { fullMock } from '../src/symbols.js';
+import { emptyMock } from '../src/symbols-internal.js';
+import { fullMock, ignoreUnused } from '../src/symbols.js';
 
 describe('mock', () => {
   let join;
@@ -73,12 +73,12 @@ describe('mock', () => {
         checkMock(mockedFs);
       }).toThrow(/^Unused mock, /);
     });
-    it('should not throw on ignoreCounterCheck', async () => {
-      const mockedFs = await mock('./fixtures/esm/direct.mjs', { [ignoreCounterCheck]: true, foo: { join } });
+    it('should not throw on ignoreUnused', async () => {
+      const mockedFs = await mock('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, foo: { join } });
       checkMock(mockedFs);
     });
-    it('should not throw on specific ignoreCounterCheck', async () => {
-      const mockedFs = await mock('./fixtures/esm/direct.mjs', { foo: { [ignoreCounterCheck]: true, join } });
+    it('should not throw on specific ignoreUnused', async () => {
+      const mockedFs = await mock('./fixtures/esm/direct.mjs', { foo: { [ignoreUnused]: true, join } });
       checkMock(mockedFs);
     });
   });
@@ -87,9 +87,9 @@ describe('mock', () => {
     describe('using flag', () => {
       describe('fullMock', () => {
         it('should throw on non exported name', async () => {
-          await expect(
-            mock('./fixtures/esm/direct.mjs', { [ignoreCounterCheck]: true, 'node:path': { [fullMock]: true } }),
-          ).rejects.toThrow(/does not provide an export named 'join'/);
+          await expect(mock('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, 'node:path': { [fullMock]: true } })).rejects.toThrow(
+            /does not provide an export named 'join'/,
+          );
         });
       });
       describe('emptyMock', () => {
@@ -106,7 +106,7 @@ describe('mock', () => {
       describe('with direct mocked module', () => {
         it('should return the named export', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
-          const mockedFs = await mock('./fixtures/esm/direct.mjs', { [ignoreCounterCheck]: true, foo: { join } });
+          const mockedFs = await mock('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, foo: { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);

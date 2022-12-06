@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ignoreCounterCheck } from './symbols-internal.js';
+import { ignoreUnused } from './symbols.js';
 
 export const globalCacheProperty = '@node-loaders';
 
@@ -10,7 +10,7 @@ export type MockedParentData = {
 };
 
 type IgnoreCounter = {
-  [ignoreCounterCheck]?: boolean;
+  [ignoreUnused]?: boolean;
 };
 
 export type MockCache = Record<string, MockedParentData> & IgnoreCounter;
@@ -51,7 +51,7 @@ export const addMockedData = (mockedModules: Record<string, any> & IgnoreCounter
   const cacheId = randomUUID();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const cache: MockCache = Object.fromEntries(Object.entries(mockedModules).map(([key, mock]) => [key, { ...initialMockData, mock }]));
-  cache[ignoreCounterCheck] = mockedModules[ignoreCounterCheck];
+  cache[ignoreUnused] = mockedModules[ignoreUnused];
   getMockedModuleStore()[cacheId] = cache;
   return cacheId;
 };

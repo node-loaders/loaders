@@ -9,12 +9,17 @@ if (!global[globalSymbolsProperty]) {
   });
 }
 
-if (!global[globalSymbolsProperty].fullMock) {
-  Object.defineProperty(global[globalSymbolsProperty], 'fullMock', {
-    writable: false,
-    value: Symbol('fullMock'),
-  });
+for (const symbol of ['fullMock', 'ignoreUnused']) {
+  if (!global[globalSymbolsProperty][symbol]) {
+    Object.defineProperty(global[globalSymbolsProperty], symbol, {
+      writable: false,
+      value: Symbol(symbol),
+    });
+  }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
+export const ignoreUnused: unique symbol = global[globalSymbolsProperty].ignoreUnused;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
 export const fullMock: unique symbol = global[globalSymbolsProperty].fullMock;

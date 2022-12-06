@@ -9,7 +9,7 @@ if (!global[globalInternalSymbolsProperty]) {
   });
 }
 
-for (const symbol of ['emptyMock', 'cacheId', 'ignoreCounterCheck']) {
+for (const symbol of ['emptyMock', 'cacheId']) {
   if (!global[globalInternalSymbolsProperty][symbol]) {
     Object.defineProperty(global[globalInternalSymbolsProperty], symbol, {
       writable: false,
@@ -19,10 +19,7 @@ for (const symbol of ['emptyMock', 'cacheId', 'ignoreCounterCheck']) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-const ignoreCounterCheck: unique symbol = global[globalInternalSymbolsProperty].ignoreCounterCheck;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-const emptyMock: unique symbol = global[globalInternalSymbolsProperty].emptyMock;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-const cacheId: unique symbol = global[globalInternalSymbolsProperty].cacheId;
+export const emptyMock: unique symbol = global[globalInternalSymbolsProperty].emptyMock;
 
-export { ignoreCounterCheck, emptyMock, cacheId };
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
+export const cacheId: unique symbol = global[globalInternalSymbolsProperty].cacheId;
