@@ -9,7 +9,7 @@ if (!global[globalSymbolsProperty]) {
   });
 }
 
-for (const symbol of ['fullMock', 'ignoreUnused']) {
+for (const symbol of ['fullMock', 'ignoreUnused', 'maxDepth']) {
   if (!global[globalSymbolsProperty][symbol]) {
     Object.defineProperty(global[globalSymbolsProperty], symbol, {
       writable: false,
@@ -23,3 +23,6 @@ export const ignoreUnused: unique symbol = global[globalSymbolsProperty].ignoreU
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
 export const fullMock: unique symbol = global[globalSymbolsProperty].fullMock;
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
+export const maxDepth: unique symbol = global[globalSymbolsProperty].maxDepth;

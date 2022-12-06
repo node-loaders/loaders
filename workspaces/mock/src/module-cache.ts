@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ignoreUnused } from './symbols.js';
+import { ignoreUnused, maxDepth } from './symbols.js';
 
 export const globalCacheProperty = '@node-loaders';
 
@@ -9,11 +9,12 @@ export type MockedParentData = {
   merged?: any;
 };
 
-type IgnoreCounter = {
+type CacheFlags = {
   [ignoreUnused]?: boolean;
+  [maxDepth]?: number;
 };
 
-export type MockCache = Record<string, MockedParentData> & IgnoreCounter;
+export type MockCache = Record<string, MockedParentData> & CacheFlags;
 
 export type MockStore = Record<string, MockCache>;
 
@@ -47,11 +48,12 @@ export const deleteAllMockedData = (): void => {
   delete globalStore.mocked;
 };
 
-export const addMockedData = (mockedModules: Record<string, any> & IgnoreCounter): string => {
+export const addMockedData = (mockedModules: Record<string, any> & Partial<CacheFlags>): string => {
   const cacheId = randomUUID();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const cache: MockCache = Object.fromEntries(Object.entries(mockedModules).map(([key, mock]) => [key, { ...initialMockData, mock }]));
   cache[ignoreUnused] = mockedModules[ignoreUnused];
+  cache[maxDepth] = mockedModules[maxDepth];
   getMockedModuleStore()[cacheId] = cache;
   return cacheId;
 };

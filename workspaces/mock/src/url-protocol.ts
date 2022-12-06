@@ -19,11 +19,13 @@ export type MockedOriginData = MockedIdData & {
 export type MockedSpecifierData = MockedIdData & {
   type: typeof mockedSpecifierProtocol;
   resolvedSpecifier: string;
+  depth: number;
 };
 
 const mockedTypeSearchParameter = '@node-loaders/mocked-type';
 const mockedIdSearchParameter = '@node-loaders/mocked-id';
 const mockedSpecifierSearchParameter = '@node-loaders/mocked-specifier';
+const mockedDepthSearchParameter = '@node-loaders/mocked-depth';
 
 export const parseProtocol = (url: string): MockedSpecifierData | MockedOriginData | undefined => {
   let parsedUrl: URL;
@@ -38,9 +40,10 @@ export const parseProtocol = (url: string): MockedSpecifierData | MockedOriginDa
     return undefined;
   }
 
+  const baseUrl = parsedUrl.href.slice(0, -parsedUrl.search.length);
+
   const cacheId = parsedUrl.searchParams.get(mockedIdSearchParameter);
   const specifier = parsedUrl.searchParams.get(mockedSpecifierSearchParameter);
-  const baseUrl = parsedUrl.href.slice(0, -parsedUrl.search.length);
   /* c8 ignore next 4 */
   if (!cacheId || !specifier) {
     // Typescript forbids this error
@@ -52,7 +55,8 @@ export const parseProtocol = (url: string): MockedSpecifierData | MockedOriginDa
   }
 
   if (type === mockedSpecifierProtocol) {
-    return { type, cacheId, specifier, resolvedSpecifier: baseUrl };
+    const depth = Number.parseInt(parsedUrl.searchParams.get(mockedDepthSearchParameter)!, 10);
+    return { type, cacheId, specifier, resolvedSpecifier: baseUrl, depth };
   }
 
   throw new Error(`Bad type: ${type}`);
@@ -63,7 +67,9 @@ export const buildMockedOriginUrl = (originUrl: string, data: Omit<MockedOriginD
 };
 
 export const buildMockedSpecifierUrl = (resolvedUrl: string, data: Omit<MockedSpecifierData, 'type' | 'resolvedSpecifier'>): string => {
-  return buildUrl(mockedSpecifierProtocol, resolvedUrl, data).href;
+  const url = buildUrl(mockedSpecifierProtocol, resolvedUrl, data);
+  url.searchParams.set(mockedDepthSearchParameter, String(data.depth));
+  return url.href;
 };
 
 export const buildUrl = (type: string, baseUrl: string, data: Omit<MockedIdData, 'type'>): URL => {

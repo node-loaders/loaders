@@ -10,10 +10,11 @@ import BaseLoader, {
 } from '@node-loaders/core';
 import { buildMockedSpecifierUrl, mockedSpecifierProtocol, mockedOriginProtocol, parseProtocol } from './url-protocol.js';
 
-import { existsMockedData, type MockedParentData, useMockedData } from './module-cache.js';
+import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './module-cache.js';
 import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
-import { fullMock } from './symbols.js';
+import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { emptyMock } from './symbols-internal.js';
+import { defaultMaxDepth } from './constants.js';
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
@@ -33,7 +34,13 @@ export default class MockLoader extends BaseLoader {
 
       this.log(`Handling mocked ${specifier} with parent ${inspect(mockedParent)}`);
       // Resolving a specifier loaded by a mocked module
-      const { cacheId, resolvedSpecifier: parentSpecifier } = mockedParent;
+      const { cacheId, depth: parentDepth, resolvedSpecifier: parentSpecifier } = mockedParent;
+      const cache = getAllMockedData(cacheId);
+      const maxDepth: number = cache?.[maxDepthSymbol] ?? defaultMaxDepth;
+      if (maxDepth !== -1 && parentDepth > maxDepth) {
+        this.log(`Max depth has reached, forwarding`);
+        return nextResolve(specifier, { ...context, parentURL: parentSpecifier });
+      }
 
       // Resolve the specifier using the chain
       const resolvedSpecifier = await nextResolve(specifier, { ...context, parentURL: parentSpecifier });
@@ -41,6 +48,7 @@ export default class MockLoader extends BaseLoader {
         url: buildMockedSpecifierUrl(resolvedSpecifier.url, {
           cacheId,
           specifier,
+          depth: parentDepth + 1,
         }),
         shortCircuit: true,
         format: resolvedSpecifier.format,
@@ -59,6 +67,7 @@ export default class MockLoader extends BaseLoader {
         url: buildMockedSpecifierUrl(resolvedSpecifier.url, {
           cacheId,
           specifier: originalSpecifier,
+          depth: 1,
         }),
         format: resolvedSpecifier.format,
         shortCircuit: true,

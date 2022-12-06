@@ -85,6 +85,33 @@ describe(() => {
 });
 ```
 
+Max depth:
+
+```js
+import { mock, checkMocks, maxDepth } from '@node-loaders/mock';
+
+describe(() => {
+  afterAll(() => {
+    checkMocks(); // Detects for unused mocks to avoid mistakes on import changes.
+  }),
+
+  it(() => {
+    const joinSpy = spy();
+    const resolveSpy = spy();
+
+    const mockedModule = await mock('./module.js', {
+      '../src/path.js': {
+        join: joinSpy, // Mocked when imported from './module.js' file only
+      },
+      'node:path': {
+        [maxDepth]: -1, // Mocked in any child of './module.js'
+        resolve: resolveSpy,
+      },
+    });
+  });
+});
+```
+
 When using in combination with others @node-loaders modules make sure to use [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto#node-loadersauto) for better interoperability .
 
 ### Node 14

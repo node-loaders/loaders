@@ -22,7 +22,7 @@ describe('mock-loader', () => {
           {
             "format": "commonjs",
             "shortCircuit": true,
-            "url": "file:///resolvedSpecifier?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier",
+            "url": "file:///resolvedSpecifier?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier&%40node-loaders%2Fmocked-depth=1",
           }
         `);
       });
@@ -35,6 +35,7 @@ describe('mock-loader', () => {
             buildMockedSpecifierUrl('file:///mock', {
               cacheId: 'cacheId',
               specifier: 'specifier',
+              depth: 1,
             }),
             { conditions: [], importAssertions: {} },
           ),
@@ -66,13 +67,14 @@ describe('mock-loader', () => {
         const parentURL = buildMockedSpecifierUrl('file:///mock', {
           cacheId: 'cacheId',
           specifier: 'specifier',
+          depth: 1,
         });
         const result = await loader.resolve('specifier', { parentURL, conditions: [], importAssertions: {} }, next);
         expect(result).toMatchInlineSnapshot(`
           {
             "format": "commonjs",
             "shortCircuit": true,
-            "url": "file:///resolvedspecifier?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier",
+            "url": "file:///resolvedspecifier?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier&%40node-loaders%2Fmocked-depth=2",
           }
         `);
       });

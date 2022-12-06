@@ -20,13 +20,14 @@ describe('mock-url', () => {
         buildMockedSpecifierUrl('file://origin', {
           cacheId: 'id',
           specifier: 'specifier',
+          depth: 1,
         }),
       ).toMatchInlineSnapshot(
-        `"file://origin/?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=id&%40node-loaders%2Fmocked-specifier=specifier"`,
+        `"file://origin/?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=id&%40node-loaders%2Fmocked-specifier=specifier&%40node-loaders%2Fmocked-depth=1"`,
       );
     });
     it('should fail on bad resolvedUrl', () => {
-      expect(() => buildMockedSpecifierUrl('foo', { cacheId: 'id', specifier: 'specifier' })).toThrow();
+      expect(() => buildMockedSpecifierUrl('foo', { cacheId: 'id', specifier: 'specifier', depth: 1 })).toThrow();
     });
   });
 
@@ -61,10 +62,12 @@ describe('mock-url', () => {
       const url = buildMockedSpecifierUrl('file://origin', {
         cacheId: 'id',
         specifier: 'specifier',
+        depth: 3,
       });
       expect(parseProtocol(url)).toMatchInlineSnapshot(`
         {
           "cacheId": "id",
+          "depth": 3,
           "resolvedSpecifier": "file://origin/",
           "specifier": "specifier",
           "type": "node-loaders-mock-specifier:",
