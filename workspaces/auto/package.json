@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/auto",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": false,
   "keywords": [
     "esm",
@@ -39,7 +39,7 @@
     "test-node14": "mocha --config .mocharc.node14.cjs"
   },
   "dependencies": {
-    "@node-loaders/core": "^0.3.0"
+    "@node-loaders/core": "^0.4.0"
   },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
