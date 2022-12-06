@@ -1,4 +1,6 @@
 /* c8 ignore start */
+import { inspect } from 'node:util';
+
 import LoaderBase from './loader-base.js';
 import { isCheckUrl } from './specifier.js';
 import { type Format, type LoadContext } from './index.js';
@@ -46,12 +48,14 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
       }
 
       if (this.handlesEspecifier(url)) {
+        this.log(`Handling getFormat url ${url}, ${inspect(context)}`);
         const returnValue = await this._getFormat(url, context, defaultGetFormat);
         if (returnValue) {
           return returnValue;
         }
       }
 
+      this.log(`Forwarding getFormat url ${url}, ${inspect(context)}`);
       return defaultGetFormat(url, context);
     }
 
@@ -68,12 +72,14 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
       }
 
       if (this.handlesEspecifier(url)) {
+        this.log(`Handling getSource url ${url}, ${inspect(context)}`);
         const returnValue = await this._getSource(url, context, defaultGetSource);
         if (returnValue) {
           return returnValue;
         }
       }
 
+      this.log(`Forwarding getSource url ${url}, ${inspect(context)}`);
       return defaultGetSource(url, context);
     }
 
@@ -82,18 +88,22 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
       url: string,
       context: { format: string },
       defaultGetSource: (url: string, context: { format: string }) => Promise<{ source: string | SharedArrayBuffer | Uint8Array }>,
-    ): Promise<{ source: string | SharedArrayBuffer | Uint8Array } | undefined> {
-      const loadedModule = await this._load(
-        url,
-        { format: context.format as Format, importAssertions: {}, conditions: [] },
-        async (nextUrl: string, nextContext: LoadContext) => {
-          const { source } = await defaultGetSource(nextUrl, { format: nextContext.format! });
-          // eslint-disable-next-line @typescript-eslint/no-base-to-string
-          return { source: source.toString(), format: nextContext.format! };
-        },
+    ): Promise<{ source: string }> {
+      const asSourceString = (loadedModule: { source: string | SharedArrayBuffer | Uint8Array | ArrayBuffer | ArrayBufferView }) => {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        return { source: loadedModule.source.toString() };
+      };
+
+      return asSourceString(
+        await this._load(
+          url,
+          { format: context.format as Format, importAssertions: {}, conditions: [] },
+          async (nextUrl: string, nextContext: LoadContext) => {
+            const { source } = asSourceString(await defaultGetSource(nextUrl, { format: nextContext.format! }));
+            return { source, format: nextContext.format! };
+          },
+        ),
       );
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string
-      return { source: loadedModule.source.toString() };
     }
 
     async transformSource(
@@ -102,12 +112,14 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
       defaultTransform: DefaultTransformSource,
     ): Promise<Node14Source> {
       if (this.handlesEspecifier(context.url)) {
+        this.log(`Handling transformSource url ${inspect(context)}`);
         const returnValue = await this._transformSource(source, context, defaultTransform);
         if (returnValue) {
           return returnValue;
         }
       }
 
+      this.log(`Forwarding transformSource url ${inspect(context)}`);
       return defaultTransform(source, context);
     }
 
