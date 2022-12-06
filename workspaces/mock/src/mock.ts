@@ -22,7 +22,7 @@ export const mock = async (specifier: string, mockedSpecifiers: Record<string, R
   }
 
   const mockOrigin = resolveCallerUrl();
-  const cacheId = await addMockedData(mockedSpecifiers, specifier);
+  const cacheId = addMockedData(mockedSpecifiers, specifier);
   const mockedSpecifier = buildMockedOriginUrl(mockOrigin, { specifier, cacheId });
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const module = await import(mockedSpecifier);

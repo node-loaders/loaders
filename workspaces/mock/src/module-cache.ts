@@ -17,11 +17,15 @@ export const getMockedModuleStore = (): Record<string, Record<string, MockedPare
   return global[globalCacheProperty].mocked as unknown as Record<string, Record<string, MockedParentData>>;
 };
 
-export const addMockedData = async (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): Promise<string> => {
-  const uuid = randomUUID();
-  const mockStore = getMockedModuleStore();
-  mockStore[uuid] = Object.fromEntries(Object.entries(mockedModules).map(([key, mock]) => [key, { mock }]));
-  return uuid;
+export const addMockedData = (mockedModules: Record<string, Record<string, any>>, parentSpecifier: string): string => {
+  const cacheId = randomUUID();
+  getMockedModuleStore()[cacheId] = Object.fromEntries(Object.entries(mockedModules).map(([key, mock]) => [key, { mock }]));
+  return cacheId;
+};
+
+export const addMockedSpecifier = (cacheId: string, specifier, mock) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  getMockedModuleStore()[cacheId][specifier] = { mock };
 };
 
 export const getMockedData = (cacheId: string, specifier: string): undefined | MockedParentData => {
