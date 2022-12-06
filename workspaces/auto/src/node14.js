@@ -19,5 +19,3 @@ export const load = loader.exportLoad();
 export const getFormat = loader.exportGetFormat();
 
 export const getSource = loader.exportGetSource();
-
-export const transformSource = loader.exportTransformSource();
