@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 env:
-  DEBUG: '@node-loaders:*'
+  # DEBUG: '@node-loaders:*'
   FORCE_COLOR: 1
 
 jobs:
