@@ -19,6 +19,7 @@ import LoaderBase, {
 import { existingFile, lookForDefaultModule, specifierToFilePath, detectPackageJsonType } from '@node-loaders/resolve';
 
 import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-module.js';
+import { EsbuildCache } from './cache.js';
 
 export type EsbuildLoaderOptions = LoaderBaseOptions & {
   allowDefaults?: boolean;
@@ -27,6 +28,7 @@ export type EsbuildLoaderOptions = LoaderBaseOptions & {
 export default class EsbuildLoader extends LoaderBase {
   allowDefaults: boolean;
   sourceMapEnabled = false;
+  cache = new EsbuildCache();
 
   constructor(options: EsbuildLoaderOptions = {}) {
     // We want builtin modules and package import to pass through
@@ -95,11 +97,18 @@ export default class EsbuildLoader extends LoaderBase {
 
   override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
-      const filePath = fileURLToPath(url);
-      const format = context.format ?? (await detectPackageJsonType(filePath));
+      let cachedfile = this.cache.get(url);
+      if (!cachedfile) {
+        const filePath = fileURLToPath(url);
+        const format = context.format ?? (await detectPackageJsonType(filePath));
+        const source = await this.transform(filePath, format);
+        cachedfile = { format, source };
+        this.cache.set(url, cachedfile);
+      }
+
       return {
-        format,
-        source: await this.transform(filePath, format),
+        format: cachedfile.format,
+        source: cachedfile.source,
         shortCircuit: true,
       };
     }
