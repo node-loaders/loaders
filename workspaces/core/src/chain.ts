@@ -1,10 +1,10 @@
-export type LoaderNext = (arg1: unknown, arg2: unknown) => unknown;
-export type LoaderFunction = (arg1: unknown, arg2: unknown, arg3?: LoaderNext) => unknown;
+export type LoaderNext = (arg1: unknown, arg2: unknown) => Promise<unknown>;
+export type LoaderFunction = (arg1: unknown, arg2: unknown, arg3?: LoaderNext) => Promise<unknown>;
 
 export function createChainMethod<PropName extends string>(list: Array<Record<PropName, LoaderFunction>>, property: PropName) {
   return (identifier, context, next: LoaderNext): unknown => {
     const functions = list.map(loader => loader[property]).filter(Boolean) as LoaderFunction[];
-    const last: LoaderFunction = (arg1, arg2, arg3) => next(arg1, arg2);
+    const last: LoaderFunction = async (arg1, arg2, arg3) => next(arg1, arg2);
     const chain = createChain(...functions, last);
     return chain(identifier, context);
   };
@@ -20,7 +20,7 @@ export const createChain = (...functions: LoaderFunction[]): LoaderNext => {
     const temporary = next;
     const last = functions.pop()!;
 
-    next = (arg1, arg2) => last(arg1, arg2, temporary);
+    next = async (arg1, arg2) => last(arg1, arg2, temporary);
   }
 
   return next;

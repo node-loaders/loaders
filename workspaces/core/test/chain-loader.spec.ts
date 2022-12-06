@@ -19,10 +19,10 @@ describe('chain-loader', () => {
     loader2 = new LoaderBaseNode14();
 
     for (const prop of loaderProperties) {
-      loader1[prop] = jestMock.fn<LoaderFunction>().mockImplementation((arg1, arg2, arg3) => {
+      loader1[prop] = jestMock.fn<LoaderFunction>().mockImplementation(async (arg1, arg2, arg3) => {
         return arg3!(arg1, arg2);
       });
-      loader2[prop] = jestMock.fn<LoaderFunction>().mockImplementation((arg1, arg2, arg3) => {
+      loader2[prop] = jestMock.fn<LoaderFunction>().mockImplementation(async (arg1, arg2, arg3) => {
         return arg3!(arg1, arg2);
       });
     }
@@ -30,18 +30,19 @@ describe('chain-loader', () => {
     chain = new Node14ChainLoader([loader1, loader2]);
 
     returnValue = jestMock.fn();
-    returnValueSpy = jestMock.fn<LoaderFunction>().mockImplementation(() => {
+    returnValueSpy = jestMock.fn<LoaderFunction>().mockImplementation(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return returnValue;
     });
   });
 
   for (const prop of loaderProperties) {
     // eslint-disable-next-line @typescript-eslint/no-loop-func
-    it(`should chain ${prop} properties`, () => {
+    it(`should chain ${prop} properties`, async () => {
       const arg1 = 'foo';
       const arg2 = { conditions: [], importAssertions: {} };
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      expect(chain[prop](arg1, arg2, returnValueSpy)).toBe(returnValue);
+      expect(await chain[prop](arg1, arg2, returnValueSpy)).toBe(returnValue);
       expect(loader1[prop]).toHaveBeenCalledWith(arg1, arg2, expect.any(Function));
       expect(loader2[prop]).toBeCalledWith(arg1, arg2, expect.any(Function));
       expect(returnValueSpy).toBeCalledWith(arg1, arg2);
