@@ -22,7 +22,7 @@ describe('mock-loader', () => {
           {
             "format": "commonjs",
             "shortCircuit": true,
-            "url": "file:///resolvedSpecifier?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=file%3A%2F%2F%2Fmock%3F%2540node-loaders%252Fmocked-type%3Dnode-loaders-mock-origin%253A%26%2540node-loaders%252Fmocked-id%3DcacheId%26%2540node-loaders%252Fmocked-specifier%3Dspecifier",
+            "url": "file:///resolvedSpecifier?%40node-loaders%2Fmocked-type=node-loaders-mock-specifier%3A&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier",
           }
         `);
       });
