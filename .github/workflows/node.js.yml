@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  DEBUG: '@node-loaders:*'
+  FORCE_COLOR: 1
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
