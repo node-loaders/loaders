@@ -2,7 +2,14 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
-import { getMockedModuleStore, addMockedData, globalCacheProperty, getMockedData, deleteMockedData } from '../src/module-cache.js';
+import {
+  getMockedModuleStore,
+  addMockedData,
+  globalCacheProperty,
+  getMockedData,
+  deleteMockedData,
+  addMockedSpecifier,
+} from '../src/module-cache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -60,6 +67,21 @@ describe('module-cache', () => {
         },
       };
       expect(getMockedData(cacheId, specifier)).toBe(target);
+    });
+  });
+
+  describe('addMockedSpecifier', () => {
+    it('should add a mocked data', () => {
+      const cacheId = 'foo';
+      const specifier = 'bar';
+      const target = {};
+      global[globalCacheProperty] = {
+        mocked: {
+          [cacheId]: {},
+        },
+      };
+      addMockedSpecifier(cacheId, specifier, target);
+      expect(global[globalCacheProperty].mocked[cacheId][specifier].mock).toBe(target);
     });
   });
 
