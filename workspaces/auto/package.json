@@ -23,8 +23,8 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./dist/index.js",
-    "./node14": "./dist/node14.js"
+    ".": "./dist/index-default.js",
+    "./node14": "./dist/index-node14.js"
   },
   "files": [
     "./dist"
