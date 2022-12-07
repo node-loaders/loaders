@@ -16,10 +16,7 @@ export const mergeModule = (original: any, mocked: any): any => {
   return new Proxy(original, handler1);
 };
 
-export const importMockedModule = async (specifier: string, cacheId: string): Promise<any> => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const actualImplementation = await import(specifier);
-
+export const mockedModule = (actualImplementation: any, cacheId: string): any => {
   const handler1: ProxyHandler<any> = {
     get(target: any, property: string | symbol) {
       if (property === cacheIdSymbol) {
@@ -37,7 +34,7 @@ export const getNamedExports = (module: any): string[] => {
   return Object.getOwnPropertyNames(module);
 };
 
-export const generateSource = (cacheId: string, specifier: string, namedExports: string[]) => `
+export const generateEsmSource = (cacheId: string, specifier: string, namedExports: string[]) => `
 const { ${namedExports
   .map(name => (name === 'default' ? 'default: ___default' : name))
   .join(', ')} } = global['${globalCacheProperty}'].mocked['${cacheId}']['${specifier}'].merged;

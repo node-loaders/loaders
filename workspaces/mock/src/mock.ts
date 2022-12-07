@@ -10,7 +10,7 @@ import {
 import { resolveCallerUrl } from './caller-resolve.js';
 import { buildMockedOriginUrl } from './url-protocol.js';
 import { cacheId as cacheIdSymbol } from './symbols-internal.js';
-import { importMockedModule } from './module-mock.js';
+import { mockedModule } from './module-mock.js';
 import { ignoreUnused } from './symbols.js';
 
 let checked = false;
@@ -41,8 +41,9 @@ async function internalMock<MockedType = any>(
 
   const cacheId = addMockedData(mockedSpecifiers);
   const mockedSpecifier = buildMockedOriginUrl(url, { specifier, cacheId });
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return importMockedModule(mockedSpecifier, cacheId);
+  return mockedModule(await import(mockedSpecifier), cacheId);
 }
 
 export function createImportMock(url: string): typeof mock {

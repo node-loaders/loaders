@@ -11,7 +11,7 @@ import BaseLoader, {
 import { buildMockedSpecifierUrl, mockedSpecifierProtocol, mockedOriginProtocol, parseProtocol } from './url-protocol.js';
 
 import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './module-cache.js';
-import { generateSource, getNamedExports, mergeModule } from './module-mock.js';
+import { generateEsmSource, getNamedExports, mergeModule } from './module-mock.js';
 import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { emptyMock } from './symbols-internal.js';
 import { defaultMaxDepth } from './constants.js';
@@ -103,7 +103,7 @@ export default class MockLoader extends BaseLoader {
         return {
           format: 'module',
           shortCircuit: true,
-          source: generateSource(cacheId, specifier, namedExports),
+          source: generateEsmSource(cacheId, specifier, namedExports),
         };
       }
 
