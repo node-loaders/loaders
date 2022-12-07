@@ -2,10 +2,7 @@
 import { globalCacheProperty } from './module-cache.js';
 import { cacheId as cacheIdSymbol } from './symbols-internal.js';
 
-export const importAndMergeModule = async (specifier: string, mocked: any): Promise<any> => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const actualImplementation = await import(specifier);
-
+export const mergeModule = (original: any, mocked: any): any => {
   const handler1: ProxyHandler<any> = {
     get(target: any, property: string | symbol) {
       if (property in mocked) {
@@ -16,7 +13,7 @@ export const importAndMergeModule = async (specifier: string, mocked: any): Prom
     },
   };
 
-  return new Proxy(actualImplementation, handler1);
+  return new Proxy(original, handler1);
 };
 
 export const importMockedModule = async (specifier: string, cacheId: string): Promise<any> => {

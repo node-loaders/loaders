@@ -11,7 +11,7 @@ import BaseLoader, {
 import { buildMockedSpecifierUrl, mockedSpecifierProtocol, mockedOriginProtocol, parseProtocol } from './url-protocol.js';
 
 import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './module-cache.js';
-import { generateSource, getNamedExports, importAndMergeModule } from './module-mock.js';
+import { generateSource, getNamedExports, mergeModule } from './module-mock.js';
 import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { emptyMock } from './symbols-internal.js';
 import { defaultMaxDepth } from './constants.js';
@@ -95,7 +95,7 @@ export default class MockLoader extends BaseLoader {
             mockedSpecifierDef.merged = { ...mock };
           } else {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            mockedSpecifierDef.merged = await importAndMergeModule(mockData.resolvedSpecifier, mock);
+            mockedSpecifierDef.merged = mergeModule(await import(mockData.resolvedSpecifier), mock);
           }
         }
 
