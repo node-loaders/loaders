@@ -37,13 +37,13 @@ export default class MockLoader extends BaseLoader {
       const { cacheId, depth: parentDepth, resolvedSpecifier: parentSpecifier } = mockedParent;
       const cache = getAllMockedData(cacheId);
       const maxDepth: number = cache?.[maxDepthSymbol] ?? defaultMaxDepth;
-      if (maxDepth !== -1 && parentDepth > maxDepth) {
-        this.log(`Max depth has reached, forwarding`);
-        return nextResolve(specifier, { ...context, parentURL: parentSpecifier });
-      }
-
       // Resolve the specifier using the chain
       const resolvedSpecifier = await nextResolve(specifier, { ...context, parentURL: parentSpecifier });
+      if (maxDepth !== -1 && parentDepth > maxDepth) {
+        this.log(`Max depth has reached, forwarding`);
+        return resolvedSpecifier;
+      }
+
       return {
         url: buildMockedSpecifierUrl(resolvedSpecifier.url, {
           cacheId,

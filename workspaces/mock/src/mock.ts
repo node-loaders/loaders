@@ -19,7 +19,8 @@ export type MockedModule<MockedType = any> = {
   [cacheIdSymbol]: boolean;
 } & MockedType;
 
-export async function mock<MockedType = any>(
+async function internalMock<MockedType = any>(
+  url: string,
   specifier: string,
   mockedSpecifiers: Record<string, Record<string, any>>,
 ): Promise<MockedModule<MockedType>> {
@@ -38,11 +39,21 @@ export async function mock<MockedType = any>(
     }
   }
 
-  const mockOrigin = resolveCallerUrl();
   const cacheId = addMockedData(mockedSpecifiers);
-  const mockedSpecifier = buildMockedOriginUrl(mockOrigin, { specifier, cacheId });
+  const mockedSpecifier = buildMockedOriginUrl(url, { specifier, cacheId });
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return importMockedModule(mockedSpecifier, cacheId);
+}
+
+export function createImportMock(url: string): typeof mock {
+  return async (specifier, mockedSpecifiers) => internalMock(url, specifier, mockedSpecifiers);
+}
+
+export async function mock<MockedType = any>(
+  specifier: string,
+  mockedSpecifiers: Record<string, Record<string, any>>,
+): Promise<MockedModule<MockedType>> {
+  return createImportMock(resolveCallerUrl())(specifier, mockedSpecifiers);
 }
 
 const getUnusedPaths = (mockCache: MockCache): string[] =>
