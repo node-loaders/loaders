@@ -3,14 +3,14 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "./workspaces/auto",
     "./workspaces/core",
+    "./workspaces/resolve",
     "./workspaces/esbuild",
     "./workspaces/mock",
-    "./workspaces/resolve"
+    "./workspaces/auto"
   ],
   "scripts": {
-    "build": "npm run build -w workspaces/core && npm run build -w workspaces/resolve && npm run build -w workspaces/esbuild && npm run build -w workspaces/mock && npm run build -w workspaces/auto",
+    "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
     "clean-all": "npm run clean-all --workspaces && rimraf node_modules",
     "fix": "npm run fix --workspaces",
