@@ -8,6 +8,17 @@ For configuration tools, refer to [usage](https://github.com/node-loaders/loader
 
 When using in combination with others @node-loaders modules make sure to use [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto#node-loadersauto) for better interoperability.
 
+## ESM/strict mode
+
+Native ECMAScript support requires imports with extensions, while commonjs files allows directory imports and extensionless files.
+
+To match this behaviour, use:
+
+- `@node-loaders/esbuild/strict` for esm with strict extension imports with loose require support.
+- `@node-loaders/esbuild/esm` for esm with strict extension imports without require support.
+
+No strict support export is provided for node14 by default.
+
 ### Node 14
 
 For Node 14 compatibility use the node14 exported path `@node-loaders/esbuild/node14`.
