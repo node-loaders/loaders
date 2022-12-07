@@ -22,10 +22,9 @@
     "#local": "./test/fixtures/imports/local/index.js"
   },
   "exports": {
-    ".": "./dist/index.js",
-    "./compat": "./dist/compat.js",
+    ".": "./dist/index-default.js",
     "./node14": "./dist/node14.js",
-    "./compat-node14": "./dist/compat-node14.js"
+    "./esm": "./dist/index-esm.js"
   },
   "files": [
     "./dist"

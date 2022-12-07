@@ -1,14 +1,19 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import { existingFile } from '@node-loaders/resolve';
 
-import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from '../src/esbuild-module.js';
+import {
+  detectFormatForEsbuildFileExtension,
+  isEsbuildExtensionSupported,
+  lookForEsbuildReplacementFile,
+  lookForEsbuildReplacementFileSync,
+} from '../src/esbuild-support.js';
 import { resolvePackage, resolveNonExisting } from '../../test/src/index.js';
 
 const commonjsExtensions = ['.cts'];
 const esmExtensions = ['.mts'];
 const supportedExtensions = ['.ts', '.tsx', ...commonjsExtensions, ...esmExtensions];
 
-describe('esbuild-module', () => {
+describe('esbuild-support', () => {
   describe('detectFormatForEsbuildFileExtension', () => {
     for (const commonjsExtension of commonjsExtensions) {
       it(`should return commonjs for ${commonjsExtension} extension`, () => {
@@ -60,6 +65,30 @@ describe('esbuild-module', () => {
       const module = resolvePackage('ts-esm-simple/package.json');
       expect(existingFile(module)).toBeTruthy();
       expect(await lookForEsbuildReplacementFile(module)).toBeUndefined();
+    });
+  });
+
+  describe('lookForEsbuildReplacementFileSync', () => {
+    it('should return ts file for js file', () => {
+      const module = resolvePackage('ts-esm-simple/simple.js');
+      expect(lookForEsbuildReplacementFileSync(module)).toMatch(/simple\.ts$/);
+    });
+    it('should return cts file for cjs file', () => {
+      const module = resolvePackage('cts-simple/simple.cjs');
+      expect(lookForEsbuildReplacementFileSync(module)).toMatch(/simple\.cts$/);
+    });
+    it('should return mts file for mjs file', () => {
+      const module = resolvePackage('mts-simple/simple.mjs');
+      expect(lookForEsbuildReplacementFileSync(module)).toMatch(/simple\.mts$/);
+    });
+    it('should return undefined for non existing alternative', () => {
+      const module = resolveNonExisting('esm/non-existing.mjs');
+      expect(lookForEsbuildReplacementFileSync(module)).toBeUndefined();
+    });
+    it('should return undefined for unknown mapping', () => {
+      const module = resolvePackage('ts-esm-simple/package.json');
+      expect(existingFile(module)).toBeTruthy();
+      expect(lookForEsbuildReplacementFileSync(module)).toBeUndefined();
     });
   });
 });

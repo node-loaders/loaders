@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { extname } from 'node:path';
 import { type Format } from '@node-loaders/core';
-import { resolveAlternativeFile } from '@node-loaders/resolve';
+import { resolveAlternativeFile, resolveAlternativeFileSync } from '@node-loaders/resolve';
 
 const esbuildExtensions = new Set<string>(['.ts', '.cts', '.mts', '.tsx']);
 const formatForExtension: Record<string, Format> = {
@@ -27,6 +27,15 @@ export async function lookForEsbuildReplacementFile(filePath: string): Promise<s
   const replacementExtensions = replacementsForExtension[extname(filePath)];
   if (replacementExtensions) {
     return resolveAlternativeFile(filePath, replacementExtensions);
+  }
+
+  return undefined;
+}
+
+export function lookForEsbuildReplacementFileSync(filePath: string): string | undefined {
+  const replacementExtensions = replacementsForExtension[extname(filePath)];
+  if (replacementExtensions) {
+    return resolveAlternativeFileSync(filePath, replacementExtensions);
   }
 
   return undefined;

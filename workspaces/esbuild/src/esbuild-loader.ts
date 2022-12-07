@@ -1,10 +1,5 @@
-import { readFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
-import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { transform, type TransformOptions } from 'esbuild';
-import { getTsconfig } from 'get-tsconfig';
 import LoaderBase, {
   type LoadContext,
   type LoadedModule,
@@ -18,8 +13,8 @@ import LoaderBase, {
 } from '@node-loaders/core';
 import { existingFile, lookForDefaultModule, specifierToFilePath, detectPackageJsonType } from '@node-loaders/resolve';
 
-import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-module.js';
-import { EsbuildCache } from './cache.js';
+import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-support.js';
+import { EsbuildSources } from './esbuild-sources.js';
 
 export type EsbuildLoaderOptions = LoaderBaseOptions & {
   allowDefaults?: boolean;
@@ -28,7 +23,7 @@ export type EsbuildLoaderOptions = LoaderBaseOptions & {
 export default class EsbuildLoader extends LoaderBase {
   allowDefaults: boolean;
   sourceMapEnabled = false;
-  cache = new EsbuildCache();
+  esbuildSources = new EsbuildSources();
 
   constructor(options: EsbuildLoaderOptions = {}) {
     // We want builtin modules and package import to pass through
@@ -97,15 +92,7 @@ export default class EsbuildLoader extends LoaderBase {
 
   override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
-      let cachedfile = this.cache.get(url);
-      if (!cachedfile) {
-        const filePath = fileURLToPath(url);
-        const format = context.format ?? (await detectPackageJsonType(filePath));
-        const source = await this.transform(filePath, format);
-        cachedfile = { format, source };
-        this.cache.set(url, cachedfile);
-      }
-
+      const cachedfile = await this.esbuildSources.getSource(url, context.format);
       return {
         format: cachedfile.format,
         source: cachedfile.source,
@@ -114,44 +101,5 @@ export default class EsbuildLoader extends LoaderBase {
     }
 
     return nextLoad(url, context);
-  }
-
-  async transform(filePath: string, format: string): Promise<string> {
-    this.log(`Transforming ${filePath}`);
-    const code = await readFile(filePath);
-    const esbuildFormat = format === 'module' ? 'esm' : 'cjs';
-
-    // We are transpiling, enable sourcemap is available
-    if (!this.sourceMapEnabled) {
-      if ('setSourceMapsEnabled' in process && typeof Error.prepareStackTrace !== 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        (process as any).setSourceMapsEnabled(true);
-      }
-
-      this.sourceMapEnabled = true;
-    }
-
-    const { code: source } = await transform(
-      code.toString(),
-      this.getOptions({
-        sourcefile: filePath,
-        format: esbuildFormat,
-      }),
-    );
-
-    return source;
-  }
-
-  getOptions(options: TransformOptions & Required<Pick<TransformOptions, 'sourcefile'>>): TransformOptions {
-    const tsconfigRaw = getTsconfig(dirname(options.sourcefile))?.config as unknown;
-    return {
-      loader: 'default',
-      minifyWhitespace: true,
-      keepNames: true,
-      sourcemap: 'inline',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      tsconfigRaw: tsconfigRaw as any,
-      ...options,
-    };
   }
 }
