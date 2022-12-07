@@ -22,7 +22,6 @@ export type EsbuildLoaderOptions = LoaderBaseOptions & {
 
 export default class EsbuildLoader extends LoaderBase {
   allowDefaults: boolean;
-  sourceMapEnabled = false;
   esbuildSources = new EsbuildSources();
 
   constructor(options: EsbuildLoaderOptions = {}) {

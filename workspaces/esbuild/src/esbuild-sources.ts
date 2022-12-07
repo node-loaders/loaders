@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { getTsconfig } from 'get-tsconfig';
 import { type Format } from '@node-loaders/core';
@@ -14,8 +13,6 @@ type EsbuildSource = {
 };
 
 export class EsbuildSources {
-  private sourceMapEnabled?: boolean;
-
   private sourcesCache: Record<string, EsbuildSource> = {};
   private tsconfigCache: Record<string, any> = {};
 
@@ -29,16 +26,6 @@ export class EsbuildSources {
 
     const sourceFile = await readFile(filePath);
     const esbuildFormat = format === 'module' ? 'esm' : 'cjs';
-
-    // We are transpiling, enable sourcemap is available
-    if (!this.sourceMapEnabled) {
-      if ('setSourceMapsEnabled' in process && typeof Error.prepareStackTrace !== 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        (process as any).setSourceMapsEnabled(true);
-      }
-
-      this.sourceMapEnabled = true;
-    }
 
     const { code: transformed } = await transform(
       sourceFile.toString(),

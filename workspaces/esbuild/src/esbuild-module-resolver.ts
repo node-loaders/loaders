@@ -48,6 +48,10 @@ export default class EsbuildModuleResolver {
   }
 
   register() {
+    if ('setSourceMapsEnabled' in process && typeof Error.prepareStackTrace !== 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      (process as any).setSourceMapsEnabled(true);
+    }
     for (const ext of this.extensions) {
       (Module as any)._extensions[ext] = this.extensionHandler;
     }
