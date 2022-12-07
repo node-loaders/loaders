@@ -7,6 +7,11 @@ import { resolvePackage } from '../../test/src/index.js';
 const actualDefault = await import('./fixtures/imports/local/index.js');
 
 describe('esbuild-loader', () => {
+  before(() => {
+    // Cleanup cache to force esbuild transform.
+    looseLoader.esbuildSources.cache.cleanup();
+  });
+
   it('should import package.json imports', async () => {
     const local = await import('#local');
     expect(local).toBe(actualDefault);

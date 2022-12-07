@@ -1,10 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getTsconfig } from 'get-tsconfig';
 import { type Format } from '@node-loaders/core';
-import { detectPackageJsonType } from '@node-loaders/resolve';
+import { detectPackageJsonType, LoaderCache } from '@node-loaders/resolve';
 import { transform, type TransformOptions, transformSync } from 'esbuild';
 
 type EsbuildSource = {
@@ -12,33 +12,54 @@ type EsbuildSource = {
   format: Format;
 };
 
-export class EsbuildSources {
-  private sourcesCache: Record<string, EsbuildSource> = {};
-  private tsconfigCache: Record<string, any> = {};
+type TsconfigCache = {
+  config: any;
+  hash: string;
+};
 
+const cacheExtension = 'mjs';
+
+export class EsbuildSources {
+  readonly sourcesCache: Record<string, EsbuildSource> = {};
+  readonly tsconfigCache: Record<string, TsconfigCache> = {};
+  readonly cache: LoaderCache = new LoaderCache('esbuild');
+
+  /* c8 ignore next */
   async getSource(fileUrl: string, maybeFormat?: string): Promise<EsbuildSource> {
     if (this.sourcesCache[fileUrl]) {
       return this.sourcesCache[fileUrl];
     }
 
     const filePath = fileURLToPath(fileUrl);
-    const format: Format = (maybeFormat ?? (await detectPackageJsonType(filePath)) ?? 'module') as Format;
-
     const sourceFile = await readFile(filePath);
+    const fileContent = sourceFile.toString();
+
+    const tsconfigCache = this.findTsConfig(filePath);
+    const cacheOptions = { modifier: tsconfigCache?.hash, extension: cacheExtension };
+    let transformed = await this.cache.get(fileContent, cacheOptions);
+
+    /* c8 ignore next 2 */
+    const format: Format = (maybeFormat ?? (await detectPackageJsonType(filePath)) ?? 'module') as Format;
     const esbuildFormat = format === 'module' ? 'esm' : 'cjs';
 
-    const { code: transformed } = await transform(
-      sourceFile.toString(),
-      this.getOptions({
-        sourcefile: filePath,
-        format: esbuildFormat,
-      }),
-    );
+    if (!transformed) {
+      const result = await transform(
+        fileContent,
+        this.getOptions(tsconfigCache?.config, {
+          sourcefile: filePath,
+          format: esbuildFormat,
+        }),
+      );
+      transformed = result.code;
+      await this.cache.save(transformed, cacheOptions);
+    }
+
     this.sourcesCache[fileUrl] = { source: transformed, format };
 
     return this.sourcesCache[fileUrl];
   }
 
+  /* c8 ignore next */
   getSourceSync(fileUrl: string, format: Format = 'commonjs'): EsbuildSource {
     if (this.sourcesCache[fileUrl]) {
       return this.sourcesCache[fileUrl];
@@ -46,21 +67,28 @@ export class EsbuildSources {
 
     const filePath = fileURLToPath(fileUrl);
 
-    const code = readFileSync(filePath, 'utf8');
-    const { code: transformed } = transformSync(
-      code,
-      this.getOptions({
-        sourcefile: filePath,
-        format: 'cjs',
-      }),
-    );
+    const fileContent = readFileSync(filePath, 'utf8').toString();
+    const tsconfigCache = this.findTsConfig(filePath);
+    const cacheOptions = { file: this.cache.createHash(fileContent), modifier: tsconfigCache?.hash, extension: cacheExtension };
+
+    let transformed = this.cache.getSync(cacheOptions);
+    if (!transformed) {
+      const result = transformSync(
+        fileContent,
+        this.getOptions(tsconfigCache?.config, {
+          sourcefile: filePath,
+          format: 'cjs',
+        }),
+      );
+      transformed = result.code;
+      this.cache.saveSync(transformed, cacheOptions);
+    }
+
     this.sourcesCache[fileUrl] = { source: transformed, format };
     return this.sourcesCache[fileUrl];
   }
 
-  getOptions(options: TransformOptions & Required<Pick<TransformOptions, 'sourcefile'>>): TransformOptions {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const tsconfig = this.findTsConfig(options.sourcefile);
+  getOptions(tsconfig: any, options: TransformOptions & Required<Pick<TransformOptions, 'sourcefile'>>): TransformOptions {
     return {
       loader: 'default',
       minifyWhitespace: true,
@@ -72,21 +100,24 @@ export class EsbuildSources {
     };
   }
 
-  findTsConfig(sourceFile: string): any {
-    const sourceDirname = resolve(dirname(sourceFile));
+  findTsConfig(sourceFile: string): TsconfigCache {
+    const sourceDirname = dirname(sourceFile);
     if (this.tsconfigCache[sourceDirname]) {
-      return this.sourcesCache[sourceDirname];
+      return this.tsconfigCache[sourceDirname];
     }
 
     const result = getTsconfig(sourceDirname);
     if (result) {
-      const tsconfigDirname = resolve(dirname(result.path));
-      this.tsconfigCache[sourceDirname] = result.config;
+      const tsconfigDirname = dirname(result.path);
+      const hash = this.cache.createHash(JSON.stringify(result.config));
+      const cache = { config: result.config, hash };
+
+      this.tsconfigCache[sourceDirname] = cache;
       if (/^[./\\]*$/.test(relative(sourceDirname, tsconfigDirname))) {
         let subDir = sourceDirname;
         while (subDir.length > 5 && subDir !== tsconfigDirname) {
           subDir = join(subDir, '..');
-          this.tsconfigCache[subDir] = result.config;
+          this.tsconfigCache[subDir] = cache;
         }
       }
     }
