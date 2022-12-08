@@ -1,9 +1,4 @@
-export type MockedIdData = {
-  cacheId: string;
-  specifier: string;
-  resolvedSpecifier: string;
-  depth: number;
-};
+import { type MockedIdData } from './types.js';
 
 const mockedIdSearchParameter = '@node-loaders/mocked-id';
 const mockedSpecifierSearchParameter = '@node-loaders/mocked-specifier';
