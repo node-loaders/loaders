@@ -9,7 +9,6 @@
     /* Modules */
     "module": "node16" /* Specify what module code is generated. */,
     "rootDir": "" /* Specify the root folder within your source files. */,
-    "resolveJsonModule": true,
 
     /* Emit */
     "outDir": "./dist" /* Specify an output folder for all emitted files. */,
