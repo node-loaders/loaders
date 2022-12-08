@@ -1,20 +1,22 @@
 import { ChainLoader } from '@node-loaders/core';
 
-const loadersList = [];
-
-let globalPreload = () => {};
+let mock;
+let esbuild;
 
 try {
-  loadersList.push(await import('@node-loaders/mock'));
+  mock = await import('@node-loaders/mock');
 } catch {}
 
 try {
-  const esbuild = await import('@node-loaders/esbuild');
-  loadersList.push(esbuild);
-  globalPreload = esbuild.globalPreload;
+  esbuild = await import('@node-loaders/esbuild');
 } catch {}
 
-const loader = new ChainLoader(loadersList);
+const globalPreload = () => {
+  esbuild?.globalPreload();
+  mock?.globalPreload();
+};
+
+const loader = new ChainLoader([mock, esbuild].filter(Boolean));
 
 export const resolve = loader.exportResolve();
 

@@ -1,10 +1,14 @@
 # @node-loaders/esbuild
 
-Loader that mocks imported modules.
+Loader that mocks imported/required modules.
 
 ## Usage
 
 For configuration tools, refer to [usage](https://github.com/node-loaders/loaders#usage)
+
+When using in combination with others @node-loaders modules make sure to use [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto#node-loadersauto) for better interoperability .
+
+### ESM
 
 Importing a module with mocked dependencies:
 
@@ -14,9 +18,9 @@ import { mock, checkMocks } from '@node-loaders/mock';
 describe(() => {
   afterAll(() => {
     checkMocks(); // Detects for unused mocks to avoid mistakes on import changes.
-  }),
+  });
 
-  it(() => {
+  it(async () => {
     const defaultSpy = spy();
     const joinSpy = spy();
 
@@ -41,9 +45,9 @@ import { mock, checkMocks, fullMock } from '@node-loaders/mock';
 describe(() => {
   afterAll(() => {
     checkMocks(); // Detects for unused mocks to avoid mistakes on import changes.
-  }),
+  });
 
-  it(() => {
+  it(async () => {
     const joinSpy = spy();
 
     const mockedModule = await mock('./module.js', {
@@ -64,9 +68,9 @@ import { mock, checkMocks, checkMock, ignoreUnused } from '@node-loaders/mock';
 describe(() => {
   afterAll(() => {
     checkMocks(); // Detects for unused mocks to avoid mistakes on import changes.
-  }),
+  });
 
-  it(() => {
+  it(async () => {
     const joinSpy = spy();
     const resolveSpy = spy();
 
@@ -93,9 +97,9 @@ import { mock, checkMocks, maxDepth } from '@node-loaders/mock';
 describe(() => {
   afterAll(() => {
     checkMocks(); // Detects for unused mocks to avoid mistakes on import changes.
-  }),
+  });
 
-  it(() => {
+  it(async () => {
     const joinSpy = spy();
     const resolveSpy = spy();
 
@@ -112,7 +116,61 @@ describe(() => {
 });
 ```
 
-When using in combination with others @node-loaders modules make sure to use [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto#node-loadersauto) for better interoperability .
+### CommonJS
+
+From an esm module:
+
+```js
+import { mockRequire, checkMocks } from '@node-loaders/mock';
+
+describe(() => {
+  afterAll(() => {
+    checkMocks(); // Detects for unused mocks to avoid mistakes on import changes.
+  });
+
+  it(() => {
+    const defaultSpy = spy();
+    const joinSpy = spy();
+
+    const mockedModule = mockRequire('./module.cjs', {
+      '../src/path.cjs': {
+        default: defaultSpy,
+        join: joinSpy,
+      },
+    });
+
+    expect(joinSpy).toBeCalled();
+    expect(defaultSpy).toBeCalled();
+  });
+});
+```
+
+From a cjs module:
+
+```cjs
+const { mockRequire } = require('@node-loaders/mock/require');
+
+describe(() => {
+  afterAll(() => {
+    checkMocks(); // Detects for unused mocks to avoid mistakes on import changes.
+  });
+
+  it(() => {
+    const defaultSpy = spy();
+    const joinSpy = spy();
+
+    const mockedModule = mockRequire('./module.cjs', {
+      '../src/path.cjs': {
+        default: defaultSpy,
+        join: joinSpy,
+      },
+    });
+
+    expect(joinSpy).toBeCalled();
+    expect(defaultSpy).toBeCalled();
+  });
+});
+```
 
 ### Node 14
 

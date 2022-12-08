@@ -11,6 +11,16 @@ export const mergeModule = (original: any, mocked: any): any => {
 
       return Reflect.get(target, property);
     },
+
+    /* c8 ignore next 8 */
+    apply(target, thisArg, argArray) {
+      if (mocked.apply) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        return mocked.apply(thisArg, argArray);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/padding-line-between-statements
+      return target.apply(thisArg, argArray);
+    },
   };
 
   return new Proxy(original, handler1);

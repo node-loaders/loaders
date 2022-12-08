@@ -3,6 +3,7 @@ import MockLoader from './mock-loader.js';
 import { parseProtocol } from './support/url-protocol.js';
 import { addMockedSpecifier, existsMockedData } from './support/module-cache.js';
 import { emptyMock } from './support/symbols-internal.js';
+import MockModuleResolver from './mock-module-resolver.js';
 
 export class Node14MockLoader extends addNode14Support(MockLoader) {
   async _getFormat(
@@ -42,3 +43,13 @@ export const load = loader.exportLoad();
 // Keep node 14 compatibility
 export const getFormat = loader.exportGetFormat();
 export const getSource = loader.exportGetSource();
+
+export const globalPreload = () => {
+  new MockModuleResolver().register();
+};
+
+export const getGlobalPreloadCode = () => {
+  console.log('getGlobalPreloadCode');
+  new MockModuleResolver().register();
+  return '';
+};

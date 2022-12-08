@@ -1,22 +1,23 @@
 import { Node14ChainLoader } from '@node-loaders/core';
 
-const loadersList = [];
-
-let globalPreload = () => {};
-let getGlobalPreloadCode = () => {};
+let mock;
+let esbuild;
 
 try {
-  loadersList.push(await import('@node-loaders/mock/node14'));
+  mock = await import('@node-loaders/mock/node14');
 } catch {}
 
 try {
-  const esbuild = await import('@node-loaders/esbuild/node14');
-  loadersList.push(esbuild);
-  globalPreload = esbuild.globalPreload;
-  getGlobalPreloadCode = esbuild.getGlobalPreloadCode;
+  esbuild = await import('@node-loaders/esbuild/node14');
 } catch {}
 
-const loader = new Node14ChainLoader(loadersList);
+const globalPreload = () => {
+  esbuild?.globalPreload();
+  mock?.globalPreload();
+  return '';
+};
+
+const loader = new Node14ChainLoader([mock, esbuild].filter(Boolean));
 
 export const resolve = loader.exportResolve();
 
@@ -26,4 +27,4 @@ export const getFormat = loader.exportGetFormat();
 
 export const getSource = loader.exportGetSource();
 
-export { getGlobalPreloadCode, globalPreload };
+export { globalPreload as getGlobalPreloadCode, globalPreload };
