@@ -10,6 +10,7 @@
     "./workspaces/auto"
   ],
   "scripts": {
+    "prebuild": "npm run clean",
     "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
     "clean-all": "npm run clean-all --workspaces && rimraf node_modules",
