@@ -39,8 +39,10 @@ export default class EsbuildModuleResolver {
     try {
       return nextResolveFilename(request, parent, isMain, options);
     } catch (error: unknown) {
-      const filePath = specifierToFilePath(request, parent?.filename ?? undefined);
-      const resolvedFilePath = lookForEsbuildReplacementFileSync(filePath) ?? lookForDefaultModuleSync(filePath, 'ts');
+      const parentFilename = parent?.filename ?? undefined;
+      const parentUrl = parentFilename ? pathToFileURL(parentFilename).href : undefined;
+      const possibleFilePath = specifierToFilePath(request, parentUrl);
+      const resolvedFilePath = lookForEsbuildReplacementFileSync(possibleFilePath) ?? lookForDefaultModuleSync(possibleFilePath, 'ts');
       if (resolvedFilePath) {
         return resolvedFilePath;
       }
