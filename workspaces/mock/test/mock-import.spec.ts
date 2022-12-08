@@ -1,7 +1,7 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
 
-import { mock, checkMocks, checkMock } from '../src/mock.js';
+import { mock, checkMocks, checkMock } from '../src/mock-import.js';
 import { emptyMock } from '../src/support/symbols-internal.js';
 import { fullMock, ignoreUnused, maxDepth } from '../src/symbols.js';
 

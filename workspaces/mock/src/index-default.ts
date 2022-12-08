@@ -1,6 +1,6 @@
 import MockLoader from './mock-loader.js';
 
-export * from './mock.js';
+export * from './mock-import.js';
 export * from './symbols.js';
 
 const loader = new MockLoader();
