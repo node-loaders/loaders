@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/esbuild",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "private": false,
   "keywords": [
     "esm",
@@ -40,8 +40,8 @@
     "test-node14": "mocha --config .mocharc.node14.cjs test"
   },
   "dependencies": {
-    "@node-loaders/core": "^0.4.0",
-    "@node-loaders/resolve": "^0.3.0",
+    "@node-loaders/core": "^0.5.0",
+    "@node-loaders/resolve": "^0.4.0",
     "esbuild": "^0.15.16",
     "get-tsconfig": "^4.2.0"
   },
