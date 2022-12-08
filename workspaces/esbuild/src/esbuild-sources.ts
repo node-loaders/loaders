@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { getTsconfig } from 'get-tsconfig';
