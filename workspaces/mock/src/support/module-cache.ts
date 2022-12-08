@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ignoreUnused, maxDepth } from './symbols.js';
+import { ignoreUnused, maxDepth } from '../symbols.js';
 
 export const globalCacheProperty = '@node-loaders';
 

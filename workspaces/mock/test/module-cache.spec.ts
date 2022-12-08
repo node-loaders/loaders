@@ -11,7 +11,7 @@ import {
   globalStore,
   type MockStore,
   type MockedParentData,
-} from '../src/module-cache.js';
+} from '../src/support/module-cache.js';
 import { fullMock, ignoreUnused } from '../src/symbols.js';
 
 const __filename = fileURLToPath(import.meta.url);

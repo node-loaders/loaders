@@ -1,6 +1,6 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
-import { buildMockedOriginUrl, buildMockedSpecifierUrl, parseProtocol, buildUrl } from '../src/url-protocol.js';
+import { buildMockedOriginUrl, buildMockedSpecifierUrl, parseProtocol, buildUrl } from '../src/support/url-protocol.js';
 
 describe('mock-url', () => {
   describe('buildMockedOriginUrl', () => {

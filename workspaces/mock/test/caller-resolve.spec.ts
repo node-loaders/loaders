@@ -1,6 +1,6 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
-import { resolveCallerUrl } from '../src/caller-resolve.js';
+import { resolveCallerUrl } from '../src/support/caller-resolve.js';
 
 // Add intermediate call to mock mock
 function wrap(fn) {

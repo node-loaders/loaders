@@ -1,8 +1,8 @@
 import { addNode14Support, isBuiltinModule } from '@node-loaders/core';
 import MockLoader from './mock-loader.js';
-import { type MockedSpecifierData, parseProtocol } from './url-protocol.js';
-import { addMockedSpecifier, existsMockedData } from './module-cache.js';
-import { emptyMock } from './symbols-internal.js';
+import { type MockedSpecifierData, parseProtocol } from './support/url-protocol.js';
+import { addMockedSpecifier, existsMockedData } from './support/module-cache.js';
+import { emptyMock } from './support/symbols-internal.js';
 
 export class Node14MockLoader extends addNode14Support(MockLoader) {
   async _getFormat(
@@ -31,8 +31,6 @@ export class Node14MockLoader extends addNode14Support(MockLoader) {
     return defaultGetFormat(url, context);
   }
 }
-
-export * from './mock.js';
 
 const loader = new Node14MockLoader();
 

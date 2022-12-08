@@ -2,7 +2,7 @@ import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock, { type Mock as JestMock } from 'jest-mock';
 
 import { type ResolvedModule, type NextResolve } from '@node-loaders/core';
-import { buildMockedSpecifierUrl, buildMockedOriginUrl } from '../src/url-protocol.js';
+import { buildMockedSpecifierUrl, buildMockedOriginUrl } from '../src/support/url-protocol.js';
 import loader from '../src/index-default.js';
 
 describe('mock-loader', () => {

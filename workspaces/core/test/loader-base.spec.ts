@@ -1,3 +1,4 @@
+/* eslint-disable max-nested-callbacks */
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
 

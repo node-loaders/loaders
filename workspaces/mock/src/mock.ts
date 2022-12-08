@@ -6,11 +6,11 @@ import {
   getAllMockedData,
   getMockedModuleStore,
   type MockCache,
-} from './module-cache.js';
-import { resolveCallerUrl } from './caller-resolve.js';
-import { buildMockedOriginUrl } from './url-protocol.js';
-import { cacheId as cacheIdSymbol } from './symbols-internal.js';
-import { mockedModule } from './module-mock.js';
+} from './support/module-cache.js';
+import { resolveCallerUrl } from './support/caller-resolve.js';
+import { buildMockedOriginUrl } from './support/url-protocol.js';
+import { cacheId as cacheIdSymbol } from './support/symbols-internal.js';
+import { mockedModule } from './support/module-mock.js';
 import { ignoreUnused } from './symbols.js';
 
 let checked = false;

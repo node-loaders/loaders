@@ -8,12 +8,12 @@ import BaseLoader, {
   type ResolveContext,
   type ResolvedModule,
 } from '@node-loaders/core';
-import { buildMockedSpecifierUrl, mockedSpecifierProtocol, mockedOriginProtocol, parseProtocol } from './url-protocol.js';
+import { buildMockedSpecifierUrl, mockedSpecifierProtocol, mockedOriginProtocol, parseProtocol } from './support/url-protocol.js';
 
-import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './module-cache.js';
-import { generateEsmSource, getNamedExports, mergeModule } from './module-mock.js';
+import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './support/module-cache.js';
+import { generateEsmSource, getNamedExports, mergeModule } from './support/module-mock.js';
 import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
-import { emptyMock } from './symbols-internal.js';
+import { emptyMock } from './support/symbols-internal.js';
 import { defaultMaxDepth } from './constants.js';
 
 export default class MockLoader extends BaseLoader {
