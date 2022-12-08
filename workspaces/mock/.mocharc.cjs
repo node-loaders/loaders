@@ -1,5 +1,5 @@
 module.exports = {
   extension: ['spec.ts'],
   require: ['mocha-expect-snapshot'],
-  loader: ['@node-loaders/esbuild', './dist/index.js'],
+  loader: ['@node-loaders/esbuild', './dist/index-default.js'],
 };
