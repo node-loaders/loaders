@@ -1,6 +1,6 @@
 import Module from 'node:module';
 import { pathToFileURL } from 'node:url';
-import { specifierToFilePath } from '@node-loaders/core';
+import { isBuiltinModule, isPackageSpecifier, specifierToFilePath } from '@node-loaders/core';
 import { lookForDefaultModuleSync } from '@node-loaders/resolve';
 import { EsbuildSources } from './esbuild-sources.js';
 import { lookForEsbuildReplacementFileSync } from './esbuild-support.js';
@@ -38,12 +38,14 @@ export default class EsbuildModuleResolver {
     try {
       return nextResolveFilename(request, parent, isMain, options);
     } catch (error: unknown) {
-      const parentFilename = parent?.filename ?? undefined;
-      const parentUrl = parentFilename ? pathToFileURL(parentFilename).href : undefined;
-      const possibleFilePath = specifierToFilePath(request, parentUrl);
-      const resolvedFilePath = lookForEsbuildReplacementFileSync(possibleFilePath) ?? lookForDefaultModuleSync(possibleFilePath, 'ts');
-      if (resolvedFilePath) {
-        return resolvedFilePath;
+      if (!isBuiltinModule(request) && !isPackageSpecifier(request)) {
+        const parentFilename = parent?.filename ?? undefined;
+        const parentUrl = parentFilename ? pathToFileURL(parentFilename).href : undefined;
+        const possibleFilePath = specifierToFilePath(request, parentUrl);
+        const resolvedFilePath = lookForEsbuildReplacementFileSync(possibleFilePath) ?? lookForDefaultModuleSync(possibleFilePath, 'ts');
+        if (resolvedFilePath) {
+          return resolvedFilePath;
+        }
       }
 
       throw error;
