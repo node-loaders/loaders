@@ -1,4 +1,5 @@
-import { createCheckUrl } from '@node-loaders/core';
+import { pathToFileURL } from 'node:url';
+import { createCheckUrl, specifierToFilePath } from '@node-loaders/core';
 import {
   addMockedData,
   deleteAllMockedData,
@@ -8,7 +9,7 @@ import {
   type MockCache,
 } from './support/module-cache.js';
 import { resolveCallerUrl } from './support/caller-resolve.js';
-import { buildMockedOriginUrl } from './support/url-protocol.js';
+import { buildMockUrl } from './support/url-protocol.js';
 import { cacheId as cacheIdSymbol } from './support/symbols-internal.js';
 import { mockedModule } from './support/module-mock.js';
 import { ignoreUnused } from './symbols.js';
@@ -40,7 +41,8 @@ async function internalMock<MockedType = any>(
   }
 
   const cacheId = addMockedData(mockedSpecifiers);
-  const mockedSpecifier = buildMockedOriginUrl(url, { specifier, cacheId });
+  const fileUrl = pathToFileURL(specifierToFilePath(specifier, url)).href;
+  const mockedSpecifier = buildMockUrl({ specifier, cacheId, resolvedSpecifier: fileUrl, depth: 0 });
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return mockedModule(await import(mockedSpecifier), cacheId);
