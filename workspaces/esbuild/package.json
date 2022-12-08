@@ -24,6 +24,7 @@
   "exports": {
     ".": "./dist/index-default.js",
     "./node14": "./dist/index-node14.js",
+    "./strict": "./dist/index-strict.js",
     "./esm": "./dist/index-esm.js"
   },
   "files": [
