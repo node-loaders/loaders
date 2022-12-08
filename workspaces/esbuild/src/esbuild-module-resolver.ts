@@ -1,5 +1,4 @@
 import Module from 'node:module';
-import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { specifierToFilePath } from '@node-loaders/core';
 import { lookForDefaultModuleSync } from '@node-loaders/resolve';
@@ -52,11 +51,6 @@ export default class EsbuildModuleResolver {
   }
 
   register() {
-    if ('setSourceMapsEnabled' in process && typeof Error.prepareStackTrace !== 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      (process as any).setSourceMapsEnabled(true);
-    }
-
     for (const ext of this.extensions) {
       (Module as any)._extensions[ext] = this.extensionHandler;
     }

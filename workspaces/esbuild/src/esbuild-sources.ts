@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { getTsconfig } from 'get-tsconfig';
 import { type Format } from '@node-loaders/core';
@@ -23,12 +24,28 @@ export class EsbuildSources {
   readonly sourcesCache: Record<string, EsbuildSource> = {};
   readonly tsconfigCache: Record<string, TsconfigCache> = {};
   readonly cache: LoaderCache = new LoaderCache('esbuild');
+  private sourceMapSet = false;
+
+  setupSourceMap() {
+    if (this.sourceMapSet) {
+      return;
+    }
+
+    if ('setSourceMapsEnabled' in process && typeof Error.prepareStackTrace !== 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      (process as any).setSourceMapsEnabled(true);
+    }
+
+    this.sourceMapSet = true;
+  }
 
   /* c8 ignore next */
   async getSource(fileUrl: string, maybeFormat?: string): Promise<EsbuildSource> {
     if (this.sourcesCache[fileUrl]) {
       return this.sourcesCache[fileUrl];
     }
+
+    this.setupSourceMap();
 
     const filePath = fileURLToPath(fileUrl);
     const sourceFile = await readFile(filePath);
@@ -64,6 +81,8 @@ export class EsbuildSources {
     if (this.sourcesCache[fileUrl]) {
       return this.sourcesCache[fileUrl];
     }
+
+    this.setupSourceMap();
 
     const filePath = fileURLToPath(fileUrl);
 
