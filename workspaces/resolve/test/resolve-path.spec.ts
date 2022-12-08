@@ -1,5 +1,5 @@
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import {
@@ -7,7 +7,6 @@ import {
   detectPackageJsonType,
   resolveAlternativeFile,
   lookForDefaultModule,
-  specifierToFilePath,
   lookForDefaultModuleSync,
   resolveAlternativeFileSync,
   detectPackageJsonTypeSync,
@@ -105,30 +104,6 @@ describe('resolve-module', () => {
     it('should add index.js to the directory', () => {
       const module = join(__dirname, 'fixtures/default-modules');
       expect(lookForDefaultModuleSync(module)).toBe(resolve(`${module}/index.js`));
-    });
-  });
-
-  describe('specifierToFilePath', () => {
-    it('should return the filePath for existing path', async () => {
-      const module = join(__dirname, 'fixtures/default-modules/index.js');
-      expect(specifierToFilePath(module)).toBe(module);
-    });
-    it('should return the filePath for url', async () => {
-      const module = join(__dirname, 'fixtures/default-modules/index.js');
-      expect(specifierToFilePath(pathToFileURL(module).href)).toBe(module);
-    });
-    it('should return the filePath for relative path and parent path', async () => {
-      const module = join(__dirname, 'fixtures/default-modules/index.js');
-      const parentUrl = pathToFileURL(join(__dirname, 'index.js')).href;
-      expect(specifierToFilePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
-    });
-    it('should return the filePath for relative path and parent url', async () => {
-      const module = join(__dirname, 'fixtures/default-modules/index.js');
-      const parentUrl = pathToFileURL(join(__dirname, 'index.js')).href;
-      expect(specifierToFilePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
-    });
-    it('should throw for relative path and no parent url', async () => {
-      expect(() => specifierToFilePath('./fixtures/default-modules/index.js')).toThrow(/^Error resolving module/);
     });
   });
 });

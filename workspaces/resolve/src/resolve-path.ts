@@ -27,28 +27,6 @@ export function detectPackageJsonTypeSync(filePath: string): 'commonjs' | 'modul
 }
 
 /**
- * Resolves a file specifier to a file path
- * @param specifier accepts an absolute path, an relative path or and file url
- * @param parentURL required for relative specifier, ignored otherwise
- * @returns resolved file path
- */
-export const specifierToFilePath = (specifier: string, parentURL?: string): string => {
-  if (isAbsolute(specifier)) {
-    return specifier;
-  }
-
-  if (specifier.startsWith('.')) {
-    if (!parentURL) {
-      throw new Error(`Error resolving module ${specifier} without a parentUrl`);
-    }
-
-    return join(dirname(fileURLToPath(parentURL)), specifier);
-  }
-
-  return fileURLToPath(specifier);
-};
-
-/**
  * Check if the file exists
  * @param filePath
  * @returns the filePath if is a file and exists, undefined otherwise

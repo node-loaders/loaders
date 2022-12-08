@@ -1,6 +1,8 @@
 import Module from 'node:module';
+import process from 'node:process';
 import { pathToFileURL } from 'node:url';
-import { lookForDefaultModuleSync, specifierToFilePath } from '@node-loaders/resolve';
+import { specifierToFilePath } from '@node-loaders/core';
+import { lookForDefaultModuleSync } from '@node-loaders/resolve';
 import { EsbuildSources } from './esbuild-sources.js';
 import { lookForEsbuildReplacementFileSync } from './esbuild-support.js';
 
@@ -52,6 +54,7 @@ export default class EsbuildModuleResolver {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       (process as any).setSourceMapsEnabled(true);
     }
+
     for (const ext of this.extensions) {
       (Module as any)._extensions[ext] = this.extensionHandler;
     }

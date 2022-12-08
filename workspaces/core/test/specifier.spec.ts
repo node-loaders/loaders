@@ -8,6 +8,7 @@ import {
   isFileSpecifier,
   isNodeModulesSpecifier,
   isPackageSpecifier,
+  specifierToFilePath,
 } from '../src/specifier.js';
 
 const builtinModulesToTest = [...builtinModules, ...builtinModules.map(builtinModule => `node:${builtinModule}`)];
@@ -77,6 +78,30 @@ describe('detect-module', () => {
     });
     it("don't touch others urls", () => {
       expect(convertUrlDriveLetterToUpperCase('file:///c')).toEqual('file:///c');
+    });
+  });
+
+  describe('specifierToFilePath', () => {
+    it('should return the filePath for existing path', async () => {
+      const module = resolve('fixtures/default-modules/index.js');
+      expect(specifierToFilePath(module)).toBe(module);
+    });
+    it('should return the filePath for url', async () => {
+      const module = resolve('fixtures/default-modules/index.js');
+      expect(specifierToFilePath(pathToFileURL(module).href)).toBe(module);
+    });
+    it('should return the filePath for relative path and parent path', async () => {
+      const module = resolve('fixtures/default-modules/index.js');
+      const parentUrl = pathToFileURL(resolve('index.js')).href;
+      expect(specifierToFilePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
+    });
+    it('should return the filePath for relative path and parent url', async () => {
+      const module = resolve('fixtures/default-modules/index.js');
+      const parentUrl = pathToFileURL(resolve('index.js')).href;
+      expect(specifierToFilePath('./fixtures/default-modules/index.js', parentUrl)).toBe(module);
+    });
+    it('should throw for relative path and no parent url', async () => {
+      expect(() => specifierToFilePath('./fixtures/default-modules/index.js')).toThrow(/^Error resolving module/);
     });
   });
 });

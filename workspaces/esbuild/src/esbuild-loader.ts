@@ -1,4 +1,4 @@
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 
 import LoaderBase, {
   type LoadContext,
@@ -10,8 +10,9 @@ import LoaderBase, {
   type ResolvedModule,
   isFileSpecifier,
   isPackageJsonImportSpecifier,
+  specifierToFilePath,
 } from '@node-loaders/core';
-import { existingFile, lookForDefaultModule, specifierToFilePath, detectPackageJsonType } from '@node-loaders/resolve';
+import { existingFile, lookForDefaultModule } from '@node-loaders/resolve';
 
 import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-support.js';
 import { EsbuildSources } from './esbuild-sources.js';
