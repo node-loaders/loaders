@@ -24,7 +24,9 @@
   "type": "module",
   "exports": {
     ".": "./dist/index-default.js",
-    "./node14": "./dist/index-node14.js"
+    "./esm": "./dist/index-esm.js",
+    "./node14": "./dist/index-node14.js",
+    "./strict": "./dist/index-strict.js"
   },
   "files": [
     "./dist"
