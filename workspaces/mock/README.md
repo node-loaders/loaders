@@ -8,6 +8,12 @@ For configuration tools, refer to [usage](https://github.com/node-loaders/loader
 
 When using in combination with others @node-loaders modules make sure to use [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto#node-loadersauto) for better interoperability .
 
+### Loaders
+
+- `@node-loaders/mock` provides esm(import) and commonjs(require) mocking.
+- `@node-loaders/esm` provides esm(import) mocking only.
+- `@node-loaders/node14` provides esm(import) and commonjs(require) mocking compatible with Node v14.
+
 ### ESM
 
 Importing a module with mocked dependencies:
@@ -176,7 +182,11 @@ describe(() => {
 
 For Node 14 compatibility use the node14 exported path `@node-loaders/mock/node14`.
 
-See [Node 14](https://github.com/node-loaders/loaders#node_14)
+For more information refer to [Node 14](https://github.com/node-loaders/loaders#node_14)
+
+### Known issues
+
+CommonJS (require) mocking doesn't mock typescript modules.
 
 ## License
 

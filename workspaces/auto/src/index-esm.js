@@ -4,7 +4,7 @@ let mock;
 let esbuild;
 
 try {
-  mock = await import('@node-loaders/mock');
+  mock = await import('@node-loaders/mock/esm');
 } catch {}
 
 try {

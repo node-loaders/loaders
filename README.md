@@ -2,6 +2,12 @@
 
 @node-loaders provides clean designed loaders with interoperability focus.
 
+## Loaders
+
+- [Esbuild](https://github.com/node-loaders/loaders/tree/main/workspaces/esbuild)
+- [Mock](https://github.com/node-loaders/loaders/tree/main/workspaces/mock)
+- [Auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto)
+
 ## Usage
 
 For better interoperability use the [@node-loaders/auto](https://github.com/node-loaders/loaders/tree/main/workspaces/auto) that detects installed loaders.
