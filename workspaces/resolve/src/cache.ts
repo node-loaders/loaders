@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } 
 import { findUpSync } from 'find-up';
 import { existingFile, existingFileSync } from './resolve-path.js';
 
-export type CacheOptions = { file: string; modifier?: string; extension?: string };
+export type CacheOptions = { file: string; modifiers?: string[]; extension?: string };
 export type LoaderCacheOptions = { cacheRoot?: string; hashType?: string };
 
 export class LoaderCache {
@@ -42,8 +42,8 @@ export class LoaderCache {
     }
   }
 
-  getCacheFile(dir: string, { file, modifier, extension }: CacheOptions & { file: string }): string {
-    return join(dir, `${file}${modifier ? `-${modifier}` : ''}.${extension ?? 'cache'}`);
+  getCacheFile(dir: string, { file, modifiers, extension }: CacheOptions & { file: string }): string {
+    return join(dir, `${modifiers && modifiers.length > 0 ? `${modifiers.join('-')}-` : ''}${file}.${extension ?? 'cache'}`);
   }
 
   /* c8 ignore next */

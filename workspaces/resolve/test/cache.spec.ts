@@ -79,7 +79,10 @@ describe('cache', () => {
       expect(cache.getCacheFile(cache.cacheDir!, { file: 'foo', extension: 'bar' })).toMatch(/foo.bar$/);
     });
     it('should return the cache file with custom modifier', () => {
-      expect(cache.getCacheFile(cache.cacheDir!, { file: 'foo', modifier: 'bar' })).toMatch(/foo-bar.cache$/);
+      expect(cache.getCacheFile(cache.cacheDir!, { file: 'foo', modifiers: ['bar'] })).toMatch(/bar-foo.cache$/);
+    });
+    it('should return the cache file with custom modifier', () => {
+      expect(cache.getCacheFile(cache.cacheDir!, { file: 'foo', modifiers: ['bar', 'bar2'] })).toMatch(/bar-bar2-foo.cache$/);
     });
   });
 
