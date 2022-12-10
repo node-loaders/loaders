@@ -8,12 +8,17 @@ import { findUpSync } from 'find-up';
 import { existingFile, existingFileSync } from './resolve-path.js';
 
 export type CacheOptions = { file: string; modifier?: string; extension?: string };
+export type LoaderCacheOptions = { cacheRoot?: string; hashType?: string };
 
 export class LoaderCache {
   cacheDir?: string;
   customDir: boolean;
+  hashType: string;
 
-  constructor(loaderName: string, cacheRoot?: string) {
+  constructor(loaderName: string, options: LoaderCacheOptions = {}) {
+    this.hashType = options.hashType ?? 'sha1';
+
+    let { cacheRoot } = options;
     this.customDir = Boolean(cacheRoot);
     let folder;
     if (!cacheRoot) {
@@ -43,7 +48,7 @@ export class LoaderCache {
 
   /* c8 ignore next */
   createHash(source: string) {
-    return createHash('sha256').update(source).digest('hex');
+    return createHash(this.hashType).update(source).digest('hex');
   }
 
   /* c8 ignore next 2 */

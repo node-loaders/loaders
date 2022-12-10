@@ -28,13 +28,19 @@ describe('cache', () => {
     });
     it('should set cache dir inside customDir', () => {
       const cacheDir = join(__dirname, 'fixtures/');
-      expect(new LoaderCache('cache-test', cacheDir).cacheDir).toMatch(cacheDir);
+      expect(new LoaderCache('cache-test', { cacheRoot: cacheDir }).cacheDir).toMatch(cacheDir);
     });
     it('should default to tmpDir if no node_modules is found', () => {
       const cwd = process.cwd();
       process.chdir('/');
       expect(new LoaderCache('cache-test').cacheDir).toMatch(tmpdir());
       process.chdir(cwd);
+    });
+    it('should accept custom hashType', () => {
+      const content = 'foo';
+      const defaultFooHash = new LoaderCache('cache-test').createHash(content);
+      const customFooHash = new LoaderCache('cache-test', { hashType: 'sha256' }).createHash(content);
+      expect(defaultFooHash).not.toEqual(customFooHash);
     });
   });
 
@@ -56,7 +62,7 @@ describe('cache', () => {
   describe('cleanup', () => {
     it('should not remove custom dir', () => {
       const cacheDir = join(__dirname, 'fixtures/');
-      const cache = new LoaderCache('cache-test', cacheDir);
+      const cache = new LoaderCache('cache-test', { cacheRoot: cacheDir });
       cache.cleanup();
       expect(existsSync(cacheDir)).toBe(true);
     });
