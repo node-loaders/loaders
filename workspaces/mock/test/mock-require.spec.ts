@@ -19,7 +19,7 @@ describe('mock-require', () => {
     join = jestMock.fn();
     resolve = jestMock.fn();
     JestMock = jestMock.fn();
-    mockedData = { path: { join, resolve }, 'jest-mock': { fn: JestMock } };
+    mockedData = { 'node:path': { join, resolve }, 'jest-mock': { fn: JestMock } };
   });
 
   afterEach(() => {

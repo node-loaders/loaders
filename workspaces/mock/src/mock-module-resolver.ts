@@ -2,7 +2,15 @@ import Module, { createRequire } from 'node:module';
 import { isAbsolute } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData, globalCacheProperty } from './support/module-cache.js';
+import { normalizeNodeProtocol } from '@node-loaders/core';
+import {
+  existsMockedData,
+  type MockedParentData,
+  useMockedData,
+  getAllMockedData,
+  globalCacheProperty,
+  addMockedSpecifier,
+} from './support/module-cache.js';
 import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { emptyMock } from './support/symbols-internal.js';
 import { mergeModule } from './support/module-mock.js';
@@ -61,19 +69,19 @@ export default class MockModuleResolver {
         }
       }
 
-      source = generateCjsSource(cacheId, specifier);
+      source = generateCjsSource(cacheId, normalizeNodeProtocol(specifier));
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       (module as any)._compile(source, filePath);
       return;
     }
 
     if (!isAbsolute(resolvedSpecifier)) {
-      global[globalCacheProperty].mocked[cacheId][specifier] = {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        merged: require(resolvedSpecifier),
-      };
+      const mockedSpecifierDef = addMockedSpecifier(cacheId, specifier, {});
+      mockedSpecifierDef.counter++;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      mockedSpecifierDef.merged = require(resolvedSpecifier);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      (module as any)._compile(generateCjsSource(cacheId, specifier), filePath);
+      (module as any)._compile(generateCjsSource(cacheId, normalizeNodeProtocol(specifier)), filePath);
       return;
     }
 

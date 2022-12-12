@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { normalizeNodeProtocol } from '@node-loaders/core';
 import { ignoreUnused, maxDepth } from '../symbols.js';
 
 export const globalCacheProperty = '@node-loaders';
@@ -50,8 +51,11 @@ export const deleteAllMockedData = (): void => {
 
 export const addMockedData = (mockedModules: Record<string, any> & Partial<CacheFlags>): string => {
   const cacheId = randomUUID();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const cache: MockCache = Object.fromEntries(Object.entries(mockedModules).map(([key, mock]) => [key, { ...initialMockData, mock }]));
+
+  const cache: MockCache = Object.fromEntries(
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    Object.entries(mockedModules).map(([key, mock]) => [normalizeNodeProtocol(key), { ...initialMockData, mock }]),
+  );
   cache[ignoreUnused] = mockedModules[ignoreUnused];
   cache[maxDepth] = mockedModules[maxDepth];
   getMockedModuleStore()[cacheId] = cache;
@@ -62,17 +66,19 @@ export const getAllMockedData = (cacheId: string): MockCache | undefined => {
   return getMockedModuleStore()[cacheId];
 };
 
-export const addMockedSpecifier = (cacheId: string, specifier, mock) => {
+export const addMockedSpecifier = (cacheId: string, specifier: string, mock: any): MockedParentData => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  getAllMockedData(cacheId)![specifier] = { ...initialMockData, mock };
+  const mockedData = { ...initialMockData, mock };
+  getAllMockedData(cacheId)![normalizeNodeProtocol(specifier)] = mockedData;
+  return mockedData;
 };
 
 export const existsMockedData = (cacheId: string, specifier: string): boolean => {
-  return getAllMockedData(cacheId)?.[specifier] !== undefined;
+  return getAllMockedData(cacheId)?.[normalizeNodeProtocol(specifier)] !== undefined;
 };
 
 export const useMockedData = (cacheId: string, specifier: string): MockedParentData => {
-  const mockData = getAllMockedData(cacheId)![specifier]!;
+  const mockData = getAllMockedData(cacheId)![normalizeNodeProtocol(specifier)]!;
   mockData.counter++;
   return mockData;
 };

@@ -1,4 +1,6 @@
 import { inspect } from 'node:util';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import BaseLoader, {
   type LoadContext,
   type LoadedModule,
@@ -7,6 +9,7 @@ import BaseLoader, {
   type NextLoad,
   type ResolveContext,
   type ResolvedModule,
+  normalizeNodeProtocol,
 } from '@node-loaders/core';
 import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
 
@@ -26,6 +29,7 @@ export default class MockLoader extends BaseLoader {
   }
 
   async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+    specifier = normalizeNodeProtocol(specifier);
     const mockData = parseProtocol(specifier);
     if (mockData) {
       // Entry point, will happen only once, when import() a cache protocol,
@@ -73,13 +77,14 @@ export default class MockLoader extends BaseLoader {
 
   async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     const mockData = parseProtocol(url)!;
-    this.log(`Handling load mocked ${inspect(mockData)}`);
+    this.log(`Handling load mocked ${inspect(mockData)}, ${inspect(context)}`);
     const { cacheId, specifier } = mockData;
     if (existsMockedData(cacheId, specifier)) {
       const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
       if (!mockedSpecifierDef.merged) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { mock } = mockedSpecifierDef;
+        this.log(`Preparing mocked module`);
         if (mock[emptyMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           mockedSpecifierDef.merged = await import(mockData.resolvedSpecifier);

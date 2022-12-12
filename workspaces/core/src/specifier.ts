@@ -21,6 +21,8 @@ export const isCheckUrl = (url: string, name: string): boolean => createCheckUrl
 
 export const isBuiltinModule = (module: string): boolean => builtinModules.includes(module) || hasProtocol(module, nodeProtocol);
 
+export const normalizeNodeProtocol = (specifier: string) => isBuiltinModule(specifier) && !hasProtocol(specifier, nodeProtocol) ? `${nodeProtocol}${specifier}` : specifier;
+
 export const isPackageSpecifier = (specifier: string) => {
   if (isBuiltinModule(specifier)) {
     return false;
