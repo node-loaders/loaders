@@ -116,10 +116,11 @@ export default class MockModuleResolver {
       // F return resolved;
     }
 
+    const depth = parentDepth + 1;
     if (!existsMockedData(cacheId, request)) {
       const cache = getAllMockedData(cacheId);
       const maxDepth: number = cache?.[maxDepthSymbol] ?? defaultMaxDepth;
-      if (maxDepth !== -1 && parentDepth >= maxDepth) {
+      if (maxDepth !== -1 && depth >= maxDepth) {
         return resolved;
       }
     }
@@ -127,7 +128,7 @@ export default class MockModuleResolver {
     return this.registerFileRequest({
       cacheId,
       specifier: request,
-      depth: parentDepth + 1,
+      depth,
       resolvedSpecifier: resolved,
     });
   }

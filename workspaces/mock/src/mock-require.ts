@@ -22,7 +22,7 @@ function internalRequireMock<MockedType = any>(
 
   const mockFile = resolver.registerFileRequest({
     cacheId,
-    depth: 1,
+    depth: 0,
     specifier,
     resolvedSpecifier,
   });
