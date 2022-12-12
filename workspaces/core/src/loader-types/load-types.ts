@@ -3,7 +3,12 @@ import { type Format } from './common-types.js';
 export type LoadedModule = {
   format: Format;
   shortCircuit?: boolean;
-  source: string | ArrayBuffer | ArrayBufferView;
+  /**
+   * Return source with null in case of responseURL
+   */
+  responseURL?: string;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  source: string | ArrayBuffer | ArrayBufferView | null;
 };
 
 export type LoadContext = {

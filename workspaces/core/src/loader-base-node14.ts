@@ -89,7 +89,12 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
       context: { format: string },
       defaultGetSource: (url: string, context: { format: string }) => Promise<{ source: string | SharedArrayBuffer | Uint8Array }>,
     ): Promise<{ source: string }> {
-      const asSourceString = (loadedModule: { source: string | SharedArrayBuffer | Uint8Array | ArrayBuffer | ArrayBufferView }) => {
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      const asSourceString = (loadedModule: { source: string | SharedArrayBuffer | Uint8Array | ArrayBuffer | ArrayBufferView | null }) => {
+        if (loadedModule.source === null) {
+          throw new Error('LoadedModule passthrought is not supported on node v14');
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         return { source: loadedModule.source.toString() };
       };
