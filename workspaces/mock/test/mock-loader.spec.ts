@@ -21,6 +21,7 @@ describe('mock-loader', () => {
         );
         expect(result).toMatchInlineSnapshot(`
           {
+            "format": "commonjs",
             "shortCircuit": true,
             "url": "file:///resolvedSpecifier?%40node-loaders%2Fmocked-depth=1&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier",
           }

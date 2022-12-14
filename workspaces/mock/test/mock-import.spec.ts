@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/no-await-expression-member */
+import process from 'node:process';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
 
@@ -103,6 +105,7 @@ describe('mock-import', () => {
         });
       });
     });
+
     describe('javascript esm modules', () => {
       describe('with direct mocked module', () => {
         it('should return the named export', async () => {
@@ -111,6 +114,7 @@ describe('mock-import', () => {
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);
+          expect(mockedFs.jestMockDefault.fn).toBe(actual.jestMock);
         });
         it('should return the mocked named export', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
@@ -118,6 +122,7 @@ describe('mock-import', () => {
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
+          expect(mockedFs.jestMockDefault.fn).toBe(JestMock);
         });
       });
       describe('with indirect mocked module', () => {
@@ -162,6 +167,79 @@ describe('mock-import', () => {
         it('should return the original named export with non compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/four-levels.mjs');
           const mockedFs = await mock('./fixtures/esm/four-levels.mjs', { ...mockedData, [ignoreUnused]: true, [maxDepth]: 3 });
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.join).toBe(actual.join);
+          expect(mockedFs.jestMock).toBe(actual.jestMock);
+        });
+      });
+    });
+
+    describe('javascript cjs modules', () => {
+      before(function () {
+        if (process.version.startsWith('v14')) {
+          this.test!.parent!.pending = true;
+          this.skip();
+        }
+      });
+
+      describe('with direct mocked module', () => {
+        it('should return the named export', async () => {
+          const actual = await import('./fixtures/cjs/direct.cjs');
+          const mockedFs = await mock('./fixtures/cjs/direct.cjs', { [ignoreUnused]: true, foo: { join } });
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.default.join).toBe(actual.default.join);
+          expect(mockedFs.default.jestMock).toBe(actual.default.jestMock);
+        });
+        it('should return the mocked named export', async () => {
+          const actual = await import('./fixtures/cjs/direct.cjs');
+          const mockedFs = await mock('./fixtures/cjs/direct.cjs', mockedData);
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.default.join).toBe(join);
+          expect(mockedFs.default.jestMock).toBe(JestMock);
+        });
+      });
+      describe('with indirect mocked module', () => {
+        it('should return the mocked named export with compatible maxDepth', async () => {
+          const actual = (await import('./fixtures/cjs/indirect.cjs')).default;
+          const mockedFs = (await mock('./fixtures/cjs/indirect.cjs', { ...mockedData, [maxDepth]: 2 })).default;
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.join).toBe(join);
+          expect(mockedFs.jestMock).toBe(JestMock);
+        });
+        it('should return the original named export with non compatible maxDepth', async () => {
+          const actual = (await import('./fixtures/cjs/indirect.cjs')).default;
+          const mockedFs = (await mock('./fixtures/cjs/indirect.cjs', { ...mockedData, [ignoreUnused]: true })).default;
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.join).toBe(actual.join);
+        });
+      });
+      describe('with 3 levels mocked module', () => {
+        it('should return the mocked named export with compatible maxDepth', async () => {
+          const actual = (await import('./fixtures/cjs/three-levels.cjs')).default;
+          const mockedFs = (await mock('./fixtures/cjs/three-levels.cjs', { ...mockedData, [maxDepth]: 3 })).default;
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.join).toBe(join);
+          expect(mockedFs.jestMock).toBe(JestMock);
+        });
+        it('should return the original named export with non compatible maxDepth', async () => {
+          const actual = (await import('./fixtures/cjs/three-levels.cjs')).default;
+          const mockedFs = (await mock('./fixtures/cjs/three-levels.cjs', { ...mockedData, [ignoreUnused]: true, [maxDepth]: 2 })).default;
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.join).toBe(actual.join);
+          expect(mockedFs.jestMock).toBe(actual.jestMock);
+        });
+      });
+      describe('with 4 levels mocked module', () => {
+        it('should return the mocked named export with compatible maxDepth', async () => {
+          const actual = (await import('./fixtures/cjs/four-levels.cjs')).default;
+          const mockedFs = (await mock('./fixtures/cjs/four-levels.cjs', { ...mockedData, [maxDepth]: -1 })).default;
+          expect(mockedFs.default).toBe(actual.default);
+          expect(mockedFs.join).toBe(join);
+          expect(mockedFs.jestMock).toBe(JestMock);
+        });
+        it('should return the original named export with non compatible maxDepth', async () => {
+          const actual = (await import('./fixtures/cjs/four-levels.cjs')).default;
+          const mockedFs = (await mock('./fixtures/cjs/four-levels.cjs', { ...mockedData, [ignoreUnused]: true, [maxDepth]: 3 })).default;
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);

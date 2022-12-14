@@ -1,6 +1,4 @@
 import { inspect } from 'node:util';
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import BaseLoader, {
   type LoadContext,
   type LoadedModule,
@@ -10,6 +8,7 @@ import BaseLoader, {
   type ResolveContext,
   type ResolvedModule,
   normalizeNodeProtocol,
+  asEsmSpecifier,
 } from '@node-loaders/core';
 import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
 
@@ -18,6 +17,7 @@ import { generateEsmSource, getNamedExports, mergeModule } from './support/modul
 import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { emptyMock } from './support/symbols-internal.js';
 import { defaultMaxDepth } from './constants.js';
+import type MockModuleResolver from './mock-module-resolver.js';
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
@@ -41,6 +41,7 @@ export default class MockLoader extends BaseLoader {
           ...mockData,
           resolvedSpecifier: resolved.url,
         }),
+        format: resolved.format,
         shortCircuit: true,
       };
     }
@@ -79,21 +80,38 @@ export default class MockLoader extends BaseLoader {
     const mockData = parseProtocol(url)!;
     this.log(`Handling load mocked ${inspect(mockData)}, ${inspect(context)}`);
     const { cacheId, specifier } = mockData;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const importedSpecifier = await import(mockData.resolvedSpecifier);
+    if (context.format === 'commonjs' && !importedSpecifier.__esModule && global['@node-loaders/mock'].resolver) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const moduleResolver: MockModuleResolver = global['@node-loaders/mock'].resolver;
+      const responseURL = asEsmSpecifier(moduleResolver.registerFileRequest(mockData));
+      this.log(`Handling cjs mocked module`);
+      return { shortCircuit: true, format: 'commonjs', responseURL, source: null };
+    }
+
     if (existsMockedData(cacheId, specifier)) {
       const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
       if (!mockedSpecifierDef.merged) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { mock } = mockedSpecifierDef;
+        if (mock.default === undefined && mockedSpecifierDef.esModule === undefined) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          mockedSpecifierDef.esModule = importedSpecifier.__esModule;
+        }
+
         this.log(`Preparing mocked module`);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const mockModule = mockedSpecifierDef.esModule ? { ...mock, default: mergeModule(importedSpecifier.default, mock) } : mock;
         if (mock[emptyMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.merged = await import(mockData.resolvedSpecifier);
+          mockedSpecifierDef.merged = importedSpecifier;
         } else if (mock[fullMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.merged = { ...mock };
+          mockedSpecifierDef.merged = { ...mockModule };
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.merged = mergeModule(await import(mockData.resolvedSpecifier), mock);
+          mockedSpecifierDef.merged = mergeModule(importedSpecifier, mockModule);
         }
       }
 
@@ -105,6 +123,7 @@ export default class MockLoader extends BaseLoader {
       };
     }
 
+    this.log(`Fallback to next load`);
     return nextLoad(mockData.resolvedSpecifier, context);
   }
 }

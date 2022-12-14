@@ -47,13 +47,13 @@ describe('module-mock', () => {
         const mockedFs = mergeModule(await import(pathToFileURL(pathJoin(__dirname, './fixtures/esm/direct.mjs')).href), {
           join: mockedFunction,
         });
-        expect(getNamedExports(mockedFs)).toEqual(['default', 'jestMock', 'join']);
+        expect(getNamedExports(mockedFs)).toEqual(['default', 'jestMock', 'jestMockDefault', 'join']);
       });
     });
     describe('for native esm modules', () => {
       it('should return the mocked named export function', async () => {
         const mockedFs = await import('./fixtures/esm/direct.mjs');
-        expect(getNamedExports(mockedFs)).toEqual(['default', 'jestMock', 'join']);
+        expect(getNamedExports(mockedFs)).toEqual(['default', 'jestMock', 'jestMockDefault', 'join']);
       });
     });
   });
