@@ -3,6 +3,8 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import {
+  asCjsSpecifier,
+  asEsmSpecifier,
   convertUrlDriveLetterToUpperCase,
   isBuiltinModule,
   isFileSpecifier,
@@ -102,6 +104,32 @@ describe('detect-module', () => {
     });
     it('should throw for relative path and no parent url', async () => {
       expect(() => specifierToFilePath('./fixtures/default-modules/index.js')).toThrow(/^Error resolving module/);
+    });
+  });
+
+  describe('asCjsSpecifier', () => {
+    it('should convert file url to path', () => {
+      const path = resolve('/foo');
+      expect(asCjsSpecifier(pathToFileURL(path).href)).toBe(path);
+    });
+    it('should node protocol to module', () => {
+      expect(asCjsSpecifier('node:path')).toBe('path');
+    });
+    it('should passthrough others protocols', () => {
+      expect(asCjsSpecifier('jest-mock')).toBe('jest-mock');
+    });
+  });
+
+  describe('asEsmSpecifier', () => {
+    it('should convert path to file url', () => {
+      const path = resolve('/foo');
+      expect(asEsmSpecifier(path)).toBe(pathToFileURL(path).href);
+    });
+    it('should node protocol to module', () => {
+      expect(asEsmSpecifier('path')).toBe('node:path');
+    });
+    it('should passthrough others protocols', () => {
+      expect(asEsmSpecifier('jest-mock')).toBe('jest-mock');
     });
   });
 });

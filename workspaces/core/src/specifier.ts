@@ -1,6 +1,6 @@
 import { builtinModules } from 'node:module';
 import { dirname, isAbsolute, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import validateNpmPackageName from 'validate-npm-package-name';
 
 const nodeProtocol = 'node:';
@@ -21,7 +21,8 @@ export const isCheckUrl = (url: string, name: string): boolean => createCheckUrl
 
 export const isBuiltinModule = (module: string): boolean => builtinModules.includes(module) || hasProtocol(module, nodeProtocol);
 
-export const normalizeNodeProtocol = (specifier: string) => isBuiltinModule(specifier) && !hasProtocol(specifier, nodeProtocol) ? `${nodeProtocol}${specifier}` : specifier;
+export const normalizeNodeProtocol = (specifier: string) =>
+  isBuiltinModule(specifier) && !hasProtocol(specifier, nodeProtocol) ? `${nodeProtocol}${specifier}` : specifier;
 
 export const isPackageSpecifier = (specifier: string) => {
   if (isBuiltinModule(specifier)) {
@@ -38,8 +39,12 @@ export const isPackageJsonImportSpecifier = (specifier: string) => specifier.sta
 
 export const isNodeModulesSpecifier = (specifier: string) => /[/\\]node_modules[/\\]/.test(specifier);
 
+export const isFileProtocol = (specifier: string) => hasProtocol(specifier, 'file:');
+
+export const isPathSpecifier = (specifier: string) => isRelativeFileSpecifier(specifier) || isAbsolute(specifier);
+
 export const isFileSpecifier = (specifier: string) =>
-  isRelativeFileSpecifier(specifier) || isPackageJsonImportSpecifier(specifier) || isAbsolute(specifier) || hasProtocol(specifier, 'file:');
+  isPathSpecifier(specifier) || isPackageJsonImportSpecifier(specifier) || isFileProtocol(specifier);
 
 /**
  * Convert driver letter to upper case on windows.
@@ -55,6 +60,20 @@ export const convertUrlDriveLetterToUpperCase = (url: string): string => {
 
   return url;
 };
+
+export const asCjsSpecifier = (specifier: string): string =>
+  isFileProtocol(specifier)
+    ? fileURLToPath(specifier)
+    : hasProtocol(specifier, nodeProtocol)
+    ? specifier.slice(nodeProtocol.length)
+    : specifier;
+
+export const asEsmSpecifier = (specifier: string): string =>
+  isAbsolute(specifier)
+    ? pathToFileURL(specifier).href
+    : isBuiltinModule(specifier) && !hasProtocol(specifier, nodeProtocol)
+    ? `${nodeProtocol}${specifier}`
+    : specifier;
 
 /**
  * Resolves a file specifier to a file path
