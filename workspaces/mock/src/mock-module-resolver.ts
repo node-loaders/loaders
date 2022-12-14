@@ -2,7 +2,7 @@ import Module, { createRequire } from 'node:module';
 import { isAbsolute } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { normalizeNodeProtocol } from '@node-loaders/core';
+import { asCjsSpecifier, asEsmSpecifier, isFileProtocol, normalizeNodeProtocol } from '@node-loaders/core';
 import {
   existsMockedData,
   type MockedParentData,
@@ -31,7 +31,7 @@ type ResolveFilename = (
 const require = createRequire(import.meta.url);
 
 export const generateCjsSource = (cacheId: string, specifier: string) => `
-module.exports = global['${globalCacheProperty}'].mocked['${cacheId}']['${specifier}'].merged;
+module.exports = global['${globalCacheProperty}'].mocked['${cacheId}']['${specifier}'].mergedCjs;
 `;
 
 export default class MockModuleResolver {
@@ -44,28 +44,29 @@ export default class MockModuleResolver {
   registerFileRequest(data: MockedIdData): string {
     const fileId = randomUUID();
     this.cache[fileId] = data;
-    return createMockedFilePath(data.resolvedSpecifier, fileId);
+    return createMockedFilePath(asCjsSpecifier(data.resolvedSpecifier), fileId);
   }
 
   extensionHandler(module: Module, filePath: string): void {
     const parsed = parseMockedFilePath(filePath);
     const mockData = this.cache[parsed.id];
-    const { cacheId, specifier, resolvedSpecifier } = mockData;
+    const { cacheId, specifier } = mockData;
+    const cjsSpecifier = asCjsSpecifier(mockData.resolvedSpecifier);
     let source: string;
     if (existsMockedData(cacheId, specifier)) {
       const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
-      if (!mockedSpecifierDef.merged) {
+      if (!mockedSpecifierDef.mergedCjs) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { mock } = mockedSpecifierDef;
         if (mock[emptyMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.merged = require(resolvedSpecifier);
+          mockedSpecifierDef.mergedCjs = require(cjsSpecifier);
         } else if (mock[fullMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.merged = { ...mock };
+          mockedSpecifierDef.mergedCjs = { ...mock };
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.merged = mergeModule(require(resolvedSpecifier), mock);
+          mockedSpecifierDef.mergedCjs = mergeModule(require(cjsSpecifier), mock);
         }
       }
 
@@ -75,17 +76,17 @@ export default class MockModuleResolver {
       return;
     }
 
-    if (!isAbsolute(resolvedSpecifier)) {
+    if (!isAbsolute(cjsSpecifier)) {
       const mockedSpecifierDef = addMockedSpecifier(cacheId, specifier, {});
       mockedSpecifierDef.counter++;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      mockedSpecifierDef.merged = require(resolvedSpecifier);
+      mockedSpecifierDef.mergedCjs = require(cjsSpecifier);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       (module as any)._compile(generateCjsSource(cacheId, normalizeNodeProtocol(specifier)), filePath);
       return;
     }
 
-    const content = readFileSync(resolvedSpecifier).toString();
+    const content = readFileSync(cjsSpecifier).toString();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     (module as any)._compile(content, filePath);
   }
@@ -107,8 +108,9 @@ export default class MockModuleResolver {
     if (isMockedFilePath(request) && !(parent?.filename && isMockedFilePath(parent.filename))) {
       const parsed = parseMockedFilePath(request);
       const mockData = this.cache[parsed.id];
-      const resolved = nextResolveFilename(mockData.resolvedSpecifier, parent, isMain, options);
-      mockData.resolvedSpecifier = resolved;
+      const cjsSpecifier = asCjsSpecifier(mockData.resolvedSpecifier);
+      const resolved = nextResolveFilename(cjsSpecifier, parent, isMain, options);
+      mockData.resolvedSpecifier = asEsmSpecifier(resolved);
       return createMockedFilePath(resolved, parsed.id);
     }
 
@@ -124,8 +126,9 @@ export default class MockModuleResolver {
       // F return resolved;
     }
 
+    const specifier = isMockedFilePath(request) ? this.cache[parseMockedFilePath(request).id].specifier : request;
     const depth = parentDepth + 1;
-    if (!existsMockedData(cacheId, request)) {
+    if (!existsMockedData(cacheId, specifier)) {
       const cache = getAllMockedData(cacheId);
       const maxDepth: number = cache?.[maxDepthSymbol] ?? defaultMaxDepth;
       if (maxDepth !== -1 && depth >= maxDepth) {
@@ -135,9 +138,9 @@ export default class MockModuleResolver {
 
     return this.registerFileRequest({
       cacheId,
-      specifier: request,
+      specifier: normalizeNodeProtocol(request),
       depth,
-      resolvedSpecifier: resolved,
+      resolvedSpecifier: asEsmSpecifier(resolved),
     });
   }
 

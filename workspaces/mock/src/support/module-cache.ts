@@ -8,6 +8,8 @@ export type MockedParentData = {
   mock: any;
   counter: number;
   merged?: any;
+  esModule?: boolean;
+  mergedCjs?: any;
 };
 
 type CacheFlags = {

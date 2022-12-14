@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { specifierToFilePath } from '@node-loaders/core';
+import { specifierToFilePath, asEsmSpecifier } from '@node-loaders/core';
 import { addMockedData } from './support/module-cache.js';
 import { resolveCallerUrl } from './support/caller-resolve.js';
 import { mockedModule } from './support/module-mock.js';
@@ -12,7 +12,7 @@ function internalRequireMock<MockedType = any>(
   mockedSpecifiers: Record<string, Record<string, any>>,
 ): MockedModule<MockedType> {
   const cacheId = addMockedData(mockedSpecifiers);
-  const resolvedSpecifier = specifierToFilePath(specifier, url);
+  const filePath = specifierToFilePath(specifier, url);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const resolver: MockModuleResolver = global['@node-loaders/mock']?.resolver;
   /* c8 ignore next 3 */
@@ -24,7 +24,7 @@ function internalRequireMock<MockedType = any>(
     cacheId,
     depth: 0,
     specifier,
-    resolvedSpecifier,
+    resolvedSpecifier: asEsmSpecifier(filePath),
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
