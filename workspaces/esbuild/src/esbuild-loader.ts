@@ -86,7 +86,7 @@ export default class EsbuildLoader extends LoaderBase {
       };
     }
 
-    this.log(`Forwarding ${specifier}`);
+    this.log?.(`Forwarding ${specifier}`);
     return nextResolve(specifier, context);
   }
 

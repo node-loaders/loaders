@@ -35,12 +35,12 @@
     "test-node14": "mocha --config .mocharc.node14.cjs test"
   },
   "dependencies": {
-    "@types/debug": "^4.1.7",
-    "debug": "^4.3.4",
     "validate-npm-package-name": "^5.0.0"
   },
   "devDependencies": {
-    "@types/validate-npm-package-name": "^4.0.0"
+    "@types/debug": "^4.1.7",
+    "@types/validate-npm-package-name": "^4.0.0",
+    "debug": "^4.3.4"
   },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"

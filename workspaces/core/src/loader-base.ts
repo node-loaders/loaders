@@ -1,5 +1,4 @@
 import { inspect } from 'node:util';
-import createDebug, { type Debugger } from 'debug';
 import { isBuiltinModule, isPackageSpecifier, isCheckUrl, isNodeModulesSpecifier } from './specifier.js';
 
 import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
@@ -17,8 +16,7 @@ export default class LoaderBase {
   readonly forwardPackageSpecifiers: boolean;
   readonly forwardNodeModulesSpecifiers: boolean;
   readonly forwardNodeModulesParentSpecifiers: boolean;
-
-  readonly log: Debugger;
+  log?: (...args: any[]) => void;
 
   constructor(name?: string, options: LoaderBaseOptions = {}) {
     const {
@@ -33,7 +31,14 @@ export default class LoaderBase {
     this.forwardPackageSpecifiers = forwardPackageSpecifiers;
     this.forwardNodeModulesSpecifiers = forwardNodeModulesSpecifiers;
     this.forwardNodeModulesParentSpecifiers = forwardNodeModulesParentSpecifiers;
-    this.log = createDebug(`@node-loaders:${this.name}`);
+
+    import('debug').then(
+      debug => {
+        this.log = debug.default(`@node-loaders:${this.name}`);
+      },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      () => {},
+    );
   }
 
   exportResolve() {
@@ -78,9 +83,9 @@ export default class LoaderBase {
    * @returns
    */
   async resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve): Promise<ResolvedModule> {
-    this.log(`Start resolving ${specifier} with ${inspect(context)}`);
+    this.log?.(`Start resolving ${specifier} with ${inspect(context)}`);
     if (isCheckUrl(specifier, this.name)) {
-      this.log(`Fowarding node loader check ${specifier}`);
+      this.log?.(`Fowarding node loader check ${specifier}`);
       return {
         url: specifier,
         format: 'module',
@@ -93,11 +98,11 @@ export default class LoaderBase {
     }
 
     if (this.handlesEspecifier(specifier, context)) {
-      this.log(`Handling resolve specifier ${specifier}`);
+      this.log?.(`Handling resolve specifier ${specifier}`);
       return this._resolve(specifier, context, nextResolve);
     }
 
-    this.log(`Fowarding resolve specifier ${specifier}`);
+    this.log?.(`Fowarding resolve specifier ${specifier}`);
     return nextResolve(specifier, context);
   }
 
@@ -109,9 +114,9 @@ export default class LoaderBase {
    * @returns
    */
   async load(url: string, context: LoadContext, nextLoad?: NextLoad): Promise<LoadedModule> {
-    this.log(`Start loading ${url}`);
+    this.log?.(`Start loading ${url}`);
     if (isCheckUrl(url, this.name)) {
-      this.log(`Generating ${url}`);
+      this.log?.(`Generating ${url}`);
       return {
         source: 'export default true;',
         format: 'module',
@@ -124,11 +129,11 @@ export default class LoaderBase {
     }
 
     if (this.handlesEspecifier(url)) {
-      this.log(`Handling load url ${url}`);
+      this.log?.(`Handling load url ${url}`);
       return this._load(url, context, nextLoad);
     }
 
-    this.log(`Fowarding load url ${url}`);
+    this.log?.(`Fowarding load url ${url}`);
     return nextLoad(url, context);
   }
 

@@ -41,21 +41,21 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
 
     async getFormat(url: string, context: Record<string, unknown>, defaultGetFormat: DefaultGetFormat): Promise<Node14Format> {
       if (isCheckUrl(url, this.name)) {
-        this.log(`Fowarding node loader check ${url}`);
+        this.log?.(`Fowarding node loader check ${url}`);
         return {
           format: 'module',
         };
       }
 
       if (this.handlesEspecifier(url)) {
-        this.log(`Handling getFormat url ${url}, ${inspect(context)}`);
+        this.log?.(`Handling getFormat url ${url}, ${inspect(context)}`);
         const returnValue = await this._getFormat(url, context, defaultGetFormat);
         if (returnValue) {
           return returnValue;
         }
       }
 
-      this.log(`Forwarding getFormat url ${url}, ${inspect(context)}`);
+      this.log?.(`Forwarding getFormat url ${url}, ${inspect(context)}`);
       return defaultGetFormat(url, context);
     }
 
@@ -65,21 +65,21 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
 
     async getSource(url: string, context: Node14Format, defaultGetSource: DefaultGetSource): Promise<Node14Source> {
       if (isCheckUrl(url, this.name)) {
-        this.log(`Generating ${url}`);
+        this.log?.(`Generating ${url}`);
         return {
           source: 'export default true;',
         };
       }
 
       if (this.handlesEspecifier(url)) {
-        this.log(`Handling getSource url ${url}, ${inspect(context)}`);
+        this.log?.(`Handling getSource url ${url}, ${inspect(context)}`);
         const returnValue = await this._getSource(url, context, defaultGetSource);
         if (returnValue) {
           return returnValue;
         }
       }
 
-      this.log(`Forwarding getSource url ${url}, ${inspect(context)}`);
+      this.log?.(`Forwarding getSource url ${url}, ${inspect(context)}`);
       return defaultGetSource(url, context);
     }
 
@@ -117,14 +117,14 @@ export function addNode14Support<Parent extends Constructor<LoaderBase>>(parent:
       defaultTransform: DefaultTransformSource,
     ): Promise<Node14Source> {
       if (this.handlesEspecifier(context.url)) {
-        this.log(`Handling transformSource url ${inspect(context)}`);
+        this.log?.(`Handling transformSource url ${inspect(context)}`);
         const returnValue = await this._transformSource(source, context, defaultTransform);
         if (returnValue) {
           return returnValue;
         }
       }
 
-      this.log(`Forwarding transformSource url ${inspect(context)}`);
+      this.log?.(`Forwarding transformSource url ${inspect(context)}`);
       return defaultTransform(source, context);
     }
 
