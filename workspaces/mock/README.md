@@ -1,6 +1,30 @@
-# @node-loaders/esbuild
+# @node-loaders/mock
 
 Loader that mocks imported/required modules.
+
+## Features
+
+- ESM support
+- CJS support
+- Mixed CJS/ESM support
+- Framework agnostic
+- Typescript support (using a typescript loader, except CJS)
+- Delegates the actual module import to the chain, keeping compatibility with others loaders (like typescript)
+- No cache manipulation is necessary, no drawbacks like [why-is-proxyquire-messing-with-my-require-cache](https://github.com/thlorenz/proxyquire#why-is-proxyquire-messing-with-my-require-cache)
+- Compatible with Typescript's `esModuleInterop`
+- Full or partial mock support
+- Unused mock detection
+- Global module mocking using `maxDepth=-1`
+- Trivial to use
+
+## Design
+
+Mock uses an unique approach.
+Importing using mock will create an alternative version of the module using mocked file names.
+ESM supportes url, mock adds necessary metadata to the url search parameters. CJS uses absolute paths, the metadata is stored and passed using a uuid appended to the file path folowing a `.mock` extension.
+The mocked files will continue until `maxDepth` is reached (1 by default, only direct imports).
+
+Prior art: [proxyquire](https://github.com/thlorenz/proxyquire), [esmock](https://github.com/iambumblehead/esmock).
 
 ## Usage
 
