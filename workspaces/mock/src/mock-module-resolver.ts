@@ -34,6 +34,27 @@ module.exports = global['${globalCacheProperty}'].mocked['${cacheId}']['${specif
 `;
 
 export default class MockModuleResolver {
+  static register() {
+    if (global['@node-loaders/mock']) {
+      return;
+    }
+
+    const resolver = new MockModuleResolver();
+    (Module as any)._extensions[mockExtension] = resolver.extensionHandler.bind(resolver);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const nextResolveFilename = (Module as any)._resolveFilename;
+    (Module as any)._resolveFilename = (request, parent, isMain, options) =>
+      resolver.resolveFilename(request, parent, isMain, options, nextResolveFilename);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const nextLoad = (Module as any)._load;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    (Module as any)._load = (request, parent, isMain) => resolver.load(request, parent, isMain, nextLoad);
+
+    global['@node-loaders/mock'] = { resolver, mockRequire, createRequireMock };
+  }
+
   readonly cache: Record<string, MockedIdData>;
 
   constructor() {
@@ -158,21 +179,5 @@ export default class MockModuleResolver {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return nextLoad(request, parent, isMain);
-  }
-
-  register() {
-    (Module as any)._extensions[mockExtension] = this.extensionHandler.bind(this);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const nextResolveFilename = (Module as any)._resolveFilename;
-    (Module as any)._resolveFilename = (request, parent, isMain, options) =>
-      this.resolveFilename(request, parent, isMain, options, nextResolveFilename);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const nextLoad = (Module as any)._load;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    (Module as any)._load = (request, parent, isMain) => this.load(request, parent, isMain, nextLoad);
-
-    global['@node-loaders/mock'] = { resolver: this, mockRequire, createRequireMock };
   }
 }

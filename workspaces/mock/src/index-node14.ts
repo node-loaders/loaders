@@ -45,11 +45,10 @@ export const getFormat = loader.exportGetFormat();
 export const getSource = loader.exportGetSource();
 
 export const globalPreload = () => {
-  new MockModuleResolver().register();
+  MockModuleResolver.register();
 };
 
 export const getGlobalPreloadCode = () => {
-  console.log('getGlobalPreloadCode');
-  new MockModuleResolver().register();
+  MockModuleResolver.register();
   return '';
 };

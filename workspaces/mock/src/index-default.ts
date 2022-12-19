@@ -8,7 +8,7 @@ export * from './symbols.js';
 export { default, resolve, load } from './index-esm.js';
 
 export const globalPreload = () => {
-  new MockModuleResolver().register();
+  MockModuleResolver.register();
 };
 
 export { default as MockLoader } from './mock-loader.js';
