@@ -2,7 +2,7 @@ import { addNode14Support, isBuiltinModule } from '@node-loaders/core';
 import MockLoader from './mock-loader.js';
 import { parseProtocol } from './support/url-protocol.js';
 import { addMockedSpecifier, existsMockedData } from './support/module-cache.js';
-import { emptyMock } from './support/symbols-internal.js';
+import { emptyMock } from './symbols.js';
 import MockModuleResolver from './mock-module-resolver.js';
 
 export class Node14MockLoader extends addNode14Support(MockLoader) {

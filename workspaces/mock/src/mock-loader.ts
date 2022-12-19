@@ -14,8 +14,7 @@ import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
 
 import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './support/module-cache.js';
 import { generateEsmSource, getNamedExports, mergeModule } from './support/module-mock.js';
-import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
-import { emptyMock } from './support/symbols-internal.js';
+import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { defaultMaxDepth } from './constants.js';
 import type MockModuleResolver from './mock-module-resolver.js';
 

@@ -11,8 +11,7 @@ import {
   globalCacheProperty,
   addMockedSpecifier,
 } from './support/module-cache.js';
-import { fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
-import { emptyMock } from './support/symbols-internal.js';
+import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { mergeModule } from './support/module-mock.js';
 import { createMockedFilePath, isMockedFilePath, mockExtension, parseMockedFilePath } from './support/file-path-protocol.js';
 import { type MockedIdData } from './support/types.js';

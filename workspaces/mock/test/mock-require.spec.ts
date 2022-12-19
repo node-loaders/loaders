@@ -3,9 +3,8 @@ import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
 
 import { mockRequire } from '../src/mock-require.js';
-import { checkMocks, checkMock } from '../src/mock-check.js';
-import { emptyMock } from '../src/support/symbols-internal.js';
-import { fullMock, ignoreUnused, maxDepth } from '../src/symbols.js';
+import { checkMocks } from '../src/mock-check.js';
+import { emptyMock, fullMock, ignoreUnused, maxDepth } from '../src/symbols.js';
 
 const require = createRequire(import.meta.url);
 
