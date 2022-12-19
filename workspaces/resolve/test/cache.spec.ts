@@ -10,6 +10,11 @@ import { LoaderCache } from '../src/cache.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+if (!global.before) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  global.before = global.beforeAll;
+}
+
 describe('cache', () => {
   let cache: LoaderCache;
 
