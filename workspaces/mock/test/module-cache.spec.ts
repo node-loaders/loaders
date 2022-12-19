@@ -11,6 +11,7 @@ import {
   globalStore,
   type MockStore,
   type MockedParentData,
+  type CacheFlags,
 } from '../src/support/module-cache.js';
 import { fullMock, ignoreUnused } from '../src/symbols.js';
 
@@ -23,7 +24,7 @@ const nonExistingCacheId = 'nonExistingCacheId';
 const nonExistingSpecifier = 'nonExistingSpecifier';
 
 describe('module-cache', () => {
-  let existingSpecifierData: MockedParentData;
+  let existingSpecifierData: MockedParentData & CacheFlags;
   let mockedStore: MockStore;
 
   afterEach(() => {
@@ -34,8 +35,9 @@ describe('module-cache', () => {
     existingSpecifierData = {
       counter: 0,
       [ignoreUnused]: false,
-      [fullMock]: false,
-      mock: {},
+      mock: {
+        [fullMock]: false,
+      },
     };
 
     mockedStore = {
@@ -51,14 +53,14 @@ describe('module-cache', () => {
     describe('for esm modules', () => {
       it('should return the mocked named export', () => {
         const mockedFunction = () => {};
-        const cacheId = addMockedData({ 'node:path': { join: mockedFunction } }, join(__dirname, './fixtures/esm/direct.mjs'));
+        const cacheId = addMockedData({ 'node:path': { join: mockedFunction } });
 
         const { mock } = mockedStore[cacheId]['node:path'];
         expect(mock.join).toBe(mockedFunction);
       });
       it('should return the mocked named default export', () => {
         const mockedFunction = () => {};
-        const cacheId = addMockedData({ 'node:path': { default: mockedFunction } }, join(__dirname, './fixtures/esm/direct.mjs'));
+        const cacheId = addMockedData({ 'node:path': { default: mockedFunction } });
 
         const { mock } = mockedStore[cacheId]['node:path'];
         expect(mock.default).toBe(mockedFunction);

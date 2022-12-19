@@ -12,7 +12,7 @@ export type MockedParentData = {
   mergedCjs?: any;
 };
 
-type CacheFlags = {
+export type CacheFlags = {
   [ignoreUnused]?: boolean;
   [maxDepth]?: number;
 };
