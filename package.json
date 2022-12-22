@@ -7,7 +7,8 @@
     "./workspaces/resolve",
     "./workspaces/esbuild",
     "./workspaces/mock",
-    "./workspaces/auto"
+    "./workspaces/auto",
+    "./workspaces/test-samples"
   ],
   "scripts": {
     "prebuild": "npm run clean",

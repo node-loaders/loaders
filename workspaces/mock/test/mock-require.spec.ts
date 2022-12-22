@@ -18,7 +18,7 @@ describe('mock-require', () => {
     join = jestMock.fn();
     resolve = jestMock.fn();
     JestMock = jestMock.fn();
-    mockedData = { 'node:path': { join, resolve }, 'jest-mock': { fn: JestMock } };
+    mockedData = { 'node:path': { join, resolve }, '@node-loaders/test-samples': { fn: JestMock } };
   });
 
   afterEach(() => {
@@ -72,6 +72,12 @@ describe('mock-require', () => {
           const mockedFs = mockRequire('./fixtures/cjs/direct.cjs', mockedData);
           mockedFs();
           expect(resolve).toBeCalled();
+        });
+        it('should accept factory', async () => {
+          const actual = require('./fixtures/cjs/direct.cjs');
+          const fn = jestMock.fn();
+          const mockedFs = mockRequire('./fixtures/cjs/direct.cjs', { '@node-loaders/test-samples': () => ({ default: { fn }, fn }) });
+          expect(mockedFs.jestMock).toBe(fn);
         });
       });
       describe('with indirect mocked module', () => {

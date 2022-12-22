@@ -18,7 +18,7 @@ describe('mock-import', () => {
   beforeEach(() => {
     join = jestMock.fn();
     JestMock = jestMock.fn();
-    mockedData = { 'node:path': { join }, 'jest-mock': { fn: JestMock } };
+    mockedData = { 'node:path': { join }, '@node-loaders/test-samples': { fn: JestMock } };
   });
 
   afterEach(() => {
@@ -130,6 +130,15 @@ describe('mock-import', () => {
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
           expect(mockedFs.jestMockDefault.fn).toBe(JestMock);
+        });
+        it('should accept factory', async () => {
+          const actual = await import('./fixtures/esm/direct.mjs');
+          const fn = jestMock.fn();
+          const mockedFs = await mock<typeof actual>('./fixtures/esm/direct.mjs', {
+            '@node-loaders/test-samples': () => ({ default: { fn }, fn }),
+          });
+          expect(mockedFs.jestMock).toBe(fn);
+          expect(mockedFs.jestMockDefault.fn).toBe(fn);
         });
       });
       describe('with indirect mocked module', () => {

@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "name": "@node-loaders/test-samples",
+  "version": "0.1.0",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "clean-all": "npm run clean && rimraf node_modules",
+    "fix": "xo --fix",
+    "pretest": "xo",
+    "test": "",
+    "test-coverage": ""
+  },
+  "devDependencies": {
+    "jest-mock": "^29.3.1"
+  }
+}
