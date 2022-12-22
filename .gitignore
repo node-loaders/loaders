@@ -3,3 +3,4 @@ build
 coverage
 node_modules
 lerna-debug.log
+workspaces/test-jest-light-runner/test
