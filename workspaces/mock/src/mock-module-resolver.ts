@@ -35,6 +35,7 @@ module.exports = global['${globalCacheProperty}'].mocked['${cacheId}']['${specif
 
 export default class MockModuleResolver {
   static register() {
+    /* c8 ignore next 4 */
     if (global['@node-loaders/mock']) {
       return;
     }
@@ -76,13 +77,14 @@ export default class MockModuleResolver {
     if (existsMockedData(cacheId, specifier)) {
       const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
       if (!mockedSpecifierDef.mergedCjs) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { mock } = mockedSpecifierDef;
-        if (mock[emptyMock]) {
+        if (typeof mock === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          mockedSpecifierDef.mergedCjs = mock(require(cjsSpecifier));
+        } else if (mock[emptyMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           mockedSpecifierDef.mergedCjs = require(cjsSpecifier);
         } else if (mock[fullMock]) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           mockedSpecifierDef.mergedCjs = { ...mock };
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

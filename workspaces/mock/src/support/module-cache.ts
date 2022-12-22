@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { normalizeNodeProtocol } from '@node-loaders/core';
-import { ignoreUnused, maxDepth } from '../symbols.js';
+import { type emptyMock, type fullMock, ignoreUnused, maxDepth } from '../symbols.js';
 
 export const globalCacheProperty = '@node-loaders';
 
 export type MockedParentData = {
-  mock: any;
+  mock: ((any) => any) | (Record<string, any> & { [emptyMock]?: boolean; [fullMock]?: boolean });
   counter: number;
   merged?: any;
   esModule?: boolean;
