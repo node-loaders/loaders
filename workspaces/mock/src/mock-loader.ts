@@ -9,14 +9,16 @@ import BaseLoader, {
   type ResolvedModule,
   normalizeNodeProtocol,
   asEsmSpecifier,
+  asCjsSpecifier,
 } from '@node-loaders/core';
-import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
 
+import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
 import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './support/module-cache.js';
 import { generateEsmSource, getNamedExports, mergeModule } from './support/module-mock.js';
 import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { defaultMaxDepth } from './constants.js';
 import type MockModuleResolver from './mock-module-resolver.js';
+import { isMockedFilePath, parseMockedFilePath } from './support/file-path-protocol.js';
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
@@ -24,10 +26,28 @@ export default class MockLoader extends BaseLoader {
   }
 
   override _handlesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
-    return parseProtocol(specifier) !== undefined || (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined);
+    return (
+      parseProtocol(specifier) !== undefined ||
+      (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined) ||
+      isMockedFilePath(specifier)
+    );
   }
 
   async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+    if (isMockedFilePath(specifier)) {
+      // Convert back to url
+      const cjsSpecifier = asCjsSpecifier(specifier);
+      const parsed = parseMockedFilePath(cjsSpecifier);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const moduleResolver: MockModuleResolver = global['@node-loaders/mock'].resolver;
+      const data = moduleResolver.cache[parsed.id];
+      specifier = buildMockUrl({
+        ...data,
+        specifier: asEsmSpecifier(data.specifier),
+        resolvedSpecifier: asEsmSpecifier(data.resolvedSpecifier),
+      });
+    }
+
     specifier = normalizeNodeProtocol(specifier);
     const mockData = parseProtocol(specifier);
     if (mockData) {
@@ -85,7 +105,7 @@ export default class MockLoader extends BaseLoader {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const moduleResolver: MockModuleResolver = global['@node-loaders/mock'].resolver;
       const responseURL = asEsmSpecifier(moduleResolver.registerFileRequest(mockData));
-      this.log?.(`Handling cjs mocked module`);
+      this.log?.(`Handling cjs mocked module ${responseURL}`);
       return { shortCircuit: true, format: 'commonjs', responseURL, source: null };
     }
 
