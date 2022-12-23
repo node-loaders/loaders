@@ -1,5 +1,5 @@
 import Module, { createRequire } from 'node:module';
-import { isAbsolute } from 'node:path';
+import { extname, isAbsolute } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { asCjsSpecifier, asEsmSpecifier, isFileProtocol, normalizeNodeProtocol } from '@node-loaders/core';
@@ -28,6 +28,11 @@ type ResolveFilename = (
 ) => string;
 
 const require = createRequire(import.meta.url);
+
+const cjsExtension = filePath => {
+  const extension = extname(filePath);
+  return extension === '.cjs' ? '.js' : extension;
+};
 
 export const generateCjsSource = (cacheId: string, specifier: string) => `
 module.exports = global['${globalCacheProperty}'].mocked['${cacheId}']['${specifier}'].mergedCjs;
@@ -125,6 +130,15 @@ export default class MockModuleResolver {
   ): string {
     if (!isMockedFilePath(request) && !(parent?.filename && isMockedFilePath(parent.filename))) {
       return nextResolveFilename(request, parent, isMain, options);
+    }
+
+    if (isMockedFilePath(request)) {
+      const parsed = parseMockedFilePath(request);
+      const extension = cjsExtension(parsed.filePath);
+      if (extension && !(extension in (Module as any)._extensions)) {
+        // This is not a commonjs file, forward it
+        return nextResolveFilename(parsed.filePath, parent, isMain, options);
+      }
     }
 
     if (isMockedFilePath(request) && !(parent?.filename && isMockedFilePath(parent.filename))) {

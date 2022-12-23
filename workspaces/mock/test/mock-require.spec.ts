@@ -26,6 +26,11 @@ describe('mock-require', () => {
   });
 
   describe('mockRequire', () => {
+    describe('requiring an esm module', () => {
+      it('should throw', () => {
+        expect(() => require('./fixtures//esm/direct.mjs')).toThrow('require() of ES Module');
+      });
+    });
     describe('using flag', () => {
       describe('fullMock', () => {
         it('should throw on non exported name', () => {
