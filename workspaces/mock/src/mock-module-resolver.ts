@@ -174,7 +174,7 @@ export default class MockModuleResolver {
     isMain: boolean,
     nextLoad: (...args: any[]) => any,
   ) {
-    if (parent?.filename && isMockedFilePath(parent.filename)) {
+    if (!isMockedFilePath(request) && parent?.filename && isMockedFilePath(parent.filename)) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return nextLoad(createMockedFilePath(request, randomUUID()), parent, isMain);
     }
