@@ -1,8 +1,7 @@
 import Module, { createRequire } from 'node:module';
 import { extname, isAbsolute } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { asCjsSpecifier, asEsmSpecifier, isFileProtocol, normalizeNodeProtocol } from '@node-loaders/core';
+import { asCjsSpecifier, asEsmSpecifier, normalizeNodeProtocol } from '@node-loaders/core';
 import {
   existsMockedData,
   type MockedParentData,
@@ -113,9 +112,15 @@ export default class MockModuleResolver {
       return;
     }
 
-    const content = readFileSync(cjsSpecifier).toString();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    (module as any)._compile(content, filePath);
+    const extension = cjsExtension(cjsSpecifier);
+    if (extension in (Module as any)._extensions) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      (Module as any)._extensions[extension](module, cjsSpecifier);
+      return;
+      /* c8 ignore next 4 */
+    }
+
+    throw new Error(`Error resolving mocked ${filePath}`);
   }
 
   // eslint-disable-next-line max-params
