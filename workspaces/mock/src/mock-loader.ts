@@ -98,9 +98,13 @@ export default class MockLoader extends BaseLoader {
   async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     const mockData = parseProtocol(url)!;
     this.log?.(`Handling load mocked ${inspect(mockData)}, ${inspect(context)}`);
-    const { cacheId, specifier } = mockData;
+    const { cacheId, specifier, actual } = mockData;
+    if (actual) {
+      return nextLoad(mockData.resolvedSpecifier, context);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const importedSpecifier = await import(mockData.resolvedSpecifier);
+    const importedSpecifier = await import(buildMockUrl({ ...mockData, actual: true }));
     if (context.format === 'commonjs' && !importedSpecifier.__esModule && global['@node-loaders/mock'].resolver) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const moduleResolver: MockModuleResolver = global['@node-loaders/mock'].resolver;

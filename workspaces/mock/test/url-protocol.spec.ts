@@ -27,6 +27,7 @@ describe('mock-url', () => {
       const url = buildMockUrl({ resolvedSpecifier: 'file://origin', cacheId: 'id', specifier: 'specifier' });
       expect(parseProtocol(url)).toMatchInlineSnapshot(`
         {
+          "actual": false,
           "cacheId": "id",
           "depth": 1,
           "resolvedSpecifier": "file://origin/",

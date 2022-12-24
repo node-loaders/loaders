@@ -9,4 +9,5 @@ export type MockedIdData = {
   specifier: string;
   resolvedSpecifier: string;
   depth: number;
+  actual?: boolean;
 };
