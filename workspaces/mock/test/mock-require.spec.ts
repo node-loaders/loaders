@@ -28,7 +28,7 @@ describe('mock-require', () => {
   describe('mockRequire', () => {
     describe('requiring an esm module', () => {
       it('should throw', () => {
-        expect(() => require('./fixtures/esm/direct.mjs')).toThrow('require() of ES Module');
+        expect(() => require('./fixtures/esm/direct.mjs')).toThrow(/(require\(\) of ES Module|Must use import to load ES Module)/);
       });
     });
     describe('using flag', () => {
@@ -60,7 +60,7 @@ describe('mock-require', () => {
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);
-          expect(mockedFs.error.message).toMatch('require() of ES Module');
+          expect(mockedFs.error.message).toMatch(/(require\(\) of ES Module|Must use import to load ES Module)/);
         });
         it('the mocked module should execute the mocked module', () => {
           const mockedFs = mockRequire('./fixtures/cjs/direct.cjs', { path: { join: {} } });
