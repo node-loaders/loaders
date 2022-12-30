@@ -37,6 +37,10 @@ export const generateCjsSource = (cacheId: string, specifier: string) => `
 module.exports = global['${globalCacheProperty}'].mocked['${cacheId}']['${specifier}'].mergedCjs;
 `;
 
+export function getModuleResolver(): MockModuleResolver | undefined {
+  return global['@node-loaders/mock']?.resolver as MockModuleResolver;
+}
+
 export default class MockModuleResolver {
   static register() {
     /* c8 ignore next 4 */

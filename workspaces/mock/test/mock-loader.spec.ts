@@ -4,6 +4,7 @@ import jestMock from 'jest-mock';
 import { type ResolvedModule, type NextResolve } from '@node-loaders/core';
 import { buildMockUrl } from '../src/support/url-protocol.js';
 import loader from '../src/index-default.js';
+import { getModuleResolver } from '../src/mock-module-resolver.js';
 
 describe('mock-loader', () => {
   describe('resolve', () => {
@@ -29,7 +30,7 @@ describe('mock-loader', () => {
       });
     });
 
-    describe('receiving specifier protocol', () => {
+    describe('not receiving nextResolve', () => {
       it('should throw', async () => {
         await expect(
           loader.resolve(

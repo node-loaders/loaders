@@ -4,7 +4,7 @@ import { addMockedData } from './support/module-cache.js';
 import { resolveCallerUrl } from './support/caller-resolve.js';
 import { mockedModule } from './support/module-mock.js';
 import { type MockedModule } from './support/types.js';
-import type MockModuleResolver from './mock-module-resolver.js';
+import { getModuleResolver } from './mock-module-resolver.js';
 
 function internalRequireMock<MockedType = any>(
   url: string,
@@ -13,8 +13,7 @@ function internalRequireMock<MockedType = any>(
 ): MockedModule<MockedType> {
   const cacheId = addMockedData(mockedSpecifiers);
   const filePath = specifierToFilePath(specifier, url);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const resolver: MockModuleResolver = global['@node-loaders/mock']?.resolver;
+  const resolver = getModuleResolver();
   /* c8 ignore next 3 */
   if (!resolver) {
     throw new Error(`Mock loader was not loaded correctly`);

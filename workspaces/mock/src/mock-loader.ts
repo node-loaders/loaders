@@ -17,8 +17,8 @@ import { existsMockedData, type MockedParentData, useMockedData, getAllMockedDat
 import { generateEsmSource, getNamedExports, mergeModule } from './support/module-mock.js';
 import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { defaultMaxDepth } from './constants.js';
-import type MockModuleResolver from './mock-module-resolver.js';
 import { isMockedFilePath, parseMockedFilePath } from './support/file-path-protocol.js';
+import { getModuleResolver } from './mock-module-resolver.js';
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
@@ -35,17 +35,18 @@ export default class MockLoader extends BaseLoader {
 
   async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     if (isMockedFilePath(specifier)) {
-      // Convert back to url
+      /* c8 ignore next 12 */
+      // Convert from filePath to url
       const cjsSpecifier = asCjsSpecifier(specifier);
       const parsed = parseMockedFilePath(cjsSpecifier);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const moduleResolver: MockModuleResolver = global['@node-loaders/mock'].resolver;
+      const moduleResolver = getModuleResolver()!;
       const data = moduleResolver.cache[parsed.id];
       specifier = buildMockUrl({
         ...data,
         specifier: asEsmSpecifier(data.specifier),
         resolvedSpecifier: asEsmSpecifier(data.resolvedSpecifier),
       });
+      throw new Error('Importing a mocked cjs specifier is not implemented');
     }
 
     specifier = normalizeNodeProtocol(specifier);
@@ -100,14 +101,14 @@ export default class MockLoader extends BaseLoader {
     this.log?.(`Handling load mocked ${inspect(mockData)}, ${inspect(context)}`);
     const { cacheId, specifier, actual } = mockData;
     if (actual) {
-      return nextLoad(mockData.resolvedSpecifier, context);
+      const loaded = await nextLoad(mockData.resolvedSpecifier, context);
+      return { responseURL: url, ...loaded };
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const importedSpecifier = await import(buildMockUrl({ ...mockData, actual: true }));
-    if (context.format === 'commonjs' && !importedSpecifier.__esModule && global['@node-loaders/mock'].resolver) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const moduleResolver: MockModuleResolver = global['@node-loaders/mock'].resolver;
+    const moduleResolver = getModuleResolver();
+    if (context.format === 'commonjs' && !importedSpecifier.__esModule && moduleResolver) {
       const responseURL = asEsmSpecifier(moduleResolver.registerFileRequest(mockData));
       this.log?.(`Handling cjs mocked module ${responseURL}`);
       return { shortCircuit: true, format: 'commonjs', responseURL, source: null };
