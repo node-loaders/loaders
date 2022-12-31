@@ -1,4 +1,5 @@
 import { inspect } from 'node:util';
+import process from 'node:process';
 import BaseLoader, {
   type LoadContext,
   type LoadedModule,
@@ -20,6 +21,8 @@ import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { defaultMaxDepth } from './constants.js';
 import { isMockedFilePath, parseMockedFilePath } from './support/file-path-protocol.js';
 import { getModuleResolver } from './mock-module-resolver.js';
+
+const node14 = process.version.startsWith('v14');
 
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
@@ -117,7 +120,7 @@ export default class MockLoader extends BaseLoader {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const importedSpecifier = await import(buildMockUrl({ ...mockData, actual: true }));
+    const importedSpecifier = node14 ? await import(mockData.resolvedSpecifier) : await import(buildMockUrl({ ...mockData, actual: true }));
     const moduleResolver = getModuleResolver();
     if (context.format === 'commonjs' && !importedSpecifier.__esModule && moduleResolver) {
       const responseURL = asEsmSpecifier(moduleResolver.registerFileRequest(mockData));
