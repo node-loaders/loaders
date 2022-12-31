@@ -10,6 +10,7 @@ import BaseLoader, {
   normalizeNodeProtocol,
   asEsmSpecifier,
   asCjsSpecifier,
+  isBuiltinModule,
 } from '@node-loaders/core';
 
 import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
@@ -100,9 +101,19 @@ export default class MockLoader extends BaseLoader {
     const mockData = parseProtocol(url)!;
     this.log?.(`Handling load mocked ${inspect(mockData)}, ${inspect(context)}`);
     const { cacheId, specifier, actual } = mockData;
-    if (actual) {
+
+    const forwardNext = async () => {
       const loaded = await nextLoad(mockData.resolvedSpecifier, context);
-      return { responseURL: url, ...loaded };
+      if (isBuiltinModule(mockData.resolvedSpecifier)) {
+        // Built in modules cannot have a modified responseURL.
+        return loaded;
+      }
+
+      return { ...loaded, responseURL: url };
+    };
+
+    if (actual) {
+      return forwardNext();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -151,6 +162,6 @@ export default class MockLoader extends BaseLoader {
     }
 
     this.log?.(`Fallback to next load`);
-    return nextLoad(mockData.resolvedSpecifier, context);
+    return forwardNext();
   }
 }

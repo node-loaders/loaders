@@ -123,6 +123,11 @@ describe('mock-import', () => {
           expect(mockedFs.jestMock).toBe(actual.jestMock);
           expect(mockedFs.jestMockDefault.fn).toBe(actual.jestMock);
         });
+        it('should pass the mocked url to import.meta', async () => {
+          const actual = await import('./fixtures/esm/direct.mjs');
+          const mockedFs = await mock<typeof actual>('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, foo: { join } });
+          expect(mockedFs.metaUrl).toMatch(/file:\/\/(.*)direct.mjs\?/);
+        });
         it('should return the mocked named export', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
           const mockedFs = await mock<typeof actual>('./fixtures/esm/direct.mjs', mockedData);
