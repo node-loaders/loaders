@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { globalCacheProperty } from './module-cache.js';
+import { globalCacheProperty } from './globals.js';
 import { cacheId as cacheIdSymbol } from './symbols-internal.js';
 
 export const mergeModule = (original: any, mocked: any): any => {

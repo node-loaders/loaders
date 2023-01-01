@@ -1,17 +1,11 @@
-// Symbols imported from the package doesn't match the used at the loader.
-// Export it to the global context and use from there.
-export const globalInternalSymbolsProperty = '@node-loaders-internal-symbols';
+import { getGlobalInternalSymbols } from './globals.js';
 
-if (!global[globalInternalSymbolsProperty]) {
-  Object.defineProperty(global, globalInternalSymbolsProperty, {
-    writable: false,
-    value: {},
-  });
-}
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const globalInternalSymbols = getGlobalInternalSymbols();
 
 for (const symbol of ['cacheId']) {
-  if (!global[globalInternalSymbolsProperty][symbol]) {
-    Object.defineProperty(global[globalInternalSymbolsProperty], symbol, {
+  if (!globalInternalSymbols[symbol]) {
+    Object.defineProperty(globalInternalSymbols, symbol, {
       writable: false,
       value: Symbol(symbol),
     });
@@ -19,4 +13,4 @@ for (const symbol of ['cacheId']) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-export const cacheId: unique symbol = global[globalInternalSymbolsProperty].cacheId;
+export const cacheId: unique symbol = globalInternalSymbols.cacheId;

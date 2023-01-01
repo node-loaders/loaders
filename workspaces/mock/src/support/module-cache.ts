@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { normalizeNodeProtocol } from '@node-loaders/core';
 import { type emptyMock, type fullMock, ignoreUnused, maxDepth } from '../symbols.js';
-
-export const globalCacheProperty = '@node-loaders';
+import { getGlobalCache } from './globals.js';
 
 export type MockedParentData = {
   mock: ((any) => any) | (Record<string, any> & { [emptyMock]?: boolean; [fullMock]?: boolean });
@@ -25,15 +24,8 @@ export type GlobalMock = {
   mocked?: MockStore;
 };
 
-if (!global[globalCacheProperty]) {
-  Object.defineProperty(global, globalCacheProperty, {
-    writable: false,
-    value: {},
-  });
-}
-
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-export const globalStore: GlobalMock = global[globalCacheProperty];
+export const globalStore: GlobalMock = getGlobalCache();
 
 const initialMockData = {
   counter: 0,

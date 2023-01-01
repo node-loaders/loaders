@@ -20,7 +20,7 @@ import { generateEsmSource, getNamedExports, mergeModule } from './support/modul
 import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { defaultMaxDepth } from './constants.js';
 import { isMockedFilePath, parseMockedFilePath } from './support/file-path-protocol.js';
-import { getModuleResolver } from './mock-module-resolver.js';
+import { getModuleResolver } from './support/globals.js';
 
 const node14 = process.version.startsWith('v14');
 

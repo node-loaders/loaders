@@ -4,7 +4,7 @@ import { addMockedData } from './support/module-cache.js';
 import { resolveCallerUrl } from './support/caller-resolve.js';
 import { mockedModule } from './support/module-mock.js';
 import { type MockedModule } from './support/types.js';
-import { getModuleResolver } from './mock-module-resolver.js';
+import { getModuleResolver } from './support/globals.js';
 
 function internalRequireMock<MockedType = any>(
   url: string,

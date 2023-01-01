@@ -1,16 +1,7 @@
-// Symbols imported from the package doesn't match the used at the loader.
-// Export it to the global context and use from there.
-export const globalSymbolsProperty = '@node-loaders-symbols';
-
-if (!Object.getOwnPropertyDescriptor(global, globalSymbolsProperty)) {
-  Object.defineProperty(global, globalSymbolsProperty, {
-    writable: false,
-    value: {},
-  });
-}
+import { getGlobalSymbols } from './support/globals.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const globalNodeLoaders = global[globalSymbolsProperty];
+const globalNodeLoaders = getGlobalSymbols();
 
 for (const symbol of ['fullMock', 'ignoreUnused', 'maxDepth', 'emptyMock']) {
   if (!Object.getOwnPropertyDescriptor(globalNodeLoaders, symbol)) {
@@ -22,13 +13,13 @@ for (const symbol of ['fullMock', 'ignoreUnused', 'maxDepth', 'emptyMock']) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-export const ignoreUnused: unique symbol = global[globalSymbolsProperty].ignoreUnused;
+export const ignoreUnused: unique symbol = globalNodeLoaders.ignoreUnused;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-export const fullMock: unique symbol = global[globalSymbolsProperty].fullMock;
+export const fullMock: unique symbol = globalNodeLoaders.fullMock;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-export const maxDepth: unique symbol = global[globalSymbolsProperty].maxDepth;
+export const maxDepth: unique symbol = globalNodeLoaders.maxDepth;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, prefer-destructuring
-export const emptyMock: unique symbol = global[globalSymbolsProperty].emptyMock;
+export const emptyMock: unique symbol = globalNodeLoaders.emptyMock;

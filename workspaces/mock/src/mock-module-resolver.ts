@@ -2,20 +2,14 @@ import Module, { createRequire } from 'node:module';
 import { extname, isAbsolute } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { asCjsSpecifier, asEsmSpecifier, normalizeNodeProtocol } from '@node-loaders/core';
-import {
-  existsMockedData,
-  type MockedParentData,
-  useMockedData,
-  getAllMockedData,
-  globalCacheProperty,
-  addMockedSpecifier,
-} from './support/module-cache.js';
+import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData, addMockedSpecifier } from './support/module-cache.js';
 import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { mergeModule } from './support/module-mock.js';
 import { createMockedFilePath, isMockedFilePath, mockExtension, parseMockedFilePath } from './support/file-path-protocol.js';
 import { type MockedIdData } from './support/types.js';
 import { defaultMaxDepth } from './constants.js';
 import { createRequireMock, mockRequire } from './mock-require.js';
+import { globalCacheProperty, getModuleResolver, setGlobalRequire } from './support/globals.js';
 
 type ResolveFilename = (
   request: string,
@@ -37,14 +31,10 @@ export const generateCjsSource = (cacheId: string, specifier: string) => `
 module.exports = global['${globalCacheProperty}'].mocked['${cacheId}']['${specifier}'].mergedCjs;
 `;
 
-export function getModuleResolver(): MockModuleResolver | undefined {
-  return global['@node-loaders/mock']?.resolver as MockModuleResolver;
-}
-
 export default class MockModuleResolver {
   static register() {
     /* c8 ignore next 4 */
-    if (global['@node-loaders/mock']) {
+    if (getModuleResolver()) {
       return;
     }
 
@@ -61,7 +51,7 @@ export default class MockModuleResolver {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     (Module as any)._load = (request, parent, isMain) => resolver.load(request, parent, isMain, nextLoad);
 
-    global['@node-loaders/mock'] = { resolver, mockRequire, createRequireMock };
+    setGlobalRequire({ resolver, mockRequire, createRequireMock });
   }
 
   readonly cache: Record<string, MockedIdData>;
