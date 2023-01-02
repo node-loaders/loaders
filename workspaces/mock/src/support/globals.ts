@@ -2,6 +2,8 @@ import type MockModuleResolver from '../mock-module-resolver.js';
 
 import { type createRequireMock, type mockRequire } from '../mock-require.js';
 
+export const globalModuleResolverProperty = '@node-loaders/mock/module-resolver';
+
 type GlobalRequire = {
   resolver: MockModuleResolver;
   mockRequire: typeof mockRequire;
@@ -9,7 +11,7 @@ type GlobalRequire = {
 };
 
 export function getGlobalRequire(): GlobalRequire | undefined {
-  return global['@node-loaders/mock'] as GlobalRequire;
+  return global[globalModuleResolverProperty] as GlobalRequire;
 }
 
 export function getModuleResolver(): MockModuleResolver | undefined {
@@ -17,12 +19,12 @@ export function getModuleResolver(): MockModuleResolver | undefined {
 }
 
 export function setGlobalRequire(globalRequire: GlobalRequire) {
-  global['@node-loaders/mock'] = globalRequire;
+  global[globalModuleResolverProperty] = globalRequire;
 }
 
 // Symbols imported from the package doesn't match the used at the loader.
 // Export it to the global context and use from there.
-export const globalSymbolsProperty = '@node-loaders-symbols';
+export const globalSymbolsProperty = '@node-loaders/mock/symbols';
 
 export function getGlobalSymbols(): any {
   if (!Object.getOwnPropertyDescriptor(global, globalSymbolsProperty)) {
@@ -38,7 +40,7 @@ export function getGlobalSymbols(): any {
 
 // Symbols imported from the package doesn't match the used at the loader.
 // Export it to the global context and use from there.
-const globalInternalSymbolsProperty = '@node-loaders-internal-symbols';
+const globalInternalSymbolsProperty = '@node-loaders/mock/internal-symbols';
 
 export function getGlobalInternalSymbols(): any {
   if (!global[globalInternalSymbolsProperty]) {
@@ -52,7 +54,7 @@ export function getGlobalInternalSymbols(): any {
   return global[globalInternalSymbolsProperty];
 }
 
-export const globalCacheProperty = '@node-loaders';
+export const globalCacheProperty = '@node-loaders/mock/cache';
 
 export function getGlobalCache(): any {
   if (!global[globalCacheProperty]) {
