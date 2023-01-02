@@ -67,3 +67,36 @@ export function getGlobalCache(): any {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return global[globalCacheProperty];
 }
+
+export const globalModulesProperty = '@node-loaders/mock/global-modules';
+
+export function getMockedModules(): Record<string, Record<string, ((any) => any) | Record<string, any>>> {
+  if (!global[globalModulesProperty]) {
+    Object.defineProperty(global, globalModulesProperty, {
+      writable: false,
+      value: {},
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return global[globalModulesProperty];
+}
+
+export function getMockedModulesForUrl(url: string): Record<string, ((any) => any) | Record<string, any>> {
+  return getMockedModules()[url];
+}
+
+export function clearMockedModulesForUrl(url: string) {
+  const mockedModules = getMockedModules();
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+  delete mockedModules[url];
+}
+
+export function addMockedModuleForUrl(url: string, module: string, mock: ((any) => any) | Record<string, any>) {
+  const mockedModules = getMockedModules();
+  if (!mockedModules[url]) {
+    mockedModules[url] = {};
+  }
+
+  mockedModules[url][module] = mock;
+}

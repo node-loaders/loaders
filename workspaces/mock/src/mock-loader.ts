@@ -103,7 +103,7 @@ export default class MockLoader extends BaseLoader {
   async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
     const mockData = parseProtocol(url)!;
     this.log?.(`Handling load mocked ${inspect(mockData)}, ${inspect(context)}`);
-    const { cacheId, specifier, actual } = mockData;
+    const { cacheId, specifier, actual, resolvedSpecifier } = mockData;
 
     const forwardNext = async () => {
       const loaded = await nextLoad(mockData.resolvedSpecifier, context);
@@ -128,8 +128,13 @@ export default class MockLoader extends BaseLoader {
       return { shortCircuit: true, format: 'commonjs', responseURL, source: null };
     }
 
-    if (existsMockedData(cacheId, specifier)) {
-      const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
+    const existingMockedSpecifier = existsMockedData(cacheId, specifier)
+      ? specifier
+      : existsMockedData(cacheId, resolvedSpecifier)
+      ? resolvedSpecifier
+      : undefined;
+    if (existingMockedSpecifier) {
+      const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, existingMockedSpecifier);
       if (!mockedSpecifierDef.merged) {
         const { mock } = mockedSpecifierDef;
         if (typeof mock === 'function') {
@@ -160,7 +165,7 @@ export default class MockLoader extends BaseLoader {
       return {
         format: 'module',
         shortCircuit: true,
-        source: generateEsmSource(cacheId, specifier, namedExports),
+        source: generateEsmSource(cacheId, existingMockedSpecifier, namedExports),
       };
     }
 

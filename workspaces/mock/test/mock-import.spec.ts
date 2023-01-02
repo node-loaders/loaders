@@ -4,7 +4,18 @@ import process from 'node:process';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
 
-import { mock, checkMocks, checkMock, fullMock, ignoreUnused, maxDepth, emptyMock } from '@node-loaders/mock';
+import {
+  mock,
+  mockModule,
+  mockSpecifier,
+  clearMocks,
+  checkMocks,
+  checkMock,
+  fullMock,
+  ignoreUnused,
+  maxDepth,
+  emptyMock,
+} from '@node-loaders/mock';
 
 if (!global.before) {
   global.before = global.beforeAll;
@@ -122,6 +133,42 @@ describe('mock-import', () => {
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);
           expect(mockedFs.jestMockDefault.fn).toBe(actual.jestMock);
+        });
+        it('should use global mocks', async () => {
+          const join = jestMock.fn();
+          await mockModule('path', { join });
+          const mockedDirect = await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', {
+            [ignoreUnused]: true,
+          });
+          expect(mockedDirect.join).toBe(join);
+          clearMocks();
+        });
+        it('should use global mocks with resolved module', async () => {
+          const join = jestMock.fn();
+          await mockModule('./fixtures/esm/direct.mjs', { join });
+          const mockedIndirect = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+            [ignoreUnused]: true,
+          });
+          expect(mockedIndirect.join).toBe(join);
+          clearMocks();
+        });
+        it('should use global mocks with resolved module using factory', async () => {
+          const join = jestMock.fn();
+          await mockModule('./fixtures/esm/direct.mjs', () => ({ join }));
+          const mockedIndirect = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+            [ignoreUnused]: true,
+          });
+          expect(mockedIndirect.join).toBe(join);
+          clearMocks();
+        });
+        it('should use global mocks with specifier', async () => {
+          const join = jestMock.fn();
+          mockSpecifier('./direct.mjs', { join });
+          const mockedIndirect = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+            [ignoreUnused]: true,
+          });
+          expect(mockedIndirect.join).toBe(join);
+          clearMocks();
         });
         it('should pass the mocked url to import.meta', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
