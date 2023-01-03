@@ -19,7 +19,7 @@
       "require": "./dist/export-require.cjs"
     }
   },
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index-default.d.ts",
   "files": [
     "./dist"
   ],
