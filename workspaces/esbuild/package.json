@@ -43,8 +43,8 @@
   "dependencies": {
     "@node-loaders/core": "^0.6.0",
     "@node-loaders/resolve": "^0.6.0",
-    "esbuild": "^0.15.16",
-    "get-tsconfig": "^4.2.0"
+    "esbuild": "^0.16.13",
+    "get-tsconfig": "^4.3.0"
   },
   "engines": {
     "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
