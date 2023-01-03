@@ -38,10 +38,21 @@ async function internalImportMock<MockedType = any>(
   return mockedModule(await import(mockedSpecifier), cacheId);
 }
 
+/**
+ * Create a import function for the url
+ * @param url
+ * @returns
+ */
 export function createImportMock(url: string): typeof mock {
   return async (specifier, mockedSpecifiers) => internalImportMock(url, specifier, mockedSpecifiers);
 }
 
+/**
+ * Import with local mocks and options
+ * @param specifier
+ * @param mockedSpecifiers
+ * @returns
+ */
 export async function mock<MockedType = any>(
   specifier: string,
   mockedSpecifiers: Record<string, Record<string, any>>,
@@ -49,6 +60,13 @@ export async function mock<MockedType = any>(
   return createImportMock(resolveCallerUrl())(specifier, mockedSpecifiers);
 }
 
+/**
+ * Register a mock for resolved specifier at a specific caller
+ * @param caller
+ * @param specifier
+ * @param mocked
+ * @returns
+ */
 export async function mockModuleForUrl<MockedType = any>(
   caller: string,
   specifier: string,
@@ -71,14 +89,28 @@ export async function mockModuleForUrl<MockedType = any>(
   return mockedModule;
 }
 
-export async function mockModule<MockedType = any>(specifier: string, mocked: ((any) => any) | Record<string, any>) {
-  return mockModuleForUrl<MockedType>(resolveCallerUrl(), specifier, mocked);
+/**
+ * Register a mock for a resolved specifier at the detected caller
+ * @param specifier
+ * @param mockedSpecifier
+ * @returns
+ */
+export async function mockModule<MockedType = any>(specifier: string, mockedSpecifier: ((any) => any) | Record<string, any>) {
+  return mockModuleForUrl<MockedType>(resolveCallerUrl(), specifier, mockedSpecifier);
 }
 
-export function clearMocks(): void {
+/**
+ * Remove global mocks at the detected caller
+ */
+export function removeMocks(): void {
   clearMockedModulesForUrl(resolveCallerUrl());
 }
 
-export function mockSpecifier(specifier: string, mocked: ((any) => any) | Record<string, any>): void {
-  addMockedModuleForUrl(resolveCallerUrl(), specifier, mocked);
+/**
+ * Register a mock for a unresolved specifier at the detected caller
+ * @param specifier
+ * @param mockedSpecifier
+ */
+export function mockSpecifier(specifier: string, mockedSpecifier: ((any) => any) | Record<string, any>): void {
+  addMockedModuleForUrl(resolveCallerUrl(), specifier, mockedSpecifier);
 }

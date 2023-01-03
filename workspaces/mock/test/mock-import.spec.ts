@@ -8,7 +8,7 @@ import {
   mock,
   mockModule,
   mockSpecifier,
-  clearMocks,
+  removeMocks,
   checkMocks,
   checkMock,
   fullMock,
@@ -140,19 +140,19 @@ describe('mock-import', () => {
             [ignoreUnused]: true,
           });
           expect(mockedDirect.join).toBe(join);
-          clearMocks();
+          removeMocks();
         });
         it('should use global mocks and import', async () => {
           await mockModule('path', { join });
           const mockedDirect = await import('./fixtures/esm/direct.mjs');
           expect(mockedDirect.join).toBe(join);
-          clearMocks();
+          removeMocks();
         });
         it('should use global mocks and import works for first level only', async () => {
           await mockModule('path', { [ignoreUnused]: true, join });
           const mockedIndirect = await import('./fixtures/esm/indirect.mjs');
           expect(mockedIndirect.join).not.toBe(join);
-          clearMocks();
+          removeMocks();
         });
         it('should use global mocks with resolved module', async () => {
           await mockModule('./fixtures/esm/direct.mjs', { join });
@@ -160,7 +160,7 @@ describe('mock-import', () => {
             [ignoreUnused]: true,
           });
           expect(mockedIndirect.join).toBe(join);
-          clearMocks();
+          removeMocks();
         });
         it('should use global mocks with resolved module using factory', async () => {
           await mockModule('./fixtures/esm/direct.mjs', () => ({ join }));
@@ -168,7 +168,7 @@ describe('mock-import', () => {
             [ignoreUnused]: true,
           });
           expect(mockedIndirect.join).toBe(join);
-          clearMocks();
+          removeMocks();
         });
         it('should use global mocks with specifier', async () => {
           mockSpecifier('./direct.mjs', { join });
@@ -176,7 +176,7 @@ describe('mock-import', () => {
             [ignoreUnused]: true,
           });
           expect(mockedIndirect.join).toBe(join);
-          clearMocks();
+          removeMocks();
         });
         it('should pass the mocked url to import.meta', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
