@@ -13,7 +13,7 @@ Importing a module with mocked dependencies:
 ```js
 import { mock, checkMocks, restoreMocks } from '@node-loaders/jest-mock';
 
-const mocked path = await mock<typeof import('path')>('path');
+const mockedPath = await mock<typeof import('path')>('path');
 const mockedModule = await import('./module.js');
 
 describe(() => {
@@ -24,7 +24,7 @@ describe(() => {
 
   it(async () => {
     mockedModule.run();
-    expect(path.join).toBeCalled();
+    expect(mockedPath.join).toBeCalled();
   });
 });
 ```
