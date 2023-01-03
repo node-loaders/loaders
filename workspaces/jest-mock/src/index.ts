@@ -1,5 +1,5 @@
-import { resolveCallerUrl, mockModuleForUrl, mockSpecifier as originalMockSpecifier } from '@node-loaders/mock';
-import { ModuleMocker, Mocked } from 'jest-mock';
+import { resolveCallerUrl, mockModuleForUrl } from '@node-loaders/mock';
+import { ModuleMocker, type Mocked } from 'jest-mock';
 
 export {
   type MockedModule,
