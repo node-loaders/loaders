@@ -22,6 +22,10 @@
     "jest-mock": "^29.3.1"
   },
   "peerDependencies": {
-    "@node-loaders/mock": "^0.8.0"
-  }
+    "@node-loaders/mock": "^0.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "b0c3df843c653a3fe43e00fdf26627694fe8884d"
 }
