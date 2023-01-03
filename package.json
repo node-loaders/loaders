@@ -8,6 +8,7 @@
     "./workspaces/esbuild",
     "./workspaces/mock",
     "./workspaces/auto",
+    "./workspaces/jest-mock",
     "./workspaces/test-samples"
   ],
   "scripts": {
