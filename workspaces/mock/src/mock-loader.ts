@@ -15,12 +15,12 @@ import BaseLoader, {
 } from '@node-loaders/core';
 
 import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
-import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData } from './support/module-cache.js';
+import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData, addMockedData } from './support/module-cache.js';
 import { generateEsmSource, getNamedExports, mergeModule } from './support/module-mock.js';
 import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { defaultMaxDepth } from './constants.js';
 import { isMockedFilePath, parseMockedFilePath } from './support/file-path-protocol.js';
-import { getModuleResolver } from './support/globals.js';
+import { getMockedModulesForUrl, getModuleResolver } from './support/globals.js';
 
 const node14 = process.version.startsWith('v14');
 
@@ -32,7 +32,8 @@ export default class MockLoader extends BaseLoader {
   override _handlesEspecifier(specifier: string, context?: ResolveContext | undefined): boolean {
     return (
       parseProtocol(specifier) !== undefined ||
-      (context?.parentURL !== undefined && parseProtocol(context.parentURL) !== undefined) ||
+      (context?.parentURL !== undefined &&
+        (parseProtocol(context.parentURL) !== undefined || getMockedModulesForUrl(context.parentURL) !== undefined)) ||
       isMockedFilePath(specifier)
     );
   }
@@ -70,10 +71,22 @@ export default class MockLoader extends BaseLoader {
       };
     }
 
-    const mockedParent = context?.parentURL && parseProtocol(context.parentURL);
+    /* c8 ignore next 4 */
+    if (!context?.parentURL) {
+      throw new Error(`Error resolving mocked ${specifier}, at unknown`);
+    }
+
+    const mockedParent = parseProtocol(context.parentURL);
     /* c8 ignore next 3 */
     if (!mockedParent) {
-      throw new Error(`Error resolving mocked ${specifier}, at %${context?.parentURL ?? 'unknown'}`);
+      const globalMockedModules = getMockedModulesForUrl(context.parentURL);
+      const cacheId = addMockedData({ ...globalMockedModules, [maxDepthSymbol]: 1 });
+      const resolved = await nextResolve(specifier, context);
+
+      return {
+        ...resolved,
+        url: buildMockUrl({ specifier, cacheId, resolvedSpecifier: resolved.url, depth: 0 }),
+      };
     }
 
     this.log?.(`Handling mocked ${specifier} with parent ${inspect(mockedParent)}`);
