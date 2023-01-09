@@ -4,9 +4,13 @@ import jestMock from 'jest-mock';
 import { type ResolvedModule, type NextResolve } from '@node-loaders/core';
 import { buildMockUrl } from '../src/support/url-protocol.js';
 import loader from '../src/index-default.js';
-import { getModuleResolver } from '../src/mock-module-resolver.js';
+import { removeMocks } from '../dist/mock-import.js';
 
 describe('mock-loader', () => {
+  afterEach(() => {
+    removeMocks();
+  });
+
   describe('resolve', () => {
     describe('receiving origin urls', () => {
       it('should resolve the next url', async () => {
@@ -64,7 +68,8 @@ describe('mock-loader', () => {
         expect(result).toMatchInlineSnapshot(`
           {
             "format": "commonjs",
-            "url": "file:///resolvedspecifier",
+            "shortCircuit": true,
+            "url": "file:///resolvedspecifier?%40node-loaders%2Fmocked-depth=2&%40node-loaders%2Fmocked-id=cacheId&%40node-loaders%2Fmocked-specifier=specifier",
           }
         `);
       });

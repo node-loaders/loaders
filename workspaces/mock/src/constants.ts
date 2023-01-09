@@ -1,1 +1,1 @@
-export const defaultMaxDepth = 1;
+export const defaultMaxDepth = -1;

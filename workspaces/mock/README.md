@@ -14,7 +14,7 @@ Loader that mocks imported/required modules.
 - Compatible with Typescript's `esModuleInterop`
 - Full or partial mock support
 - Unused mock detection
-- Global module mocking using `maxDepth=-1`
+- Configurable mocked module import deep using `maxDepth` (symbol) property. 
 - Trivial to use
 
 ## Design
@@ -22,7 +22,7 @@ Loader that mocks imported/required modules.
 Mock uses an unique approach.
 Importing using mock will create an alternative version of the module using mocked file names.
 ESM supportes url, mock adds necessary metadata to the url search parameters. CJS uses absolute paths, the metadata is stored and passed using a uuid appended to the file path folowing a `.mock` extension.
-The mocked files will continue until `maxDepth` is reached (1 by default, only direct imports).
+The mocked files will continue until `maxDepth` is reached (-1 by default, deep import).
 
 Prior art: [proxyquire](https://github.com/thlorenz/proxyquire), [esmock](https://github.com/iambumblehead/esmock).
 
@@ -138,7 +138,7 @@ describe(() => {
         join: joinSpy, // Mocked when imported from './module.js' file only
       },
       'node:path': {
-        [maxDepth]: -1, // Mocked in any child of './module.js'
+        [maxDepth]: -1, // Mocked a configurable deep
         resolve: resolveSpy,
       },
     });
