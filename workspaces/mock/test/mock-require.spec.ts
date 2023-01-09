@@ -96,7 +96,7 @@ describe('mock-require', () => {
         });
         it('should return the original named export with non compatible maxDepth', () => {
           const actual = require('./fixtures/cjs/indirect.cjs');
-          const mockedFs = mockRequire('./fixtures/cjs/indirect.cjs', { ...mockedData, [ignoreUnused]: true });
+          const mockedFs = mockRequire('./fixtures/cjs/indirect.cjs', { ...mockedData, [maxDepth]: 1, [ignoreUnused]: true });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
         });

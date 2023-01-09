@@ -6,6 +6,8 @@ import { buildMockUrl } from './support/url-protocol.js';
 import { mockedModule } from './support/module-mock.js';
 import { type MockedModule } from './support/types.js';
 import { getMockedModulesForUrl, addMockedModuleForUrl, clearMockedModulesForUrl } from './support/globals.js';
+import { addCacheId, clearMockedModulesForCaller } from './support/global-cache-id.js';
+import { clearResolvedCacheForId } from './support/global-resolved-cache.js';
 
 let checked = false;
 
@@ -31,6 +33,7 @@ async function internalImportMock<MockedType = any>(
 
   const globalMockedModules = getMockedModulesForUrl(url);
   const cacheId = addMockedData({ ...globalMockedModules, ...mockedSpecifiers });
+  addCacheId(url, cacheId);
   const fileUrl = pathToFileURL(specifierToFilePath(specifier, url)).href;
   const mockedSpecifier = buildMockUrl({ specifier, cacheId, resolvedSpecifier: fileUrl, depth: 0 });
 
@@ -103,7 +106,12 @@ export async function mockModule<MockedType = any>(specifier: string, mockedSpec
  * Remove global mocks at the detected caller
  */
 export function removeMocks(): void {
-  clearMockedModulesForUrl(resolveCallerUrl());
+  const caller = resolveCallerUrl();
+  clearMockedModulesForUrl(caller);
+  const cacheIds = clearMockedModulesForCaller(caller) ?? [];
+  for (const cacheId of cacheIds) {
+    clearResolvedCacheForId(cacheId);
+  }
 }
 
 /**

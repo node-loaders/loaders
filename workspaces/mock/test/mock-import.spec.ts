@@ -209,9 +209,16 @@ describe('mock-import', () => {
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
         });
+        it('same import from different files should be the same', async () => {
+          const mockedFs = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+            ...mockedData,
+            [maxDepth]: -1,
+          });
+          expect(mockedFs.jestMock).toBe(mockedFs.jestMockDirect);
+        });
         it('should return the original named export with non compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/indirect.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/indirect.mjs', { ...mockedData, [ignoreUnused]: true });
+          const mockedFs = await mock<typeof actual>('./fixtures/esm/indirect.mjs', { ...mockedData, [maxDepth]: 1, [ignoreUnused]: true });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
         });

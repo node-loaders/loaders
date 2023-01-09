@@ -21,6 +21,7 @@ import { emptyMock, fullMock, maxDepth as maxDepthSymbol } from './symbols.js';
 import { defaultMaxDepth } from './constants.js';
 import { isMockedFilePath, parseMockedFilePath } from './support/file-path-protocol.js';
 import { getMockedModulesForUrl, getModuleResolver } from './support/globals.js';
+import { addResolvedCache, getResolvedCache } from './support/global-resolved-cache.js';
 
 const node14 = process.version.startsWith('v14');
 
@@ -39,6 +40,24 @@ export default class MockLoader extends BaseLoader {
   }
 
   async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+    const resolved = await this._resolveMock(specifier, context, nextResolve);
+    const mockData = parseProtocol(resolved.url);
+    if (mockData && !isMockedFilePath(resolved.url)) {
+      const cacheId = buildMockUrl({ ...mockData, depth: 0, specifier: '' });
+      const { resolvedSpecifier } = mockData;
+      const cachedSpecifier = getResolvedCache(cacheId, resolvedSpecifier);
+      if (cachedSpecifier) {
+        this.log?.(`Resolved from cache ${cachedSpecifier}`);
+        return { ...resolved, url: cachedSpecifier };
+      }
+
+      addResolvedCache(cacheId, resolvedSpecifier, resolved.url);
+    }
+
+    return resolved;
+  }
+
+  async _resolveMock(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
     if (isMockedFilePath(specifier)) {
       /* c8 ignore next 12 */
       // Convert from filePath to url
