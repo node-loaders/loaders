@@ -10,6 +10,7 @@ import { type MockedIdData } from './support/types.js';
 import { defaultMaxDepth } from './constants.js';
 import { createRequireMock, mockRequire } from './mock-require.js';
 import { globalCacheProperty, getModuleResolver, setGlobalRequire } from './support/globals.js';
+import { addResolvedCache, getResolvedCache, getResolvedCacheStoreForId } from './support/global-resolved-cache.js';
 
 type ResolveFilename = (
   request: string,
@@ -157,9 +158,6 @@ export default class MockModuleResolver {
     }
 
     const resolved = nextResolveFilename(request, parent, isMain, options);
-    if (!isAbsolute(resolved)) {
-      // F return resolved;
-    }
 
     const specifier = isMockedFilePath(request) ? this.cache[parseMockedFilePath(request).id].specifier : request;
     const depth = parentDepth + 1;
@@ -171,12 +169,20 @@ export default class MockModuleResolver {
       }
     }
 
-    return this.registerFileRequest({
+    const esmResolved = asEsmSpecifier(resolved);
+    const cachedResolved = getResolvedCache(cacheId, esmResolved);
+    if (cachedResolved) {
+      return cachedResolved;
+    }
+
+    const mockResolved = this.registerFileRequest({
       cacheId,
       specifier: normalizeNodeProtocol(request),
       depth,
-      resolvedSpecifier: asEsmSpecifier(resolved),
+      resolvedSpecifier: esmResolved,
     });
+    addResolvedCache(cacheId, esmResolved, mockResolved);
+    return mockResolved;
   }
 
   load(

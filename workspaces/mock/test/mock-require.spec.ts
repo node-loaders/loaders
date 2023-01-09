@@ -94,6 +94,10 @@ describe('mock-require', () => {
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
         });
+        it('same import from different files should be the same', () => {
+          const mockedFs = mockRequire('./fixtures/cjs/indirect.cjs', { ...mockedData, [maxDepth]: -1, [ignoreUnused]: true });
+          expect(mockedFs.jestMock).toBe(mockedFs.jestMockDirect);
+        });
         it('should return the original named export with non compatible maxDepth', () => {
           const actual = require('./fixtures/cjs/indirect.cjs');
           const mockedFs = mockRequire('./fixtures/cjs/indirect.cjs', { ...mockedData, [maxDepth]: 1, [ignoreUnused]: true });
