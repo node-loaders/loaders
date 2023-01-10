@@ -13,9 +13,16 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index-default.js",
-    "./node14": "./dist/index-node14.js",
+    ".": {
+      "types": "./dist/index-default.d.ts",
+      "default": "./dist/index-default.js"
+    },
+    "./node14": {
+      "types": "./dist/index-node14.d.ts",
+      "default": "./dist/index-node14.js"
+    },
     "./require": {
+      "types": "./dist/export-require.d.cts",
       "require": "./dist/export-require.cjs"
     }
   },
