@@ -31,10 +31,12 @@ describe(() => {
 });
 ```
 
+Due to technical limitation, `mock` + `import` only works for second level imported modules, which is equivalent to `importMock` with `{ [maxDepth]: 1 }` options.
+
 ### Advanced options
 
 For advanced options use `importMock` instead of `import`.
-For more `importMock` information refer to [mock](https://github.com/node-loaders/loaders/tree/main/workspaces/mock#esm).
+For more information on about `importMock` refer to [mock](https://github.com/node-loaders/loaders/tree/main/workspaces/mock#esm).
 
 ```js
 import { mock, importMock, checkMocks, fn, restoreMocks, maxDepth, ignoreUnused, fullMock } from '@node-loaders/jest-mock';
@@ -42,10 +44,10 @@ import { mock, importMock, checkMocks, fn, restoreMocks, maxDepth, ignoreUnused,
 const mockedPath = await mock<typeof import('path')>('path');
 const mockedFunction = fn.mock();
 const mockedModule = await importMock('./module.js', {
-  [maxDepth]: number,
-  [ignoreUnused]: boolean,
+  [maxDepth]: number, // -1 by default
+  [ignoreUnused]: boolean, // false by default
   '../a-mocked-module.js': {
-    [fullMock]: true,
+    [fullMock]: boolean, // false by default
     func: mockedFunction,
   },
 });
