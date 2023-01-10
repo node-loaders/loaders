@@ -70,7 +70,7 @@ export async function importMock<MockedType = any>(
  * @param mocked
  * @returns
  */
-export async function mockModuleForUrl<MockedType = any>(
+export async function internalMockModule<MockedType = any>(
   caller: string,
   specifier: string,
   mocked: ((any) => any) | Record<string, any>,
@@ -99,7 +99,7 @@ export async function mockModuleForUrl<MockedType = any>(
  * @returns
  */
 export async function mockModule<MockedType = any>(specifier: string, mockedSpecifier: ((any) => any) | Record<string, any>) {
-  return mockModuleForUrl<MockedType>(resolveCallerUrl(), specifier, mockedSpecifier);
+  return internalMockModule<MockedType>(resolveCallerUrl(), specifier, mockedSpecifier);
 }
 
 /**

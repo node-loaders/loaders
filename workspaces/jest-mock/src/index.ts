@@ -1,4 +1,4 @@
-import { resolveCallerUrl, mockModuleForUrl } from '@node-loaders/mock';
+import { resolveCallerUrl, internalMockModule } from '@node-loaders/mock';
 import { ModuleMocker, type Mocked } from 'jest-mock';
 
 export {
@@ -34,7 +34,7 @@ export const isMockFunction = moduleMocker.isMockFunction.bind(moduleMocker);
  * @returns
  */
 export async function mock<MockedType = any>(specifier: string): Promise<Mocked<MockedType>> {
-  return mockModuleForUrl<Mocked<MockedType>>(resolveCallerUrl(), specifier, (actual: MockedType) => {
+  return internalMockModule<Mocked<MockedType>>(resolveCallerUrl(), specifier, (actual: MockedType) => {
     const metadata = moduleMocker.getMetadata<MockedType>(actual)!;
     return moduleMocker.generateFromMetadata(metadata);
   });
