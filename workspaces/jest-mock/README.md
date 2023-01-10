@@ -43,7 +43,7 @@ const mockedPath = await mock<typeof import('path')>('path');
 const mockedFunction = fn.mock();
 const mockedModule = await importMock('./module.js', {
   [maxDepth]: number,
-  [ignoreUnused]: booelan,
+  [ignoreUnused]: boolean,
   '../a-mocked-module.js': {
     [fullMock]: true,
     func: mockedFunction,
