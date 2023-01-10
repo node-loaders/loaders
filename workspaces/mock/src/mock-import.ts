@@ -14,7 +14,7 @@ let checked = false;
 async function internalImportMock<MockedType = any>(
   url: string,
   specifier: string,
-  mockedSpecifiers: Record<string, ((any) => any) | Record<string, any>>,
+  mockedSpecifiers?: Record<string, ((any) => any) | Record<string, any>>,
 ): Promise<MockedModule<MockedType>> {
   if (!checked) {
     try {
@@ -58,7 +58,7 @@ export function createImportMock(url: string): typeof importMock {
  */
 export async function importMock<MockedType = any>(
   specifier: string,
-  mockedSpecifiers: Record<string, Record<string, any>>,
+  mockedSpecifiers?: Record<string, Record<string, any>>,
 ): Promise<MockedModule<MockedType>> {
   return createImportMock(resolveCallerUrl())(specifier, mockedSpecifiers);
 }
