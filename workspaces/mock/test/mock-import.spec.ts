@@ -44,7 +44,7 @@ describe('mock-import', () => {
       }).toThrow(/^Unused mock, /);
     });
     it('should delete mocks', async () => {
-      await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
+      await importMock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
       expect(() => {
         checkMocks();
       }).toThrow(/^Unused mock, /);
@@ -68,20 +68,20 @@ describe('mock-import', () => {
       }).toThrow('Passed module is not a mocked module');
     });
     it('should throw on unused mock', async () => {
-      const mockedFs = await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
+      const mockedFs = await importMock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
       expect(() => {
         checkMock(mockedFs);
       }).toThrow(/^Unused mock, /);
     });
     it('should delete mocks', async () => {
-      const mockedFs = await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
+      const mockedFs = await importMock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
       expect(() => {
         checkMock(mockedFs);
       }).toThrow(/^Unused mock, /);
       checkMocks();
     });
     it('should delete mocks with param', async () => {
-      const mockedFs = await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
+      const mockedFs = await importMock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', { foo: { join } });
       expect(() => {
         checkMock(mockedFs, false);
       }).toThrow(/^Unused mock, /);
@@ -90,14 +90,14 @@ describe('mock-import', () => {
       }).toThrow(/^Unused mock, /);
     });
     it('should not throw on ignoreUnused', async () => {
-      const mockedFs = await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', {
+      const mockedFs = await importMock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', {
         [ignoreUnused]: true,
         foo: { join },
       });
       checkMock(mockedFs);
     });
     it('should not throw on specific ignoreUnused', async () => {
-      const mockedFs = await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', {
+      const mockedFs = await importMock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', {
         foo: { [ignoreUnused]: true, join },
       });
       checkMock(mockedFs);
@@ -108,9 +108,9 @@ describe('mock-import', () => {
     describe('using flag', () => {
       describe('fullMock', () => {
         it('should throw on non exported name', async () => {
-          await expect(importMock('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, 'node:path': { [fullMock]: true } })).rejects.toThrow(
-            /does not provide an export named 'join'/,
-          );
+          await expect(
+            importMock('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, 'node:path': { [fullMock]: true } }),
+          ).rejects.toThrow(/does not provide an export named 'join'/);
         });
       });
       describe('emptyMock', () => {
@@ -128,7 +128,7 @@ describe('mock-import', () => {
       describe('with direct mocked module', () => {
         it('should return the named export', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, foo: { join } });
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, foo: { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);
@@ -136,7 +136,7 @@ describe('mock-import', () => {
         });
         it('should use global mocks', async () => {
           await mockModule('path', { join });
-          const mockedDirect = await mock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', {
+          const mockedDirect = await importMock<typeof import('./fixtures/esm/direct.mjs')>('./fixtures/esm/direct.mjs', {
             [ignoreUnused]: true,
           });
           expect(mockedDirect.join).toBe(join);
@@ -156,7 +156,7 @@ describe('mock-import', () => {
         });
         it('should use global mocks with resolved module', async () => {
           await mockModule('./fixtures/esm/direct.mjs', { join });
-          const mockedIndirect = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+          const mockedIndirect = await importMock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
             [ignoreUnused]: true,
           });
           expect(mockedIndirect.join).toBe(join);
@@ -164,7 +164,7 @@ describe('mock-import', () => {
         });
         it('should use global mocks with resolved module using factory', async () => {
           await mockModule('./fixtures/esm/direct.mjs', () => ({ join }));
-          const mockedIndirect = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+          const mockedIndirect = await importMock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
             [ignoreUnused]: true,
           });
           expect(mockedIndirect.join).toBe(join);
@@ -172,7 +172,7 @@ describe('mock-import', () => {
         });
         it('should use global mocks with specifier', async () => {
           mockSpecifier('./direct.mjs', { join });
-          const mockedIndirect = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+          const mockedIndirect = await importMock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
             [ignoreUnused]: true,
           });
           expect(mockedIndirect.join).toBe(join);
@@ -180,12 +180,12 @@ describe('mock-import', () => {
         });
         it('should pass the mocked url to import.meta', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, foo: { join } });
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/direct.mjs', { [ignoreUnused]: true, foo: { join } });
           expect(mockedFs.metaUrl).toMatch(/file:\/\/(.*)direct.mjs\?/);
         });
         it('should return the mocked named export', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/direct.mjs', mockedData);
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/direct.mjs', mockedData);
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
@@ -194,7 +194,7 @@ describe('mock-import', () => {
         it('should accept factory', async () => {
           const actual = await import('./fixtures/esm/direct.mjs');
           const fn = jestMock.fn();
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/direct.mjs', {
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/direct.mjs', {
             '@node-loaders/test-samples': () => ({ default: { fn }, fn }),
           });
           expect(mockedFs.jestMock).toBe(fn);
@@ -204,13 +204,13 @@ describe('mock-import', () => {
       describe('with indirect mocked module', () => {
         it('should return the mocked named export with compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/indirect.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/indirect.mjs', { ...mockedData, [maxDepth]: 2 });
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/indirect.mjs', { ...mockedData, [maxDepth]: 2 });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
         });
         it('same import from different files should be the same', async () => {
-          const mockedFs = await mock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
+          const mockedFs = await importMock<typeof import('./fixtures/esm/indirect.mjs')>('./fixtures/esm/indirect.mjs', {
             ...mockedData,
             [maxDepth]: -1,
           });
@@ -218,7 +218,11 @@ describe('mock-import', () => {
         });
         it('should return the original named export with non compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/indirect.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/indirect.mjs', { ...mockedData, [maxDepth]: 1, [ignoreUnused]: true });
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/indirect.mjs', {
+            ...mockedData,
+            [maxDepth]: 1,
+            [ignoreUnused]: true,
+          });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
         });
@@ -226,14 +230,14 @@ describe('mock-import', () => {
       describe('with 3 levels mocked module', () => {
         it('should return the mocked named export with compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/three-levels.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/three-levels.mjs', { ...mockedData, [maxDepth]: 3 });
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/three-levels.mjs', { ...mockedData, [maxDepth]: 3 });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
         });
         it('should return the original named export with non compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/three-levels.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/three-levels.mjs', {
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/three-levels.mjs', {
             ...mockedData,
             [ignoreUnused]: true,
             [maxDepth]: 2,
@@ -246,14 +250,14 @@ describe('mock-import', () => {
       describe('with 4 levels mocked module', () => {
         it('should return the mocked named export with compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/four-levels.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/four-levels.mjs', { ...mockedData, [maxDepth]: -1 });
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/four-levels.mjs', { ...mockedData, [maxDepth]: -1 });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
         });
         it('should return the original named export with non compatible maxDepth', async () => {
           const actual = await import('./fixtures/esm/four-levels.mjs');
-          const mockedFs = await mock<typeof actual>('./fixtures/esm/four-levels.mjs', {
+          const mockedFs = await importMock<typeof actual>('./fixtures/esm/four-levels.mjs', {
             ...mockedData,
             [ignoreUnused]: true,
             [maxDepth]: 3,
@@ -316,7 +320,8 @@ describe('mock-import', () => {
         });
         it('should return the original named export with non compatible maxDepth', async () => {
           const actual = (await import('./fixtures/cjs/three-levels.cjs')).default as any;
-          const mockedFs = (await importMock('./fixtures/cjs/three-levels.cjs', { ...mockedData, [ignoreUnused]: true, [maxDepth]: 2 })).default;
+          const mockedFs = (await importMock('./fixtures/cjs/three-levels.cjs', { ...mockedData, [ignoreUnused]: true, [maxDepth]: 2 }))
+            .default;
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);
@@ -332,7 +337,8 @@ describe('mock-import', () => {
         });
         it('should return the original named export with non compatible maxDepth', async () => {
           const actual = (await import('./fixtures/cjs/four-levels.cjs')).default as any;
-          const mockedFs = (await importMock('./fixtures/cjs/four-levels.cjs', { ...mockedData, [ignoreUnused]: true, [maxDepth]: 3 })).default;
+          const mockedFs = (await importMock('./fixtures/cjs/four-levels.cjs', { ...mockedData, [ignoreUnused]: true, [maxDepth]: 3 }))
+            .default;
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);
@@ -344,7 +350,7 @@ describe('mock-import', () => {
       describe('with direct mocked module', () => {
         it('should return the named export', async () => {
           const actual = await import('./fixtures/ts-esm/direct.js');
-          const mockedFs = await mock<typeof actual>('./fixtures/ts-esm/direct.js', { foo: { join } });
+          const mockedFs = await importMock<typeof actual>('./fixtures/ts-esm/direct.js', { foo: { join } });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(actual.join);
           expect(mockedFs.jestMock).toBe(actual.jestMock);
@@ -354,7 +360,7 @@ describe('mock-import', () => {
         });
         it('should return the mocked named export', async () => {
           const actual = await import('./fixtures/ts-esm/direct.js');
-          const mockedFs = await mock<typeof actual>('./fixtures/ts-esm/direct.js', mockedData);
+          const mockedFs = await importMock<typeof actual>('./fixtures/ts-esm/direct.js', mockedData);
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
@@ -363,7 +369,7 @@ describe('mock-import', () => {
       describe('with indirect mocked module', () => {
         it('should return the mocked named export with compatible maxDepth', async () => {
           const actual = await import('./fixtures/ts-esm/indirect.js');
-          const mockedFs = await mock<typeof actual>('./fixtures/ts-esm/indirect.js', { ...mockedData, [maxDepth]: 2 });
+          const mockedFs = await importMock<typeof actual>('./fixtures/ts-esm/indirect.js', { ...mockedData, [maxDepth]: 2 });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
@@ -372,7 +378,7 @@ describe('mock-import', () => {
       describe('with 3 levels mocked module', () => {
         it('should return the mocked named export with compatible maxDepth', async () => {
           const actual = await import('./fixtures/ts-esm/three-levels.js');
-          const mockedFs = await mock<typeof actual>('./fixtures/ts-esm/three-levels.js', { ...mockedData, [maxDepth]: 3 });
+          const mockedFs = await importMock<typeof actual>('./fixtures/ts-esm/three-levels.js', { ...mockedData, [maxDepth]: 3 });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
@@ -381,7 +387,7 @@ describe('mock-import', () => {
       describe('with 4 levels mocked module', () => {
         it('should return the mocked named export with compatible maxDepth', async () => {
           const actual = await import('./fixtures/ts-esm/four-levels.js');
-          const mockedFs = await mock<typeof actual>('./fixtures/ts-esm/four-levels.js', { ...mockedData, [maxDepth]: -1 });
+          const mockedFs = await importMock<typeof actual>('./fixtures/ts-esm/four-levels.js', { ...mockedData, [maxDepth]: -1 });
           expect(mockedFs.default).toBe(actual.default);
           expect(mockedFs.join).toBe(join);
           expect(mockedFs.jestMock).toBe(JestMock);
