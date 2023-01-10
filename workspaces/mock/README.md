@@ -35,8 +35,8 @@ When using in combination with others @node-loaders modules make sure to use [@n
 ### Loaders
 
 - `@node-loaders/mock` provides esm(import) and commonjs(require) mocking.
-- `@node-loaders/esm` provides esm(import) mocking only.
-- `@node-loaders/node14` provides esm(import) and commonjs(require) mocking compatible with Node v14.
+- `@node-loaders/mock/esm` provides esm(import) mocking only.
+- `@node-loaders/mock/node14` provides esm(import) and commonjs(require) mocking compatible with Node v14.
 
 ### ESM
 
