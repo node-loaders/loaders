@@ -6,7 +6,7 @@ export {
   checkMock,
   checkMocks,
   removeMocks,
-  mock as importMock,
+  importMock,
   emptyMock,
   fullMock,
   ignoreUnused,

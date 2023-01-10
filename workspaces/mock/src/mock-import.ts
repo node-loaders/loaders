@@ -46,7 +46,7 @@ async function internalImportMock<MockedType = any>(
  * @param url
  * @returns
  */
-export function createImportMock(url: string): typeof mock {
+export function createImportMock(url: string): typeof importMock {
   return async (specifier, mockedSpecifiers) => internalImportMock(url, specifier, mockedSpecifiers);
 }
 
@@ -56,7 +56,7 @@ export function createImportMock(url: string): typeof mock {
  * @param mockedSpecifiers
  * @returns
  */
-export async function mock<MockedType = any>(
+export async function importMock<MockedType = any>(
   specifier: string,
   mockedSpecifiers: Record<string, Record<string, any>>,
 ): Promise<MockedModule<MockedType>> {

@@ -43,7 +43,7 @@ When using in combination with others @node-loaders modules make sure to use [@n
 Importing a module with mocked dependencies:
 
 ```js
-import { mock, checkMocks } from '@node-loaders/mock';
+import { importMock, checkMocks } from '@node-loaders/mock';
 
 describe(() => {
   afterAll(() => {
@@ -54,7 +54,7 @@ describe(() => {
     const defaultSpy = spy();
     const joinSpy = spy();
 
-    const mockedModule = await mock('./module.js', {
+    const mockedModule = await importMock('./module.js', {
       '../src/path.js': {
         default: defaultSpy,
         join: joinSpy,
@@ -70,7 +70,7 @@ describe(() => {
 Full mocks:
 
 ```js
-import { mock, checkMocks, fullMock } from '@node-loaders/mock';
+import { importMock, checkMocks, fullMock } from '@node-loaders/mock';
 
 describe(() => {
   afterAll(() => {
@@ -80,7 +80,7 @@ describe(() => {
   it(async () => {
     const joinSpy = spy();
 
-    const mockedModule = await mock('./module.js', {
+    const mockedModule = await importMock('./module.js', {
       '../src/path.js': {
         [fullMock]: true, // If a name other than 'join' is imported, a 'Module does not provide an export named' is thrown.
         join: joinSpy,
@@ -93,7 +93,7 @@ describe(() => {
 Mock check:
 
 ```js
-import { mock, checkMocks, checkMock, ignoreUnused } from '@node-loaders/mock';
+import { importMock, checkMocks, checkMock, ignoreUnused } from '@node-loaders/mock';
 
 describe(() => {
   afterAll(() => {
@@ -104,7 +104,7 @@ describe(() => {
     const joinSpy = spy();
     const resolveSpy = spy();
 
-    const mockedModule = await mock('./module.js', {
+    const mockedModule = await importMock('./module.js', {
       '../src/path.js': {
         join: joinSpy,
       },
@@ -122,7 +122,7 @@ describe(() => {
 Max depth:
 
 ```js
-import { mock, checkMocks, maxDepth } from '@node-loaders/mock';
+import { importMock, checkMocks, maxDepth } from '@node-loaders/mock';
 
 describe(() => {
   afterAll(() => {
@@ -133,7 +133,7 @@ describe(() => {
     const joinSpy = spy();
     const resolveSpy = spy();
 
-    const mockedModule = await mock('./module.js', {
+    const mockedModule = await importMock('./module.js', {
       '../src/path.js': {
         join: joinSpy, // Mocked when imported from './module.js' file only
       },

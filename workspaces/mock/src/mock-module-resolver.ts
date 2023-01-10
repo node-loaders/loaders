@@ -10,7 +10,7 @@ import { type MockedIdData } from './support/types.js';
 import { defaultMaxDepth } from './constants.js';
 import { createRequireMock, mockRequire } from './mock-require.js';
 import { globalCacheProperty, getModuleResolver, setGlobalRequire } from './support/globals.js';
-import { addResolvedCache, getResolvedCache, getResolvedCacheStoreForId } from './support/global-resolved-cache.js';
+import { addResolvedCache, getResolvedCache } from './support/global-resolved-cache.js';
 
 type ResolveFilename = (
   request: string,
