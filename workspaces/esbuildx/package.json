@@ -6,7 +6,7 @@
     "esbuildx": "./lib/bin.mjs"
   },
   "files": [
-    "lib"
+    "./lib"
   ],
   "exports": {
     ".": "./esbuildx.mjs"
