@@ -1,11 +1,13 @@
 {
   "name": "@node-loaders/esbuildx",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "bin": {
     "esbuildx": "./lib/bin.mjs"
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "exports": {
     ".": "./esbuildx.mjs"
   },

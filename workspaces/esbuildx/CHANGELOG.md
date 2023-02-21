@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@0.2.0...@node-loaders/esbuildx@0.2.1) (2023-02-21)
+
+
+### Bug Fixes
+
+* add files to esbuildx package.json ([d526197](https://github.com/node-loaders/loaders/commit/d5261978547539183ad9af04f2bf5bb51366d91b))
+
+
+
 ## 0.2.0 (2023-02-21)
 
 
