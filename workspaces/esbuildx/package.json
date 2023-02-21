@@ -5,6 +5,7 @@
   "bin": {
     "esbuildx": "./lib/bin.mjs"
   },
+  "files": ["lib"],
   "exports": {
     ".": "./esbuildx.mjs"
   },
