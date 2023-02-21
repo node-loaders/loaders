@@ -6,6 +6,7 @@
     "./workspaces/core",
     "./workspaces/resolve",
     "./workspaces/esbuild",
+    "./workspaces/esbuildx",
     "./workspaces/mock",
     "./workspaces/auto",
     "./workspaces/jest-mock",
