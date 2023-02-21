@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.2](https://github.com/node-loaders/loaders/compare/@node-loaders/mock@0.10.1...@node-loaders/mock@0.10.2) (2023-02-21)
+
+
+### Bug Fixes
+
+* mockedSpecifiers can be optional ([28a79c3](https://github.com/node-loaders/loaders/commit/28a79c301223faf926479111a2194fc47974c549))
+
+
+
 ## [0.10.1](https://github.com/node-loaders/loaders/compare/@node-loaders/mock@0.10.0...@node-loaders/mock@0.10.1) (2023-01-10)
 
 
