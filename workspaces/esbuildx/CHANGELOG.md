@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@0.3.0...@node-loaders/esbuildx@0.3.1) (2023-02-22)
+
+
+### Bug Fixes
+
+* covert esbuildx to typescript, handle signals and exitCode ([1ddcf7e](https://github.com/node-loaders/loaders/commit/1ddcf7e9d2843eefc3a83dd48134b2f74ffca7fb))
+
+
+
 ## [0.3.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@0.2.2...@node-loaders/esbuildx@0.3.0) (2023-02-22)
 
 
