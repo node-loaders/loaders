@@ -1,0 +1,10 @@
+{
+  "include": ["./src", "bin.mjs", "bin.mjs"],
+  "exclude": [],
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"]
+  }
+}

@@ -5,7 +5,9 @@ import spawn from 'cross-spawn';
 
 const require = createRequire(import.meta.url);
 
-export default function esbuildx(options) {
+export type EsbuildXOptions = { executable: string; argv?: string[]; nodeArgv?: string[] };
+
+export default function esbuildx(options?: string | EsbuildXOptions) {
   options = typeof options === 'string' ? { executable: options } : options;
   const { executable, argv = process.argv.slice(2), nodeArgv = [] } = options || {};
   const loaderUrl = pathToFileURL(require.resolve('@node-loaders/esbuild')).toString();

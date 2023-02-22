@@ -1,20 +1,45 @@
 {
   "name": "@node-loaders/esbuildx",
   "version": "0.2.2",
+  "keywords": [
+    "esm",
+    "tsnode",
+    "tsx",
+    "tsm",
+    "loader",
+    "node",
+    "esbuild",
+    "typescript",
+    "esm-loader"
+  ],
+  "bugs": "https://github.com/node-loaders/loaders/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-loaders/loaders.git"
+  },
+  "license": "MIT",
   "type": "module",
   "bin": {
-    "esbuildx": "./lib/bin.mjs"
+    "esbuildx": "./dist/bin.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/esbuildx.d.ts",
+      "default": "./dist/esbuildx.mjs"
+    }
   },
   "files": [
-    "./lib"
+    "./dist"
   ],
-  "exports": {
-    ".": "./esbuildx.mjs"
-  },
+  "types": "./dist/esbuildx.d.ts",
   "scripts": {
+    "build": "tsc",
+    "postbuild": "cpy bin.mjs ../dist --cwd=src",
+    "clean": "rimraf dist",
+    "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
     "pretest": "xo",
-    "test": "./lib/bin.mjs ./test/cts.cts && ./lib/bin.mjs ./test/mts.mjs && ./lib/bin.mjs ./test/ts.ts",
+    "test": "./dist/bin.mjs ./test/cts.cts && ./dist/bin.mjs ./test/mts.mjs && ./dist/bin.mjs ./test/ts.ts",
     "test-coverage": "npm run test"
   },
   "dependencies": {
@@ -23,5 +48,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "cpy-cli": "^4.2.0"
   }
 }
