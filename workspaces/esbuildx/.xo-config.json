@@ -5,6 +5,9 @@
   "ignores": ["test/fixtures", "build"],
   "printWidth": 120,
   "rules": {},
+  "parserOptions": {
+    "project": "./tsconfig.spec.json"
+  },
   "overrides": [
     {
       "files": "src/*",

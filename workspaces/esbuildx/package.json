@@ -19,19 +19,19 @@
   },
   "license": "MIT",
   "type": "module",
-  "bin": {
-    "esbuildx": "./dist/bin.mjs"
-  },
   "exports": {
     ".": {
       "types": "./dist/esbuildx.d.ts",
       "default": "./dist/esbuildx.mjs"
     }
   },
+  "types": "./dist/esbuildx.d.ts",
+  "bin": {
+    "esbuildx": "./dist/bin.mjs"
+  },
   "files": [
     "./dist"
   ],
-  "types": "./dist/esbuildx.d.ts",
   "scripts": {
     "build": "tsc",
     "postbuild": "cpy bin.mjs ../dist --cwd=src",
@@ -39,17 +39,17 @@
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
     "pretest": "xo",
-    "test": "./dist/bin.mjs ./test/cts.cts && ./dist/bin.mjs ./test/mts.mjs && ./dist/bin.mjs ./test/ts.ts",
+    "test": "npx mocha",
     "test-coverage": "npm run test"
   },
   "dependencies": {
     "@node-loaders/esbuild": "^0.7.1",
-    "cross-spawn": "^7.0.3"
-  },
-  "publishConfig": {
-    "access": "public"
+    "execa": "^7.0.0"
   },
   "devDependencies": {
     "cpy-cli": "^4.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
