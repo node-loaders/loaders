@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@0.2.2...@node-loaders/esbuildx@0.3.0) (2023-02-22)
+
+
+### Features
+
+* convert esbuildx to typescript ([5758fbf](https://github.com/node-loaders/loaders/commit/5758fbfdefd2131ebb5468e72401d5986a8dca6d))
+
+
+
 ## [0.2.2](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@0.2.1...@node-loaders/esbuildx@0.2.2) (2023-02-21)
 
 
