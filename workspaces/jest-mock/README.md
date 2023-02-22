@@ -15,7 +15,7 @@ Import a module with mocked dependencies:
 ```js
 import { mock, checkMocks, restoreMocks } from '@node-loaders/jest-mock';
 
-const mockedPath = await mock<typeof import('path')>('path');
+const mockedPath = (await mock) < typeof import('path') > 'path';
 const mockedModule = await import('./module.js');
 
 describe(() => {
@@ -41,7 +41,7 @@ For more information on about `importMock` refer to [mock](https://github.com/no
 ```js
 import { mock, importMock, checkMocks, fn, restoreMocks, maxDepth, ignoreUnused, fullMock } from '@node-loaders/jest-mock';
 
-const mockedPath = await mock<typeof import('path')>('path');
+const mockedPath = (await mock) < typeof import('path') > 'path';
 const mockedFunction = fn.mock();
 const mockedModule = await importMock('./module.js', {
   [maxDepth]: number, // -1 by default

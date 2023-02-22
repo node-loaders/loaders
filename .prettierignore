@@ -3,3 +3,4 @@ workspaces/*/dist/**
 workspaces/*/coverage/**
 workspaces/test-jest-light-runner/test/**
 package-lock.json
+CHANGELOG.md

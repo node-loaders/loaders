@@ -14,7 +14,7 @@ Loader that mocks imported/required modules.
 - Compatible with Typescript's `esModuleInterop`
 - Full or partial mock support
 - Unused mock detection
-- Configurable mocked module import deep using `maxDepth` (symbol) property. 
+- Configurable mocked module import deep using `maxDepth` (symbol) property.
 - Trivial to use
 
 ## Design
