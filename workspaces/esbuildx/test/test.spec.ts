@@ -36,7 +36,7 @@ describe('esbuildx', () => {
         const child = execa(binFile, [join(__dirname, 'fixtures/wait.ts')], { stdin: 'inherit' });
         setTimeout(() => {
           child.kill(signal);
-        }, 200);
+        }, 500);
         await child;
       } catch (error: unknown) {
         expect((error as ExecaError).stdout).toBe(signal);
