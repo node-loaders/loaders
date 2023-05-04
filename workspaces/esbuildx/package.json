@@ -27,14 +27,14 @@
   },
   "types": "./dist/esbuildx.d.ts",
   "bin": {
-    "esbuildx": "./dist/bin.mjs"
+    "esbuildx": "./dist/bin.cjs"
   },
   "files": [
     "./dist"
   ],
   "scripts": {
     "build": "tsc",
-    "postbuild": "cpy bin.mjs ../dist --cwd=src",
+    "postbuild": "cpy bin.cjs ../dist --cwd=src",
     "clean": "rimraf dist",
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",

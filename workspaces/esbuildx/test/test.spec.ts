@@ -6,7 +6,7 @@ import { jestExpect as expect } from 'mocha-expect-snapshot';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const binFile = join(__dirname, '../dist/bin.mjs');
+const binFile = join(__dirname, '../dist/bin.cjs');
 
 describe('esbuildx', () => {
   it('should execute cts file', async () => {
