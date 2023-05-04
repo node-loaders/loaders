@@ -1,4 +1,5 @@
 import { dirname, join } from 'node:path';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { execa, type ExecaError } from 'execa';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
@@ -30,20 +31,22 @@ describe('esbuildx', () => {
 
     throw new Error('Should not happen');
   });
-  for (const signal of [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`]) {
-    it(`should forward ${signal} signal to child`, async () => {
-      try {
-        const child = execa(binFile, [join(__dirname, 'fixtures/wait.ts')], { stdin: 'inherit' });
-        setTimeout(() => {
-          child.kill(signal);
-        }, 500);
-        await child;
-      } catch (error: unknown) {
-        expect((error as ExecaError).stdout).toBe(signal);
-        return;
-      }
+  if (process.platform !== 'win32') {
+    for (const signal of [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`]) {
+      it(`should forward ${signal} signal to child`, async () => {
+        try {
+          const child = execa(binFile, [join(__dirname, 'fixtures/wait.ts')], { stdin: 'inherit' });
+          setTimeout(() => {
+            child.kill(signal);
+          }, 500);
+          await child;
+        } catch (error: unknown) {
+          expect((error as ExecaError).stdout).toBe(signal);
+          return;
+        }
 
-      throw new Error('Should not happen');
-    });
+        throw new Error('Should not happen');
+      });
+    }
   }
 });
