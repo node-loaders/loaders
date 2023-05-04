@@ -23,7 +23,7 @@ type ResolveFilename = (
 
 const require = createRequire(import.meta.url);
 
-const cjsExtension = filePath => {
+const cjsExtension = (filePath: string) => {
   const extension = extname(filePath);
   return extension === '.cjs' ? '.js' : extension;
 };
@@ -44,12 +44,14 @@ export default class MockModuleResolver {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const nextResolveFilename = (Module as any)._resolveFilename;
+
     (Module as any)._resolveFilename = (request, parent, isMain, options) =>
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       resolver.resolveFilename(request, parent, isMain, options, nextResolveFilename);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const nextLoad = (Module as any)._load;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
     (Module as any)._load = (request, parent, isMain) => resolver.load(request, parent, isMain, nextLoad);
 
     setGlobalRequire({ resolver, mockRequire, createRequireMock });

@@ -1,6 +1,5 @@
 import { createRequire } from 'node:module';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-
 import { resolvePackage } from '../../test/src/index.js';
 
 const require = createRequire(import.meta.url);

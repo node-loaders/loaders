@@ -1,7 +1,6 @@
 import { pathToFileURL } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import { resolvePackage } from '../../test/src/index.js';
-
 import { EsbuildSources } from '../src/esbuild-sources.js';
 
 describe('esbuild-sources', () => {

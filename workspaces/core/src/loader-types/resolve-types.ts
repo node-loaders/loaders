@@ -12,4 +12,4 @@ export type ResolvedModule = {
   url: string;
 };
 
-export type NextResolve = (url: string, context: ResolveContext, nextResolve?: NextResolve) => Promise<ResolvedModule>;
+export type Resolve = (url: string, context: ResolveContext, nextResolve?: Resolve) => Promise<ResolvedModule>;

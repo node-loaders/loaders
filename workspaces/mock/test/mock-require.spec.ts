@@ -1,7 +1,6 @@
 import { createRequire } from 'node:module';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
-
 import { mockRequire } from '../src/mock-require.js';
 import { checkMocks } from '../src/mock-check.js';
 import { emptyMock, fullMock, ignoreUnused, maxDepth } from '../src/symbols.js';

@@ -1,7 +1,9 @@
+import { type Loader } from './index.js';
+
 export type LoaderNext = (arg1: unknown, arg2: unknown) => Promise<unknown>;
 export type LoaderFunction = (arg1: unknown, arg2: unknown, arg3?: LoaderNext) => Promise<unknown>;
 
-export function createChainMethod<PropName extends string>(list: Array<Record<PropName, LoaderFunction>>, property: PropName) {
+export function createChainMethod<PropName extends 'resolve' | 'load'>(list: Loader[], property: PropName) {
   return (identifier, context, next: LoaderNext): unknown => {
     const functions = list.map(loader => loader[property]).filter(Boolean) as LoaderFunction[];
     const last: LoaderFunction = async (arg1, arg2, arg3) => next(arg1, arg2);

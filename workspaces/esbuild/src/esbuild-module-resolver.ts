@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import Module from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { isBuiltinModule, isPackageSpecifier, specifierToFilePath } from '@node-loaders/core';

@@ -1,6 +1,5 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import { existingFile } from '@node-loaders/resolve';
-
 import {
   detectFormatForEsbuildFileExtension,
   isEsbuildExtensionSupported,

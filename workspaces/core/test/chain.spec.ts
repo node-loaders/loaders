@@ -1,6 +1,5 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
-
 import { type LoaderFunction, createChain, createChainMethod } from '../src/chain.js';
 
 describe('chain', () => {

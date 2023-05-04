@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
-
 import { join } from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -20,7 +19,7 @@ export class LoaderCache {
 
     let { cacheRoot } = options;
     this.customDir = Boolean(cacheRoot);
-    let folder;
+    let folder: string | undefined;
     if (!cacheRoot) {
       cacheRoot = findUpSync('node_modules', { type: 'directory' });
       if (cacheRoot) {

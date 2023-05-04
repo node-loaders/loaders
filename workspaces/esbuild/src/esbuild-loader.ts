@@ -1,11 +1,10 @@
 import { pathToFileURL } from 'node:url';
-
 import LoaderBase, {
   type LoadContext,
   type LoadedModule,
   type LoaderBaseOptions,
-  type NextResolve,
-  type NextLoad,
+  type Resolve,
+  type Load,
   type ResolveContext,
   type ResolvedModule,
   isFileSpecifier,
@@ -13,7 +12,6 @@ import LoaderBase, {
   specifierToFilePath,
 } from '@node-loaders/core';
 import { existingFile, lookForDefaultModule } from '@node-loaders/resolve';
-
 import { detectFormatForEsbuildFileExtension, isEsbuildExtensionSupported, lookForEsbuildReplacementFile } from './esbuild-support.js';
 import { EsbuildSources } from './esbuild-sources.js';
 
@@ -58,7 +56,7 @@ export default class EsbuildLoader extends LoaderBase {
     return isFileSpecifier(specifier);
   }
 
-  override async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+  override async _resolve(specifier: string, context: ResolveContext, nextResolve: Resolve): Promise<ResolvedModule> {
     if (isPackageJsonImportSpecifier(specifier)) {
       try {
         return await nextResolve(specifier, context);
@@ -90,7 +88,7 @@ export default class EsbuildLoader extends LoaderBase {
     return nextResolve(specifier, context);
   }
 
-  override async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
+  override async _load(url: string, context: LoadContext, nextLoad: Load): Promise<LoadedModule> {
     if (isEsbuildExtensionSupported(url)) {
       const cachedfile = await this.esbuildSources.getSource(url, context.format);
       return {

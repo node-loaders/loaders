@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import { LoaderCache } from '../src/cache.js';
 

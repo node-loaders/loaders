@@ -1,6 +1,5 @@
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import {
   existingFile,
