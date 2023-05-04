@@ -23,8 +23,6 @@ import { isMockedFilePath, parseMockedFilePath } from './support/file-path-proto
 import { getMockedModulesForUrl, getModuleResolver } from './support/globals.js';
 import { addResolvedCache, getResolvedCache } from './support/global-resolved-cache.js';
 
-const node14 = process.version.startsWith('v14');
-
 export default class MockLoader extends BaseLoader {
   constructor(options: LoaderBaseOptions = {}) {
     super('mock', options);
@@ -152,7 +150,7 @@ export default class MockLoader extends BaseLoader {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const importedSpecifier = node14 ? await import(mockData.resolvedSpecifier) : await import(buildMockUrl({ ...mockData, actual: true }));
+    const importedSpecifier = await import(buildMockUrl({ ...mockData, actual: true }));
     const moduleResolver = getModuleResolver();
     if (context.format === 'commonjs' && !importedSpecifier.__esModule && moduleResolver) {
       const responseURL = asEsmSpecifier(moduleResolver.registerFileRequest(mockData));
