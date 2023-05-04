@@ -31,8 +31,7 @@
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
     "test": "mocha",
-    "test-coverage": "c8 mocha",
-    "test-node14": "mocha --config .mocharc.node14.cjs test"
+    "test-coverage": "c8 mocha"
   },
   "dependencies": {
     "find-up": "^6.3.0",
@@ -40,7 +39,7 @@
     "read-pkg-up": "^9.1.0"
   },
   "engines": {
-    "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
+    "node": "^16.13.0 || >=18.12.0"
   },
   "publishConfig": {
     "access": "public"

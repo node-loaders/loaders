@@ -1,22 +1,22 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
 
-import LoaderBaseNode14 from '../src/loader-base-node14.js';
-import { Node14ChainLoader } from '../src/chain-loader.js';
+import LoaderBaseNode from '../src/loader-base.js';
+import { ChainLoader } from '../src/chain-loader.js';
 import { type LoaderFunction } from '../src/chain.js';
 
-const loaderProperties = ['resolve', 'load', 'getSource', 'getFormat', 'transformSource'];
+const loaderProperties = ['resolve', 'load'];
 
 describe('chain-loader', () => {
-  let loader1: LoaderBaseNode14;
-  let loader2: LoaderBaseNode14;
-  let chain: Node14ChainLoader;
+  let loader1: LoaderBaseNode;
+  let loader2: LoaderBaseNode;
+  let chain: ChainLoader;
   let returnValue;
   let returnValueSpy;
 
   beforeEach(() => {
-    loader1 = new LoaderBaseNode14();
-    loader2 = new LoaderBaseNode14();
+    loader1 = new LoaderBaseNode();
+    loader2 = new LoaderBaseNode();
 
     for (const prop of loaderProperties) {
       loader1[prop] = jestMock.fn<LoaderFunction>().mockImplementation(async (arg1, arg2, arg3) => {
@@ -27,7 +27,7 @@ describe('chain-loader', () => {
       });
     }
 
-    chain = new Node14ChainLoader([loader1, loader2]);
+    chain = new ChainLoader([loader1, loader2]);
 
     returnValue = jestMock.fn();
     returnValueSpy = jestMock.fn<LoaderFunction>().mockImplementation(async () => {

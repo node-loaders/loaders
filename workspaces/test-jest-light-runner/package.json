@@ -11,8 +11,7 @@
     "fix": "xo --fix",
     "pretest": "xo",
     "test": "cross-env NODE_OPTIONS=\"--loader=@node-loaders/auto --experimental-vm-modules\" npx jest",
-    "test-coverage": "c8 mocha",
-    "test-node14": "mocha --config .mocharc.node14.cjs test"
+    "test-coverage": "c8 mocha"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

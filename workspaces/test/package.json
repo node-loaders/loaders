@@ -31,11 +31,10 @@
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "xo --fix",
     "test": "",
-    "test-coverage": "",
-    "test-node14": ""
+    "test-coverage": ""
   },
   "engines": {
-    "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
+    "node": "^16.13.0 || >=18.12.0"
   },
   "gitHead": "d1930f1833eca9eb9febf659d22ac5d21673413b"
 }

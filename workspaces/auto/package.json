@@ -25,7 +25,6 @@
   "exports": {
     ".": "./dist/index-default.js",
     "./esm": "./dist/index-esm.js",
-    "./node14": "./dist/index-node14.js",
     "./strict": "./dist/index-strict.js"
   },
   "files": [
@@ -37,14 +36,13 @@
     "clean-all": "npm run clean && rimraf node_modules",
     "fix": "",
     "test": "mocha",
-    "test-coverage": "mocha",
-    "test-node14": "mocha --config .mocharc.node14.cjs"
+    "test-coverage": "mocha"
   },
   "dependencies": {
     "@node-loaders/core": "^0.6.0"
   },
   "engines": {
-    "node": "^14.15.0 || ^16.13.0 || >=18.12.0"
+    "node": "^16.13.0 || >=18.12.0"
   },
   "publishConfig": {
     "access": "public"
