@@ -4,8 +4,8 @@ import BaseLoader, {
   type LoadContext,
   type LoadedModule,
   type LoaderBaseOptions,
-  type NextResolve,
-  type NextLoad,
+  type Resolve,
+  type Load,
   type ResolveContext,
   type ResolvedModule,
   normalizeNodeProtocol,
@@ -13,7 +13,6 @@ import BaseLoader, {
   asCjsSpecifier,
   isBuiltinModule,
 } from '@node-loaders/core';
-
 import { parseProtocol, buildMockUrl } from './support/url-protocol.js';
 import { existsMockedData, type MockedParentData, useMockedData, getAllMockedData, addMockedData } from './support/module-cache.js';
 import { generateEsmSource, getNamedExports, mergeModule } from './support/module-mock.js';
@@ -37,7 +36,7 @@ export default class MockLoader extends BaseLoader {
     );
   }
 
-  async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+  async _resolve(specifier: string, context: ResolveContext, nextResolve: Resolve): Promise<ResolvedModule> {
     const resolved = await this._resolveMock(specifier, context, nextResolve);
     const mockData = parseProtocol(resolved.url);
     if (mockData && !isMockedFilePath(resolved.url)) {
@@ -55,7 +54,7 @@ export default class MockLoader extends BaseLoader {
     return resolved;
   }
 
-  async _resolveMock(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+  async _resolveMock(specifier: string, context: ResolveContext, nextResolve: Resolve): Promise<ResolvedModule> {
     if (isMockedFilePath(specifier)) {
       /* c8 ignore next 12 */
       // Convert from filePath to url
@@ -130,7 +129,7 @@ export default class MockLoader extends BaseLoader {
     };
   }
 
-  async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
+  async _load(url: string, context: LoadContext, nextLoad: Load): Promise<LoadedModule> {
     const mockData = parseProtocol(url)!;
     this.log?.(`Handling load mocked ${inspect(mockData)}, ${inspect(context)}`);
     const { cacheId, specifier, actual, resolvedSpecifier } = mockData;

@@ -3,7 +3,6 @@
 import process from 'node:process';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
-
 import {
   importMock,
   mockModule,

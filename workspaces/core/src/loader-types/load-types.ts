@@ -17,4 +17,4 @@ export type LoadContext = {
   importAssertions: Record<string, unknown>;
 };
 
-export type NextLoad = (url: string, context: LoadContext, nextLoad?: NextLoad) => Promise<LoadedModule>;
+export type Load = (url: string, context: LoadContext, nextLoad?: Load) => Promise<LoadedModule>;

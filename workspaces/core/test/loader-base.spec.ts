@@ -1,7 +1,6 @@
 /* eslint-disable max-nested-callbacks */
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
-
 import LoaderBase from '../src/loader-base.js';
 import { createCheckUrl } from '../src/specifier.js';
 import { type LoadedModule, type NextLoad, type NextResolve, type ResolvedModule } from '../src/index.js';

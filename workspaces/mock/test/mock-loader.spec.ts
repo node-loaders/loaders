@@ -1,6 +1,5 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
-
 import { type ResolvedModule, type NextResolve } from '@node-loaders/core';
 import { buildMockUrl } from '../src/support/url-protocol.js';
 import loader from '../src/index-default.js';

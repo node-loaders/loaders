@@ -1,5 +1,4 @@
 import type MockModuleResolver from '../mock-module-resolver.js';
-
 import { type createRequireMock, type mockRequire } from '../mock-require.js';
 
 export const globalModuleResolverProperty = '@node-loaders/mock/module-resolver';

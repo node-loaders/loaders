@@ -1,7 +1,6 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-
 import {
   addMockedData,
   existsMockedData,

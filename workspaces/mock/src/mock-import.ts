@@ -87,6 +87,7 @@ export async function internalMockModule<MockedType = any>(
     mockedModule = mocked(actual);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   addMockedModuleForUrl(caller, specifier, mockedModule);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return mockedModule;

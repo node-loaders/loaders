@@ -1,6 +1,5 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 import jestMock from 'jest-mock';
-
 import LoaderBaseNode from '../src/loader-base.js';
 import { ChainLoader } from '../src/chain-loader.js';
 import { type LoaderFunction } from '../src/chain.js';

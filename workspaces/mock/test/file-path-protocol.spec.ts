@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-
 import { createMockedFilePath, parseMockedFilePath } from '../src/support/file-path-protocol.js';
 
 const idSample = randomUUID();

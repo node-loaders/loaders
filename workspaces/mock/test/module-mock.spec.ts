@@ -1,7 +1,6 @@
 import { dirname, join as pathJoin } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-
 import { mergeModule, getNamedExports } from '../src/support/module-mock.js';
 
 const __filename = fileURLToPath(import.meta.url);

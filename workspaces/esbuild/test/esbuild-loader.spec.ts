@@ -1,5 +1,4 @@
 import { jestExpect as expect } from 'mocha-expect-snapshot';
-
 import strictLoader from '../src/index-strict.js';
 import looseLoader from '../src/index-default.js';
 import { resolvePackage } from '../../test/src/index.js';

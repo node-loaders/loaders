@@ -1,7 +1,6 @@
 import { inspect } from 'node:util';
 import { isBuiltinModule, isPackageSpecifier, isCheckUrl, isNodeModulesSpecifier } from './specifier.js';
-
-import { type LoadContext, type NextLoad, type LoadedModule, type NextResolve, type ResolveContext, type ResolvedModule } from './index.js';
+import { type LoadContext, type Load, type LoadedModule, type Resolve, type ResolveContext, type ResolvedModule } from './index.js';
 
 export type LoaderBaseOptions = {
   forwardBuiltinSpecifiers?: boolean;
@@ -10,7 +9,12 @@ export type LoaderBaseOptions = {
   forwardNodeModulesParentSpecifiers?: boolean;
 };
 
-export default class LoaderBase {
+export type Loader = {
+  resolve: Resolve;
+  load: Load;
+};
+
+export default class LoaderBase implements Loader {
   readonly name: string;
   readonly forwardBuiltinSpecifiers: boolean;
   readonly forwardPackageSpecifiers: boolean;
@@ -82,7 +86,7 @@ export default class LoaderBase {
    * @param nextResolve
    * @returns
    */
-  async resolve(specifier: string, context: ResolveContext, nextResolve?: NextResolve): Promise<ResolvedModule> {
+  async resolve(specifier: string, context: ResolveContext, nextResolve?: Resolve): Promise<ResolvedModule> {
     this.log?.(`Start resolving ${specifier} with ${inspect(context)}`);
     if (isCheckUrl(specifier, this.name)) {
       this.log?.(`Fowarding node loader check ${specifier}`);
@@ -113,7 +117,7 @@ export default class LoaderBase {
    * @param nextLoad
    * @returns
    */
-  async load(url: string, context: LoadContext, nextLoad?: NextLoad): Promise<LoadedModule> {
+  async load(url: string, context: LoadContext, nextLoad?: Load): Promise<LoadedModule> {
     this.log?.(`Start loading ${url}`);
     if (isCheckUrl(url, this.name)) {
       this.log?.(`Generating ${url}`);
@@ -147,7 +151,7 @@ export default class LoaderBase {
    * @param context
    * @param nextResolve
    */
-  async _resolve(specifier: string, context: ResolveContext, nextResolve: NextResolve): Promise<ResolvedModule> {
+  async _resolve(specifier: string, context: ResolveContext, nextResolve: Resolve): Promise<ResolvedModule> {
     throw new Error('not implemented');
   }
 
@@ -157,7 +161,7 @@ export default class LoaderBase {
    * @param context
    * @param nextLoad
    */
-  async _load(url: string, context: LoadContext, nextLoad: NextLoad): Promise<LoadedModule> {
+  async _load(url: string, context: LoadContext, nextLoad: Load): Promise<LoadedModule> {
     throw new Error('not implemented');
   }
 }
