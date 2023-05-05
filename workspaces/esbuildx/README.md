@@ -10,15 +10,15 @@ Using cli:
 esbuildx file.ts
 ```
 
-Using API:
+Using API (Use cjs for executables, refer to https://github.com/nodejs/modules/issues/152):
 
-```js
-import { createRequire } from 'module';
-import esbuildx from 'esbuildx';
+```cjs
+#!/usr/bin/env node
 
-const require = createRequire(import.meta.url);
-
-esbuildx(require.resolve('./bin.js'));
+module.exports = (async () => {
+  const { default: esbuildx } = await import('./esbuildx.js');
+  await esbuildx({ executable });
+})();
 ```
 
 ## License
