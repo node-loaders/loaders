@@ -36,9 +36,12 @@ describe('esbuildx', () => {
       it(`should forward ${signal} signal to child`, async () => {
         try {
           const child = execa(binFile, [join(__dirname, 'fixtures/wait.ts')], { stdin: 'inherit' });
-          setTimeout(() => {
-            child.kill(signal);
-          }, 500);
+          setTimeout(
+            () => {
+              child.kill(signal);
+            },
+            process.platform === 'darwin' ? 1000 : 200,
+          );
           await child;
         } catch (error: unknown) {
           expect((error as ExecaError).stdout).toBe(signal);
