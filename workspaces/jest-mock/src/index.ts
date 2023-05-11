@@ -22,6 +22,8 @@ export const resetAllMocks = moduleMocker.resetAllMocks.bind(moduleMocker);
 
 export const fn = moduleMocker.fn.bind(moduleMocker);
 
+export const spyOn = moduleMocker.spyOn.bind(moduleMocker);
+
 export const restoreAllMocks = moduleMocker.restoreAllMocks.bind(moduleMocker);
 
 export const clearAllMocks = moduleMocker.clearAllMocks.bind(moduleMocker);
