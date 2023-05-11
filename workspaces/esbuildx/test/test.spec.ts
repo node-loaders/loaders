@@ -40,7 +40,7 @@ describe('esbuildx', () => {
             () => {
               child.kill(signal);
             },
-            process.platform === 'darwin' ? 1000 : 200,
+            process.platform === 'darwin' ? 1000 : 500,
           );
           await child;
         } catch (error: unknown) {
