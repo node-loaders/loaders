@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/node-loaders/loaders/compare/@node-loaders/jest-mock@0.2.3...@node-loaders/jest-mock@1.0.0) (2023-05-11)
+
+**Note:** Version bump only for package @node-loaders/jest-mock
+
+
+
+
+
 ## [0.2.3](https://github.com/node-loaders/loaders/compare/@node-loaders/jest-mock@0.2.2...@node-loaders/jest-mock@0.2.3) (2023-02-22)
 
 
