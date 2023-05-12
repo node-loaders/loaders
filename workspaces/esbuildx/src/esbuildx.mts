@@ -26,12 +26,11 @@ export default async function esbuildx(options?: string | EsbuildXOptions) {
     additionalArgv = [],
   } = options ?? {};
   const spawnArgv = executable ? [executable, ...argv, ...additionalArgv] : [...argv, ...additionalArgv];
-
-  const nodeOptions = [
-    `--loader "${loaderUrl}" --require "${require.resolve('./suppress-warnings.cjs')}"`,
-    process.env.NODE_OPTIONS,
-    nodeArgs,
-  ]
+  let suppressWarnings = require.resolve('./suppress-warnings.cjs');
+  if (process.platform === 'win32') {
+    suppressWarnings = suppressWarnings.replaceAll('\\', '\\\\');
+  }
+  const nodeOptions = [`--loader="${loaderUrl}" --require="${suppressWarnings}"`, process.env.NODE_OPTIONS, nodeArgs]
     .filter(Boolean)
     .join(' ');
 
@@ -55,6 +54,7 @@ export default async function esbuildx(options?: string | EsbuildXOptions) {
     },
     error => {
       process.exitCode = (error as ExecaError).exitCode;
+      return error;
     },
   );
 }
