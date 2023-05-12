@@ -1,4 +1,4 @@
-import BaseLoader, { Loader } from './loader-base.js';
+import BaseLoader, { type Loader } from './loader-base.js';
 import { createChainMethod } from './chain.js';
 
 export class ChainLoader extends BaseLoader {
