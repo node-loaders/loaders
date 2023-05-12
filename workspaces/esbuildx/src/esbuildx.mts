@@ -11,6 +11,7 @@ export type EsbuildXOptions = {
   loaderUrl?: string;
   argv?: string[];
   nodeArgv?: string[];
+  nodeArgs?: string;
   additionalArgv?: string[];
 };
 
@@ -21,17 +22,26 @@ export default async function esbuildx(options?: string | EsbuildXOptions) {
     loaderUrl = pathToFileURL(require.resolve('@node-loaders/esbuild')).toString(),
     argv = process.argv.slice(2),
     nodeArgv = [],
+    nodeArgs = '',
     additionalArgv = [],
   } = options ?? {};
-  const spawnArgv = executable ? [executable, ...argv, ...additionalArgv] : argv;
+  const spawnArgv = executable ? [executable, ...argv, ...additionalArgv] : [...argv, ...additionalArgv];
 
-  const child = execa(
-    process.execPath,
-    ['--loader', loaderUrl, '--require', require.resolve('./suppress-warnings.cjs'), ...nodeArgv, ...spawnArgv],
-    {
-      stdio: 'inherit',
+  const nodeOptions = [
+    `--loader "${loaderUrl}" --require "${require.resolve('./suppress-warnings.cjs')}"`,
+    process.env.NODE_OPTIONS,
+    nodeArgs,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const child = execa(process.execPath, [...nodeArgv, ...spawnArgv], {
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      NODE_OPTIONS: nodeOptions,
     },
-  );
+  });
 
   for (const eventType of [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
