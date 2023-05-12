@@ -26,7 +26,10 @@ export default async function esbuildx(options?: string | EsbuildXOptions) {
     additionalArgv = [],
   } = options ?? {};
   const spawnArgv = executable ? [executable, ...argv, ...additionalArgv] : [...argv, ...additionalArgv];
-  const suppressWarnings = require.resolve('./suppress-warnings.cjs');
+  let suppressWarnings = require.resolve('./suppress-warnings.cjs');
+  if (process.platform === 'win32') {
+    suppressWarnings = suppressWarnings.replaceAll('\\', '\\\\');
+  }
   const nodeOptions = [`--loader="${loaderUrl}" --require="${suppressWarnings}"`, process.env.NODE_OPTIONS, nodeArgs]
     .filter(Boolean)
     .join(' ');
