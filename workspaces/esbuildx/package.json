@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/esbuildx",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "keywords": [
     "esm",
     "tsnode",
@@ -43,7 +43,7 @@
     "test-coverage": "npm run test"
   },
   "dependencies": {
-    "@node-loaders/esbuild": "^1.0.1",
+    "@node-loaders/esbuild": "^1.0.2",
     "execa": "^7.0.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/mock",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "esm",
     "import",
@@ -36,7 +36,7 @@
     "test-coverage": "c8 mocha"
   },
   "dependencies": {
-    "@node-loaders/core": "^1.0.1",
+    "@node-loaders/core": "^1.0.2",
     "stack-utils": "^2.0.6"
   },
   "devDependencies": {

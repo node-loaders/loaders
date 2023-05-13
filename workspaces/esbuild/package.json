@@ -1,6 +1,6 @@
 {
   "name": "@node-loaders/esbuild",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "keywords": [
     "esm",
@@ -39,7 +39,7 @@
     "test-coverage": "c8 mocha"
   },
   "dependencies": {
-    "@node-loaders/core": "^1.0.1",
+    "@node-loaders/core": "^1.0.2",
     "@node-loaders/resolve": "^1.0.1",
     "esbuild": "^0.17.18",
     "get-tsconfig": "^4.3.0"

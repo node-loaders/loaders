@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@1.1.0...@node-loaders/esbuildx@1.2.0) (2023-05-13)
+
+
+### Features
+
+* **esbuildx:** pass node options through NODE_OPTIONS node environment variable ([6dd50a4](https://github.com/node-loaders/loaders/commit/6dd50a425e2493c18e5ae7a51cc9574b759c5c37))
+
+
+### Bug Fixes
+
+* **esbuildx:** fix windows env var  ([#5](https://github.com/node-loaders/loaders/issues/5)) ([e3fa0d4](https://github.com/node-loaders/loaders/commit/e3fa0d402eb75c255767764b04991d50a464bc60))
+
+
+
 ## [1.1.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@0.3.1...@node-loaders/esbuildx@1.1.0) (2023-05-11)
 
 
