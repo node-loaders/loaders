@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { createCheckUrl, specifierToFilePath } from '@node-loaders/core';
 import { addMockedData } from './support/module-cache.js';
@@ -91,10 +92,26 @@ export async function internalMockModule<MockedType = Record<string, any>>(
 
   let mockedModule: any = mocked;
   if (typeof mocked === 'function') {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const actual = await import(specifier);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    mockedModule = mocked(actual);
+    let specToImport: string | undefined;
+    if (import.meta.resolve) {
+      specToImport = await import.meta.resolve(specifier, caller);
+    }
+
+    let actual;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      actual = await import(specToImport ?? specifier);
+    } catch (error) {
+      const callerRequire = createRequire(caller);
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        actual = await import(callerRequire.resolve(specifier));
+      } catch {
+        throw error;
+      }
+    }
+
+    mockedModule = (mocked as (...args: any[]) => MockedType)(actual);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
