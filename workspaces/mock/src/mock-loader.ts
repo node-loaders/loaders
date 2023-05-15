@@ -166,9 +166,14 @@ export default class MockLoader extends BaseLoader {
       const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, existingMockedSpecifier);
       if (!mockedSpecifierDef.merged) {
         const { mock } = mockedSpecifierDef;
-        if (typeof mock === 'function') {
+        if (mock[emptyMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.merged = mock(importedSpecifier);
+          mockedSpecifierDef.merged = importedSpecifier;
+        } else if (mock[fullMock]) {
+          mockedSpecifierDef.merged = mock;
+        } else if (typeof mock === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          mockedSpecifierDef.merged = mock(importedSpecifier, { type: 'esm' });
         } else {
           if (mock.default === undefined && mockedSpecifierDef.esModule === undefined) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -178,15 +183,8 @@ export default class MockLoader extends BaseLoader {
           this.log?.(`Preparing mocked module`);
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const mockModule = mockedSpecifierDef.esModule ? { ...mock, default: mergeModule(importedSpecifier.default, mock) } : mock;
-          if (mock[emptyMock]) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            mockedSpecifierDef.merged = importedSpecifier;
-          } else if (mock[fullMock]) {
-            mockedSpecifierDef.merged = { ...mockModule };
-          } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            mockedSpecifierDef.merged = mergeModule(importedSpecifier, mockModule);
-          }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          mockedSpecifierDef.merged = mergeModule(importedSpecifier, mockModule);
         }
       }
 

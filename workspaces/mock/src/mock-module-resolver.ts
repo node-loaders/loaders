@@ -79,14 +79,14 @@ export default class MockModuleResolver {
       const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
       if (!mockedSpecifierDef.mergedCjs) {
         const { mock } = mockedSpecifierDef;
-        if (typeof mock === 'function') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          mockedSpecifierDef.mergedCjs = mock(require(cjsSpecifier));
-        } else if (mock[emptyMock]) {
+        if (mock[emptyMock]) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           mockedSpecifierDef.mergedCjs = require(cjsSpecifier);
         } else if (mock[fullMock]) {
-          mockedSpecifierDef.mergedCjs = { ...mock };
+          mockedSpecifierDef.mergedCjs = mock;
+        } else if (typeof mock === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          mockedSpecifierDef.mergedCjs = mock(require(cjsSpecifier), { type: 'cjs' });
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           mockedSpecifierDef.mergedCjs = mergeModule(require(cjsSpecifier), mock);
