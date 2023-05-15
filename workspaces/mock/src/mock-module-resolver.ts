@@ -106,9 +106,18 @@ export default class MockModuleResolver {
         }
       }
 
-      source = generateCjsSource(cacheId, normalizeNodeProtocol(specifier));
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      (module as any)._compile(source, filePath);
+      const source = generateCjsSource(cacheId, normalizeNodeProtocol(mockedSpecifier));
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        (module as any)._compile(source, filePath);
+      } catch (error: any) {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        error.message = `${error.message} at:
+${source}`;
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        throw error;
+      }
+
       return;
     }
 
