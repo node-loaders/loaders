@@ -1,4 +1,4 @@
-import { resolveCallerUrl, internalMockModule } from '@node-loaders/mock';
+import { resolveCallerUrl, internalMockModule, fullMock } from '@node-loaders/mock';
 import { ModuleMocker, type Mocked } from 'jest-mock';
 
 export {
@@ -36,8 +36,18 @@ export const isMockFunction = moduleMocker.isMockFunction.bind(moduleMocker);
  * @returns
  */
 export async function mock<MockedType = any>(specifier: string): Promise<Mocked<MockedType>> {
-  return internalMockModule<Mocked<MockedType>>(resolveCallerUrl(), specifier, (actual: MockedType) => {
+  let mockReturn: Mocked<MockedType> | undefined;
+  await internalMockModule<() => Mocked<MockedType>>(resolveCallerUrl(), specifier, (actual: MockedType) => {
     const metadata = moduleMocker.getMetadata<MockedType>(actual)!;
-    return moduleMocker.generateFromMetadata(metadata);
+    mockReturn = moduleMocker.generateFromMetadata(metadata);
+
+    const callback = (_actual, options: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return options?.type === 'cjs' ? (mockReturn as any).default : mockReturn!;
+    };
+
+    return callback;
   });
+
+  return mockReturn!;
 }
