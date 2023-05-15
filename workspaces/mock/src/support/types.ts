@@ -1,5 +1,7 @@
 import { type cacheId } from './symbols-internal.js';
 
+export type MockFactory<Target = any> = (...args: any[]) => Target;
+
 export type MockedModule<MockedType = any> = {
   [cacheId]: boolean;
 } & MockedType;

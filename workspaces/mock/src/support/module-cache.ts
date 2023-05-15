@@ -2,9 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { normalizeNodeProtocol } from '@node-loaders/core';
 import { type emptyMock, type fullMock, ignoreUnused, maxDepth } from '../symbols.js';
 import { getGlobalCache } from './globals.js';
+import type { MockFactory } from './types.js';
 
 export type MockedParentData = {
-  mock: ((any) => any) | (Record<string, any> & { [emptyMock]?: boolean; [fullMock]?: boolean });
+  mock: MockFactory | (Record<string, any> & { [emptyMock]?: boolean; [fullMock]?: boolean });
   counter: number;
   merged?: any;
   esModule?: boolean;

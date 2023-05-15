@@ -4,7 +4,7 @@ import { addMockedData } from './support/module-cache.js';
 import { resolveCallerUrl } from './support/caller-resolve.js';
 import { buildMockUrl } from './support/url-protocol.js';
 import { mockedModule } from './support/module-mock.js';
-import { type MockedModule } from './support/types.js';
+import type { MockFactory, MockedModule } from './support/types.js';
 import { getMockedModulesForUrl, addMockedModuleForUrl, clearMockedModulesForUrl } from './support/globals.js';
 import { addCacheId, clearMockedModulesForCaller } from './support/global-cache-id.js';
 import { clearResolvedCacheForId } from './support/global-resolved-cache.js';
@@ -70,11 +70,21 @@ export async function importMock<MockedType = any>(
  * @param mocked
  * @returns
  */
-export async function internalMockModule<MockedType = any>(
+export async function internalMockModule<MockedType = Record<string, any>>(
   caller: string,
   specifier: string,
-  mocked: ((any) => any) | Record<string, any>,
-): Promise<MockedType> {
+  mocked: MockFactory<MockedType> | MockedType,
+): Promise<MockedType>;
+export async function internalMockModule<MockedType = Record<string, any>>(
+  caller: string,
+  specifier: string,
+  mocked: <MockedType>(...args: any[]) => MockFactory<MockedType>,
+): Promise<<MockedType>(...args: any[]) => MockFactory<MockedType>>;
+export async function internalMockModule<MockedType = Record<string, any>>(
+  caller: string,
+  specifier: string,
+  mocked: MockFactory<MockedType> | (<MockedType>(...args: any[]) => MockFactory<MockedType>) | MockedType,
+): Promise<MockedType | MockFactory<MockedType>> {
   if (specifier.startsWith('.')) {
     specifier = pathToFileURL(specifierToFilePath(specifier, caller)).href;
   }
@@ -99,7 +109,10 @@ export async function internalMockModule<MockedType = any>(
  * @param mockedSpecifier
  * @returns
  */
-export async function mockModule<MockedType = any>(specifier: string, mockedSpecifier: ((any) => any) | Record<string, any>) {
+export async function mockModule<MockedType = Record<string, any>>(
+  specifier: string,
+  mockedSpecifier: MockFactory<MockedType> | MockedType,
+) {
   return internalMockModule<MockedType>(resolveCallerUrl(), specifier, mockedSpecifier);
 }
 

@@ -1,5 +1,6 @@
 import type MockModuleResolver from '../mock-module-resolver.js';
-import { type createRequireMock, type mockRequire } from '../mock-require.js';
+import type { createRequireMock, mockRequire } from '../mock-require.js';
+import type { MockFactory } from './types.js';
 
 export const globalModuleResolverProperty = '@node-loaders/mock/module-resolver';
 
@@ -91,7 +92,7 @@ export function clearMockedModulesForUrl(url: string) {
   delete mockedModules[url];
 }
 
-export function addMockedModuleForUrl(url: string, module: string, mock: ((any) => any) | Record<string, any>) {
+export function addMockedModuleForUrl(url: string, module: string, mock: MockFactory | Record<string, any>) {
   const mockedModules = getMockedModules();
   if (!mockedModules[url]) {
     mockedModules[url] = {};
