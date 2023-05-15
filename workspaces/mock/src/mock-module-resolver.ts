@@ -72,11 +72,24 @@ export default class MockModuleResolver {
   extensionHandler(module: Module, filePath: string): void {
     const parsed = parseMockedFilePath(filePath);
     const mockData = this.cache[parsed.id];
-    const { cacheId, specifier } = mockData;
+    const { cacheId, specifier, resolvedSpecifier } = mockData;
+    let mockedSpecifier: string | undefined;
     const cjsSpecifier = asCjsSpecifier(mockData.resolvedSpecifier);
-    let source: string;
+
+    // Supports relative paths and packages specifiers.
+    // Used at `await mockRequire(specifier, { './foo': any, 'path': foo })`
     if (existsMockedData(cacheId, specifier)) {
-      const mockedSpecifierDef: MockedParentData = useMockedData(cacheId, specifier);
+      mockedSpecifier = specifier;
+    }
+
+    // Supports absolute paths.
+    // Used at `await mock(specifier); const spec = await import(anotherSpecifier)`
+    if (existsMockedData(cacheId, resolvedSpecifier)) {
+      mockedSpecifier = resolvedSpecifier;
+    }
+
+    if (mockedSpecifier) {
+      const mockedSpecifierDef = useMockedData(cacheId, mockedSpecifier);
       if (!mockedSpecifierDef.mergedCjs) {
         const { mock } = mockedSpecifierDef;
         if (mock[emptyMock]) {
