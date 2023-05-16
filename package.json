@@ -30,7 +30,7 @@
     "c8": "^7.12.0",
     "conventional-changelog-conventionalcommits": "^5.0.0",
     "jest-mock": "^29.3.1",
-    "lerna": "^6.3.0",
+    "lerna": "^6.6.2",
     "mocha": "^10.2.0",
     "mocha-expect-snapshot": "^7.0.0",
     "prettier-plugin-packagejson": "^2.3.0",
