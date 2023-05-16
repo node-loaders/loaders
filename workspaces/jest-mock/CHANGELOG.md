@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/node-loaders/loaders/compare/@node-loaders/jest-mock@1.0.2...@node-loaders/jest-mock@1.1.0) (2023-05-16)
+
+
+### Features
+
+* **jest-mock:** support mixed cjs/esm mocks. ([bee78c3](https://github.com/node-loaders/loaders/commit/bee78c3754cc32060daf83f5f155e1cdd0b1c42c))
+
+
+### Bug Fixes
+
+* **jest-mock:** add files to package.json ([cf34b6a](https://github.com/node-loaders/loaders/commit/cf34b6a675c23471eeed8a7408e831c1225224dd))
+
+
+
 ## [1.0.2](https://github.com/node-loaders/loaders/compare/@node-loaders/jest-mock@1.0.1...@node-loaders/jest-mock@1.0.2) (2023-05-11)
 
 
