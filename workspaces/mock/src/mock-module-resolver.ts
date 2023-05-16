@@ -110,7 +110,9 @@ export default class MockModuleResolver {
       try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         (module as any)._compile(source, filePath);
+        /* c8 ignore next 8 */
       } catch (error: any) {
+        // Add generated cjs to the error message
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         error.message = `${error.message} at:
 ${source}`;

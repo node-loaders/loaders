@@ -93,7 +93,9 @@ export async function internalMockModule<MockedType = Record<string, any>>(
   let mockedModule: any = mocked;
   if (typeof mocked === 'function') {
     let specToImport: string | undefined;
+    /* c8 ignore next 4 */
     if (import.meta.resolve) {
+      // Import resolve is experimental, may be stable at node 20.
       specToImport = await import.meta.resolve(specifier, caller);
     }
 
@@ -101,7 +103,9 @@ export async function internalMockModule<MockedType = Record<string, any>>(
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       actual = await import(specToImport ?? specifier);
+      /* c8 ignore next 10 */
     } catch (error) {
+      // Out of @node/loaders/mock tree import. Linked install, other?.
       const callerRequire = createRequire(caller);
       try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
