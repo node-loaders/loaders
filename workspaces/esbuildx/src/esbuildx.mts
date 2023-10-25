@@ -1,9 +1,9 @@
-import { createRequire } from 'node:module';
+import Module from 'node:module';
 import { pathToFileURL } from 'node:url';
 import process from 'node:process';
 import { execa, type ExecaError } from 'execa';
 
-const require = createRequire(import.meta.url);
+const require = Module.createRequire(import.meta.url);
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export type EsbuildXOptions = {
@@ -16,16 +16,25 @@ export type EsbuildXOptions = {
 };
 
 export default async function esbuildx(options?: string | EsbuildXOptions) {
-  options = typeof options === 'string' ? { executable: options } : options;
+  const esbuildxoptions = typeof options === 'string' ? { executable: options } : options;
   const {
     executable,
     loaderUrl = pathToFileURL(require.resolve('@node-loaders/esbuild')).toString(),
-    argv = process.argv.slice(2),
+    argv,
     nodeArgv = [],
     nodeArgs = '',
     additionalArgv = [],
-  } = options ?? {};
-  const spawnArgv = executable ? [executable, ...argv, ...additionalArgv] : [...argv, ...additionalArgv];
+  } = esbuildxoptions ?? {};
+
+  // Use dynamic register if available and there is no additional parameters.
+  if ((Module as any).register && executable && !argv && nodeArgv.length === 0 && !nodeArgs && additionalArgv.length === 0) {
+    (Module as any).register(loaderUrl);
+    await import(executable);
+    return;
+  }
+
+  const argv2 = argv ?? process.argv.slice(2);
+  const spawnArgv = executable ? [executable, ...argv2, ...additionalArgv] : [...argv2, ...additionalArgv];
   let suppressWarnings = require.resolve('./suppress-warnings.cjs');
   if (process.platform === 'win32') {
     suppressWarnings = suppressWarnings.replaceAll('\\', '\\\\');
