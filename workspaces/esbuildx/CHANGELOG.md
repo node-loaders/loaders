@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@1.2.0...@node-loaders/esbuildx@1.3.0) (2023-10-25)
+
+
+### Features
+
+* **esbuildx:** add support to dynamic register esbuild loader ([53b4f45](https://github.com/node-loaders/loaders/commit/53b4f454d4a09bfd3aa85ac01a9605011f015626))
+
+
+
 ## [1.2.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@1.1.0...@node-loaders/esbuildx@1.2.0) (2023-05-13)
 
 
