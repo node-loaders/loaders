@@ -8,8 +8,4 @@ export default loader;
 export const resolve = loader.exportResolve();
 export const load = loader.exportLoad();
 
-export const globalPreload = () => {
-  new EsbuildModuleResolver().register();
-};
-
 export { default as EsbuildLoader } from './esbuild-loader.js';

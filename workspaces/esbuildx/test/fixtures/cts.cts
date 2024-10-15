@@ -1,2 +1,2 @@
-const message: string = 'cts file';
+const message = 'cts file' as string;
 console.log(message);
