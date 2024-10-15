@@ -1,7 +1,8 @@
 name: Package lock maintenance
 on:
   workflow_dispatch:
-
+permissions:
+  pull-requests: write
 jobs:
   build:
     name: Bump transitional dependencies
