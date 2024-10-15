@@ -1,6 +1,5 @@
 {
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
-  "useWorkspaces": true,
   "command": {
     "version": {
       "conventionalCommits": true,
@@ -8,6 +7,6 @@
       "changelogPreset": "conventionalcommits"
     }
   },
-  "ignoreChanges": ["**/*.spec.ts", "**/test/fixtures/**"],
+  "ignoreChanges": ["**/*.spec.ts", "**/test/fixtures/**", "**/README.md"],
   "version": "independent"
 }
