@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@1.4.0...@node-loaders/esbuildx@2.0.0) (2024-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **esbuild:** add register export for dynamic node 20 load (#9)
+
+### Features
+
+* **esbuild:** add register export for dynamic node 20 load ([#9](https://github.com/node-loaders/loaders/issues/9)) ([c761137](https://github.com/node-loaders/loaders/commit/c7611370c1d5b00023ce885904116f4fc451e772))
+
+
+
 ## [1.4.0](https://github.com/node-loaders/loaders/compare/@node-loaders/esbuildx@1.3.0...@node-loaders/esbuildx@1.4.0) (2023-10-25)
 
 **Note:** Version bump only for package @node-loaders/esbuildx
