@@ -20,9 +20,9 @@ export default async function esbuildx(options?: string | EsbuildXOptions) {
   const { executable, loaderUrl, argv, nodeArgv = [], nodeArgs = '', additionalArgv = [] } = esbuildxoptions ?? {};
 
   // Use dynamic register if available and there is no additional parameters.
-  if ((Module as any).register && executable && !argv && nodeArgv.length === 0 && !nodeArgs && additionalArgv.length === 0) {
+  if (executable && !argv && nodeArgv.length === 0 && !nodeArgs && additionalArgv.length === 0) {
     if (loaderUrl) {
-      (Module as any).register(loaderUrl);
+      Module.register(loaderUrl);
     } else {
       await import('@node-loaders/esbuild/register');
     }
@@ -31,16 +31,8 @@ export default async function esbuildx(options?: string | EsbuildXOptions) {
   }
 
   const argv2 = argv ?? process.argv.slice(2);
-  const spawnArgv = executable ? [executable, ...argv2, ...additionalArgv] : [...argv2, ...additionalArgv];
-  let suppressWarnings = require.resolve('./suppress-warnings.cjs');
-  if (process.platform === 'win32') {
-    suppressWarnings = suppressWarnings.replaceAll('\\', '\\\\');
-  }
-  const nodeOptions = [
-    `--loader="${loaderUrl ?? pathToFileURL(require.resolve('@node-loaders/esbuild')).toString()}" --require="${suppressWarnings}"`,
-    process.env.NODE_OPTIONS,
-    nodeArgs,
-  ]
+  const spawnArgv: string[] = executable ? [executable, ...argv2, ...additionalArgv] : [...argv2, ...additionalArgv];
+  const nodeOptions = [`--loader="${loaderUrl ?? import.meta.resolve('@node-loaders/esbuild')}"`, process.env.NODE_OPTIONS, nodeArgs]
     .filter(Boolean)
     .join(' ');
 
