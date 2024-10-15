@@ -2,7 +2,7 @@ import { stat as fsStat } from 'node:fs/promises';
 import { statSync } from 'node:fs';
 import { dirname, extname, join } from 'node:path';
 import { locatePath, locatePathSync } from 'locate-path';
-import { readPackageUp, readPackageUpSync } from 'read-pkg-up';
+import { readPackageUp, readPackageUpSync } from 'read-package-up';
 
 /**
  * Look for nearest package.json type field

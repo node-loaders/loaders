@@ -54,8 +54,8 @@ export default class EsbuildModuleResolver {
   }
 
   register() {
-    for (const ext of this.extensions) {
-      (Module as any)._extensions[ext] = this.extensionHandler;
+    for (const extension of this.extensions) {
+      (Module as any)._extensions[extension] = this.extensionHandler;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

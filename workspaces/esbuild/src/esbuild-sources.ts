@@ -143,10 +143,10 @@ export class EsbuildSources {
 
       this.tsconfigCache[sourceDirname] = cache;
       if (/^[./\\]*$/.test(relative(sourceDirname, tsconfigDirname))) {
-        let subDir = sourceDirname;
-        while (subDir.length > 5 && subDir !== tsconfigDirname) {
-          subDir = join(subDir, '..');
-          this.tsconfigCache[subDir] = cache;
+        let subDirectory = sourceDirname;
+        while (subDirectory.length > 5 && subDirectory !== tsconfigDirname) {
+          subDirectory = join(subDirectory, '..');
+          this.tsconfigCache[subDirectory] = cache;
         }
       }
     }
