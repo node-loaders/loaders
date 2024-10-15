@@ -1,4 +1,4 @@
 module.exports = {
   extension: ['spec.ts'],
-  loader: ['./dist/index-strict.js'],
+  require: ['@node-loaders/esbuild/register'],
 };

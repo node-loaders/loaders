@@ -17,18 +17,15 @@ export type EsbuildXOptions = {
 
 export default async function esbuildx(options?: string | EsbuildXOptions) {
   const esbuildxoptions = typeof options === 'string' ? { executable: options } : options;
-  const {
-    executable,
-    loaderUrl = pathToFileURL(require.resolve('@node-loaders/esbuild')).toString(),
-    argv,
-    nodeArgv = [],
-    nodeArgs = '',
-    additionalArgv = [],
-  } = esbuildxoptions ?? {};
+  const { executable, loaderUrl, argv, nodeArgv = [], nodeArgs = '', additionalArgv = [] } = esbuildxoptions ?? {};
 
   // Use dynamic register if available and there is no additional parameters.
   if ((Module as any).register && executable && !argv && nodeArgv.length === 0 && !nodeArgs && additionalArgv.length === 0) {
-    (Module as any).register(loaderUrl);
+    if (loaderUrl) {
+      (Module as any).register(loaderUrl);
+    } else {
+      await import('@node-loaders/esbuild/register');
+    }
     await import(executable);
     return;
   }
@@ -39,7 +36,11 @@ export default async function esbuildx(options?: string | EsbuildXOptions) {
   if (process.platform === 'win32') {
     suppressWarnings = suppressWarnings.replaceAll('\\', '\\\\');
   }
-  const nodeOptions = [`--loader="${loaderUrl}" --require="${suppressWarnings}"`, process.env.NODE_OPTIONS, nodeArgs]
+  const nodeOptions = [
+    `--loader="${loaderUrl ?? pathToFileURL(require.resolve('@node-loaders/esbuild')).toString()}" --require="${suppressWarnings}"`,
+    process.env.NODE_OPTIONS,
+    nodeArgs,
+  ]
     .filter(Boolean)
     .join(' ');
 

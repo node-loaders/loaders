@@ -1,4 +1,4 @@
 module.exports = {
   extension: ['spec.ts'],
-  loader: ['@node-loaders/esbuild'],
+  require: ['@node-loaders/esbuild/register'],
 };
