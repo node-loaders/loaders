@@ -7,6 +7,7 @@
       "changelogPreset": "conventionalcommits"
     }
   },
+  "useWorkspaces": true,
   "ignoreChanges": ["**/*.spec.ts", "**/test/fixtures/**", "**/README.md"],
   "version": "independent"
 }
