@@ -34,12 +34,12 @@
     "test-coverage": "c8 mocha"
   },
   "dependencies": {
-    "find-up": "^6.3.0",
+    "find-up": "^7.0.0",
     "locate-path": "^7.1.1",
-    "read-pkg-up": "^9.1.0"
+    "read-package-up": "^11.0.0"
   },
   "engines": {
-    "node": "^16.13.0 || >=18.12.0"
+    "node": "^18.19.0 || >=20.6.0"
   },
   "publishConfig": {
     "access": "public"
